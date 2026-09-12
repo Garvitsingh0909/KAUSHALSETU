@@ -1,0 +1,6 @@
+{
+  "name": "Kaushal Setu",
+  "description": "A student-focused digital platform mapping skills to opportunities. Powered by G-ONE.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
