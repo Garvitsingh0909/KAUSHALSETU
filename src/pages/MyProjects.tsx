@@ -173,7 +173,7 @@ export const MyProjects: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-              Phase 4 • Practical Evidence & Portfolio
+              Practical Evidence & Portfolio
             </span>
             <span className="text-xs text-slate-500 font-medium">CBSE Skill Expo</span>
           </div>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { SKILLS_DB, Proficiency, SkillCategory, Skill } from '../data/skills';
-import { Plus, X, Search, CheckCircle2, Sparkles, Loader2, AlertCircle } from 'lucide-react';
+import { Plus, X, Search, CheckCircle2, Sparkles, Loader2, AlertCircle, ShieldCheck, Award, ArrowRight, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const PROFICIENCY_LEVELS: Proficiency[] = ['Beginner', 'Developing', 'Intermediate', 'Strong', 'Advanced'];
@@ -101,36 +102,81 @@ export default function Skills() {
               const skill = getSkillDetails(us.skillId);
               if (!skill) return null;
               return (
-                <div key={us.skillId} className="border border-slate-200 rounded-xl p-5 hover:border-blue-300 transition-colors">
-                  <div className="flex justify-between items-start mb-2">
+                <div key={us.skillId} className="border border-slate-200 rounded-2xl p-5 hover:border-blue-300 transition-all bg-white space-y-4">
+                  <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-semibold text-slate-900">{skill.name}</h3>
-                      <span className="text-xs font-medium text-slate-500 px-2 py-0.5 bg-slate-100 rounded-full inline-block mt-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-slate-900 text-base">{skill.name}</h3>
+                        {us.indicativeProficiency && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3 text-emerald-600" /> Assessed
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs font-semibold text-slate-500 px-2 py-0.5 bg-slate-100 rounded-full inline-block mt-1">
                         {skill.category}
                       </span>
                     </div>
                     <button 
                       onClick={() => removeSkill(skill.id)}
                       className="text-slate-400 hover:text-red-500 p-1"
+                      title="Remove skill"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                  
-                  <div className="mt-4">
-                    <div className="flex justify-between items-end mb-1">
-                      <span className="text-xs font-medium text-slate-600">Proficiency</span>
+
+                  {/* Dual Proficiency: Self-Reported vs Assessment-Supported */}
+                  <div className="space-y-3 pt-2 border-t border-slate-100">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-medium text-slate-600">Self-Reported Level:</span>
                       <select 
                         value={us.proficiency}
                         onChange={(e) => updateProficiency(skill.id, e.target.value as Proficiency)}
-                        className="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                        className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                       >
                         {PROFICIENCY_LEVELS.map(level => (
                           <option key={level} value={level}>{level}</option>
                         ))}
                       </select>
                     </div>
+
                     {renderProficiencyBar(us.proficiency)}
+
+                    {/* Assessed Indicative Level (Evidence-Based) */}
+                    {us.indicativeProficiency ? (
+                      <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200 flex items-center justify-between text-xs">
+                        <div className="space-y-0.5">
+                          <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wider block">
+                            Indicative Level (Assessed):
+                          </span>
+                          <span className="font-extrabold text-blue-950 text-xs md:text-sm">
+                            {us.indicativeProficiency}
+                          </span>
+                          <span className="text-[10px] text-slate-500 block">
+                            {us.evidenceLevel || 'Evidence Supported'}
+                          </span>
+                        </div>
+                        <Link
+                          to={`/assessment/${skill.id}`}
+                          className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] flex items-center gap-1 shadow-xs transition-colors"
+                        >
+                          <Zap className="w-3 h-3" />
+                          Retake
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="pt-2 flex items-center justify-between">
+                        <span className="text-[11px] text-slate-400">No assessment taken yet</span>
+                        <Link
+                          to={`/assessment/${skill.id}`}
+                          className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] flex items-center gap-1 transition-colors shadow-xs"
+                        >
+                          <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                          Take Assessment
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
               );

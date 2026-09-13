@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { Proficiency, Skill, SKILLS_DB } from '../data/skills';
 import { Opportunity } from '../data/opportunities';
+import { IndicativeProficiency, EvidenceLevel } from '../data/assessmentTypes';
 
 export interface UserProfile {
   name: string;
@@ -11,7 +12,13 @@ export interface UserProfile {
 
 export interface UserSkill {
   skillId: string;
-  proficiency: Proficiency;
+  proficiency: Proficiency; // Self-reported
+  indicativeProficiency?: IndicativeProficiency; // Assessment-supported
+  evidenceLevel?: EvidenceLevel;
+  lastAssessedDate?: string;
+  attemptsCount?: number;
+  latestScorePercentage?: number;
+  latestRubricScore?: number;
 }
 
 interface ProfileContextType {
@@ -26,6 +33,13 @@ interface ProfileContextType {
   addCustomOpportunity: (opp: Opportunity) => void;
   removeSkill: (skillId: string) => void;
   updateProficiency: (skillId: string, proficiency: Proficiency) => void;
+  updateAssessedProficiency: (
+    skillId: string, 
+    indicative: IndicativeProficiency, 
+    evidence: EvidenceLevel, 
+    scorePercentage: number, 
+    rubricScore: number
+  ) => void;
   getSkillDetails: (skillId: string) => Skill | undefined;
   isProfileComplete: boolean;
   clearData: () => void;
@@ -161,6 +175,50 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       s && s.skillId === skillId ? { ...s, proficiency } : s
     ));
   }, []);
+
+  const updateAssessedProficiency = useCallback((
+    skillId: string, 
+    indicative: IndicativeProficiency, 
+    evidence: EvidenceLevel, 
+    scorePercentage: number, 
+    rubricScore: number
+  ) => {
+    setUserSkills(prev => {
+      const exists = prev.some(s => s && s.skillId === skillId);
+      const today = new Date().toISOString().split('T')[0];
+      if (exists) {
+        return prev.map(s => {
+          if (s && s.skillId === skillId) {
+            return {
+              ...s,
+              indicativeProficiency: indicative,
+              evidenceLevel: evidence,
+              lastAssessedDate: today,
+              attemptsCount: (s.attemptsCount || 0) + 1,
+              latestScorePercentage: scorePercentage,
+              latestRubricScore: rubricScore
+            };
+          }
+          return s;
+        });
+      } else {
+        // Automatically add skill to user profile if not previously added
+        return [
+          ...prev,
+          {
+            skillId,
+            proficiency: 'Developing',
+            indicativeProficiency: indicative,
+            evidenceLevel: evidence,
+            lastAssessedDate: today,
+            attemptsCount: 1,
+            latestScorePercentage: scorePercentage,
+            latestRubricScore: rubricScore
+          }
+        ];
+      }
+    });
+  }, []);
   
   const getSkillDetails = useCallback((skillId: string): Skill | undefined => {
     if (!skillId) return undefined;
@@ -181,10 +239,46 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const triggerDemoMode = useCallback(() => {
     setProfile({ name: 'Aarav Sharma', role: 'Student', schoolOrOrg: 'Delhi Public School (CBSE)', interests: 'Design, Micro-Enterprise & Technology' });
     setUserSkills([
-      { skillId: 'design', proficiency: 'Strong' },
-      { skillId: 'communication', proficiency: 'Advanced' },
-      { skillId: 'marketing', proficiency: 'Developing' },
-      { skillId: 'photography', proficiency: 'Intermediate' }
+      { 
+        skillId: 'design', 
+        proficiency: 'Strong',
+        indicativeProficiency: 'Strong',
+        evidenceLevel: 'High evidence',
+        lastAssessedDate: '2026-03-01',
+        attemptsCount: 2,
+        latestScorePercentage: 88,
+        latestRubricScore: 18
+      },
+      { 
+        skillId: 'communication', 
+        proficiency: 'Advanced',
+        indicativeProficiency: 'Strong',
+        evidenceLevel: 'Moderate evidence',
+        lastAssessedDate: '2026-02-28',
+        attemptsCount: 1,
+        latestScorePercentage: 82,
+        latestRubricScore: 17
+      },
+      { 
+        skillId: 'marketing', 
+        proficiency: 'Developing',
+        indicativeProficiency: 'Developing',
+        evidenceLevel: 'Moderate evidence',
+        lastAssessedDate: '2026-02-20',
+        attemptsCount: 1,
+        latestScorePercentage: 55,
+        latestRubricScore: 12
+      },
+      { 
+        skillId: 'photography', 
+        proficiency: 'Intermediate',
+        indicativeProficiency: 'Strong',
+        evidenceLevel: 'High evidence',
+        lastAssessedDate: '2026-03-02',
+        attemptsCount: 2,
+        latestScorePercentage: 90,
+        latestRubricScore: 19
+      }
     ]);
   }, []);
 
@@ -209,6 +303,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       addCustomOpportunity,
       removeSkill,
       updateProficiency,
+      updateAssessedProficiency,
       getSkillDetails,
       isProfileComplete,
       clearData,

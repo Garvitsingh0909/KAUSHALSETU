@@ -26,7 +26,7 @@ import {
 import { useBusiness } from '../context/BusinessContext';
 import { useProfile } from '../context/ProfileContext';
 import { OPPORTUNITIES } from '../data/opportunities';
-import { CostItem, calculateFinancials, BusinessScenario, CBSE_DEMO_SCENARIO } from '../data/business';
+import { CostItem, calculateFinancials, BusinessScenario, CBSE_DEMO_SCENARIO, CBSE_PRESET_SCENARIOS } from '../data/business';
 
 export const BusinessBuilder: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -201,7 +201,7 @@ export const BusinessBuilder: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-3">
               <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                Phase 3: Entrepreneurship & Financial Simulator
+                Entrepreneurship & Financial Simulator
               </span>
               <span className="text-xs text-slate-400">CBSE Skill Expo 2026</span>
             </div>
@@ -235,27 +235,56 @@ export const BusinessBuilder: React.FC = () => {
             Build My Business Model
           </h1>
           <p className="text-slate-400 text-sm max-w-3xl leading-relaxed">
-            Translate your skill-based opportunity from Phase 2 into a concrete, sustainable economic activity. 
+            Translate your skill-based opportunities into concrete, sustainable economic activities. 
             Experiment with pricing, customer volumes, and real cost structures to discover your break-even point.
           </p>
 
-          {/* Connected Continuum Path */}
-          <div className="mt-6 pt-5 border-t border-slate-800/80">
-            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2.5">
-              Integrated Kaushal Setu Continuum
+          {/* Connected Continuum Path & Quick Scenario Presets */}
+          <div className="mt-6 pt-5 border-t border-slate-800/80 space-y-4">
+            <div>
+              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span>Preloaded Vocational Domain Models (1-Click Switch)</span>
+                <span className="text-[10px] text-emerald-400 font-normal">Real Unit Economics & Overheads</span>
+              </div>
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                {CBSE_PRESET_SCENARIOS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    onClick={() => {
+                      loadScenarioIntoState(preset);
+                      setActiveScenario(preset);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 border ${
+                      activeScenario?.id === preset.id || scenarioName === preset.scenarioName
+                        ? 'bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-900/30 font-semibold'
+                        : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700/60'
+                    }`}
+                  >
+                    <span>{preset.skillName}:</span>
+                    <span className="text-slate-200">{preset.scenarioName}</span>
+                    <span className="text-[10px] opacity-75 font-mono">(₹{preset.pricePerUnit}/unit)</span>
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-300 overflow-x-auto pb-2 scrollbar-none">
-              <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-blue-400 font-medium whitespace-nowrap">1. My Skills</span>
-              <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
-              <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-indigo-400 font-medium whitespace-nowrap">2. Opportunity</span>
-              <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
-              <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-amber-400 font-medium whitespace-nowrap">3. Problem & Customer</span>
-              <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
-              <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-purple-400 font-medium whitespace-nowrap">4. Solution</span>
-              <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
-              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 whitespace-nowrap">
-                5. Financial Model & Break-Even
-              </span>
+
+            <div>
+              <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2.5">
+                Integrated Kaushal Setu Continuum
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-slate-300 overflow-x-auto pb-2 scrollbar-none">
+                <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-blue-400 font-medium whitespace-nowrap">1. My Skills</span>
+                <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
+                <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-indigo-400 font-medium whitespace-nowrap">2. Opportunity</span>
+                <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
+                <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-amber-400 font-medium whitespace-nowrap">3. Problem & Customer</span>
+                <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
+                <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-purple-400 font-medium whitespace-nowrap">4. Solution</span>
+                <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
+                <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 whitespace-nowrap">
+                  5. Financial Model & Break-Even
+                </span>
+              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { BusinessScenario, CostItem, calculateFinancials, CBSE_DEMO_SCENARIO } from '../data/business';
+import { BusinessScenario, CostItem, calculateFinancials, CBSE_DEMO_SCENARIO, CBSE_PRESET_SCENARIOS } from '../data/business';
 import { Opportunity } from '../data/opportunities';
 
 interface BusinessContextType {
@@ -46,16 +46,16 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch (e) {
       console.warn('Failed to parse stored business scenarios', e);
     }
-    // Default with CBSE Demo scenario
-    return [CBSE_DEMO_SCENARIO];
+    // Default with CBSE Preset scenarios
+    return CBSE_PRESET_SCENARIOS;
   });
 
   const [activeScenario, setActiveScenario] = useState<BusinessScenario | null>(() => {
-    return scenarios[0] || CBSE_DEMO_SCENARIO;
+    return scenarios[0] || CBSE_PRESET_SCENARIOS[0];
   });
 
   const [comparisonScenarioIds, setComparisonScenarioIds] = useState<string[]>(() => {
-    return scenarios.slice(0, 3).map(s => s.id);
+    return (scenarios.length >= 3 ? scenarios : CBSE_PRESET_SCENARIOS).slice(0, 3).map(s => s.id);
   });
 
   useEffect(() => {

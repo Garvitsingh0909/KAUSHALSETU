@@ -3,20 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { useBusiness } from '../context/BusinessContext';
 import { useRoadmap } from '../context/RoadmapContext';
+import { useViewMode } from '../context/ViewModeContext';
 import { SKILLS_DB, Skill } from '../data/skills';
 import { OPPORTUNITIES_DB, calculateMatch } from '../data/opportunities';
 import { 
   Brain, Cpu, Target, ArrowRight, Zap, Combine, Blocks, 
-  CheckCircle2, Circle, Sparkles, UserCheck, Award, Compass, 
-  ChevronRight, ArrowUpRight, Briefcase, TrendingUp, Calculator, DollarSign,
-  FolderKanban, MapPin
+  CheckCircle2, Circle, Sparkles, UserCheck, Compass, 
+  ChevronRight, ArrowUpRight, Briefcase, Calculator, DollarSign,
+  FolderKanban, Minimize2, Layers
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export default function Dashboard() {
-  const { profile, userSkills, customSkills, customOpportunities, getSkillDetails, isProfileComplete } = useProfile();
+  const { profile, userSkills, customSkills, customOpportunities, getSkillDetails } = useProfile();
   const { scenarios, activeScenario } = useBusiness();
   const { progressMetrics, targetOpportunity, projects } = useRoadmap();
+  const { isMinimal } = useViewMode();
   const navigate = useNavigate();
 
   const allSkills = useMemo(() => [...SKILLS_DB, ...customSkills], [customSkills]);
@@ -27,18 +29,17 @@ export default function Dashboard() {
       const weight = { Advanced: 5, Strong: 4, Intermediate: 3, Developing: 2, Beginner: 1 };
       return weight[b.proficiency] - weight[a.proficiency];
     })
-    .slice(0, 3)
+    .slice(0, 4)
     .map(us => getSkillDetails(us.skillId))
     .filter(Boolean) as Skill[];
 
-  // Comprehensive Getting Started Tracker Steps
   const isProfileSetup = Boolean(profile?.name && profile.name.trim() !== '' && profile?.role);
 
   const gettingStartedSteps = [
     {
       id: 'profile',
       title: 'Setup Profile & Role',
-      description: 'Define your identity as a Student, Parent, or Educator/Judge.',
+      description: 'Define your identity as a Student, Parent, or Educator.',
       completed: isProfileSetup,
       actionLabel: isProfileSetup ? 'Edit Profile' : 'Setup Profile',
       path: '/profile'
@@ -46,7 +47,7 @@ export default function Dashboard() {
     {
       id: 'skills',
       title: 'Add Your Core Skills',
-      description: 'Add at least 3 skills from the curriculum or use G-ONE AI search.',
+      description: 'Add at least 3 skills from the curriculum or search.',
       completed: userSkills.length >= 3,
       badge: `${userSkills.length}/3 Skills`,
       actionLabel: userSkills.length >= 3 ? 'Manage Skills' : 'Add Skills',
@@ -72,7 +73,7 @@ export default function Dashboard() {
       id: 'builder',
       title: 'Build With Your Skills',
       description: 'Follow the chain: Skill → Application → Problem → Solution.',
-      completed: false, // interactive action
+      completed: false,
       actionLabel: 'Launch Builder',
       path: '/build'
     }
@@ -81,13 +82,11 @@ export default function Dashboard() {
   const completedCount = gettingStartedSteps.filter(s => s.completed).length;
   const progressPercent = Math.round((completedCount / (gettingStartedSteps.length - 1)) * 100);
 
-  // Calculate top opportunities
   const topOpportunities = useMemo(() => {
     if (userSkills.length === 0) {
-      // If user hasn't added skills, showcase 3 prominent curated starter opportunities
       return allOpps.slice(0, 3).map(opp => ({
         ...opp,
-        match: { score: 75, label: 'Curated Starter', matchedRequired: [], matchedPreferred: [], missingRequired: opp.requiredSkills, explanation: 'Explore this high-demand CBSE Expo pathway.' }
+        match: { score: 75, label: 'Curated Starter', matchedRequired: [], matchedPreferred: [], missingRequired: opp.requiredSkills, explanation: 'Explore this high-demand CBSE pathway.' }
       }));
     }
     return allOpps.map(opp => {
@@ -97,6 +96,217 @@ export default function Dashboard() {
     .slice(0, 3);
   }, [allOpps, userSkills, allSkills]);
 
+  const topMatchOpp = topOpportunities[0] || allOpps[0];
+
+  // ----------------------------------------------------------------------
+  // MINIMAL MODE VIEW (Streamlined Student Flow)
+  // ----------------------------------------------------------------------
+  if (isMinimal) {
+    return (
+      <div className="space-y-6 max-w-5xl mx-auto pb-16 animate-in fade-in duration-300">
+        
+        {/* Minimal Clean Header */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              <Minimize2 className="w-3 h-3" /> Minimal View Mode
+            </span>
+            <span className="text-xs text-slate-400 font-medium">Focused Learning Journey</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            {profile?.name ? `Hello, ${profile.name}` : 'Welcome, Learner'}
+          </h1>
+          <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
+            Focus on your essential progression: discover skills, build solutions, and map your direct income potential.
+          </p>
+        </div>
+
+        {/* 3-Step Chronological Action Bridge */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          
+          {/* Step 1: My Skills Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between hover:border-blue-300 transition-all shadow-xs">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                  <Target className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                  Step 01
+                </span>
+              </div>
+
+              <h2 className="text-lg font-bold text-slate-900 mb-1">My Skills</h2>
+              <p className="text-xs text-slate-500 mb-4">
+                {userSkills.length > 0 
+                  ? `${userSkills.length} active skills recorded in your profile.` 
+                  : 'Add your skills to identify viable project matches.'}
+              </p>
+
+              <div className="space-y-1.5 mb-4">
+                {userSkills.length > 0 ? (
+                  topSkills.map((sk) => (
+                    <div key={sk.id} className="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="font-semibold text-slate-800">{sk.name}</span>
+                      <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                        {userSkills.find(us => us.skillId === sk.id)?.proficiency || 'Active'}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-xs text-slate-400 italic p-3 bg-slate-50 rounded-lg text-center">
+                    No skills added yet.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={() => navigate('/skills')}
+              className="w-full py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5"
+            >
+              <span>{userSkills.length > 0 ? 'Manage Skills' : '+ Add Core Skills'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Step 2: What Can I Build Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between hover:border-indigo-300 transition-all shadow-xs">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                  <Blocks className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">
+                  Step 02
+                </span>
+              </div>
+
+              <h2 className="text-lg font-bold text-slate-900 mb-1">What Can I Build?</h2>
+              <p className="text-xs text-slate-500 mb-3">
+                Top matched real-world solution for your skills.
+              </p>
+
+              {topMatchOpp && (
+                <div className="p-3 bg-indigo-50/40 border border-indigo-100 rounded-xl mb-4 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase text-indigo-800 tracking-wider">
+                      {topMatchOpp.category}
+                    </span>
+                    <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                      {topMatchOpp.match?.score || 85}% Match
+                    </span>
+                  </div>
+                  <h3 className="text-xs font-bold text-slate-900 line-clamp-1">{topMatchOpp.title}</h3>
+                  <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                    {topMatchOpp.solution}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => navigate('/build')}
+              className="w-full py-2.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+            >
+              <span>Launch Solution Builder</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Step 3: Skill-to-Income Map Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between hover:border-emerald-300 transition-all shadow-xs">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                  <DollarSign className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  Step 03
+                </span>
+              </div>
+
+              <h2 className="text-lg font-bold text-slate-900 mb-1">Skill-to-Income Map</h2>
+              <p className="text-xs text-slate-500 mb-3">
+                Compound earning potential from your skill combinations.
+              </p>
+
+              <div className="p-3 bg-emerald-50/50 border border-emerald-100 rounded-xl mb-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-600 font-medium">Estimated Monthly Revenue</span>
+                  <span className="text-sm font-black text-emerald-700 font-mono">
+                    ₹{(activeScenario?.revenue || 4000).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs pt-1.5 border-t border-emerald-100">
+                  <span className="text-slate-500">Break-even target:</span>
+                  <span className="font-bold text-slate-800">
+                    {activeScenario?.breakEvenCustomers || 3} customers
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => navigate('/skill-to-income')}
+              className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+            >
+              <span>View Skill-to-Income Map</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+        </div>
+
+        {/* Minimal Quick Actions Bar */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Quick Actions</h3>
+            <span className="text-[11px] text-slate-400">1-click navigation</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <button
+              onClick={() => navigate('/skills')}
+              className="p-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 text-left transition-all group"
+            >
+              <Target className="w-4 h-4 text-blue-600 mb-1.5 group-hover:scale-110 transition-transform" />
+              <div className="text-xs font-bold text-slate-800">Manage Skills</div>
+              <div className="text-[10px] text-slate-500">{userSkills.length} selected</div>
+            </button>
+            <button
+              onClick={() => navigate('/opportunities')}
+              className="p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 text-left transition-all group"
+            >
+              <Combine className="w-4 h-4 text-indigo-600 mb-1.5 group-hover:scale-110 transition-transform" />
+              <div className="text-xs font-bold text-slate-800">Explore Pathways</div>
+              <div className="text-[10px] text-slate-500">{allOpps.length} opportunities</div>
+            </button>
+            <button
+              onClick={() => navigate('/business-builder')}
+              className="p-3 rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/50 text-left transition-all group"
+            >
+              <Calculator className="w-4 h-4 text-emerald-600 mb-1.5 group-hover:scale-110 transition-transform" />
+              <div className="text-xs font-bold text-slate-800">Business Lab</div>
+              <div className="text-[10px] text-slate-500">Unit economics</div>
+            </button>
+            <button
+              onClick={() => navigate('/roadmap')}
+              className="p-3 rounded-xl border border-slate-200 hover:border-purple-300 hover:bg-purple-50/50 text-left transition-all group"
+            >
+              <Compass className="w-4 h-4 text-purple-600 mb-1.5 group-hover:scale-110 transition-transform" />
+              <div className="text-xs font-bold text-slate-800">Action Roadmap</div>
+              <div className="text-[10px] text-slate-500">{progressMetrics.percentComplete}% progress</div>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    );
+  }
+
+  // ----------------------------------------------------------------------
+  // DEFAULT MODE VIEW (Chronological & Logical Student Progression)
+  // ----------------------------------------------------------------------
   return (
     <div className="space-y-10 animate-in fade-in duration-500 pb-16 max-w-7xl mx-auto">
       
@@ -122,8 +332,8 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* PROMINENT GETTING STARTED PROGRESS TRACKER */}
-      <section className="bg-white rounded-3xl border border-slate-200 shadow-md overflow-hidden">
+      {/* 1. GETTING STARTED PROGRESS TRACKER */}
+      <section className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 p-6 md:p-8 text-white relative overflow-hidden">
           <div className="absolute -right-12 -top-12 opacity-10 pointer-events-none">
             <Compass className="w-72 h-72 text-white" />
@@ -201,7 +411,7 @@ export default function Dashboard() {
                     "w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors mt-auto",
                     step.completed
                       ? "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
-                      : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                      : "bg-blue-600 text-white hover:bg-blue-700 shadow-xs"
                   )}
                 >
                   <span>{step.actionLabel}</span>
@@ -211,12 +421,12 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Secondary Action Steps Banner */}
+          {/* Secondary Action Steps */}
           <div className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             {gettingStartedSteps.slice(3).map((step, idx) => (
               <div 
-                key={step.id}
-                className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center justify-between gap-4 hover:shadow-sm transition-shadow"
+                key={step.id} 
+                className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center justify-between gap-4 hover:shadow-xs transition-shadow"
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 font-bold text-sm">
@@ -241,7 +451,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* G-ONE Intelligence & Explorer Highlight Banner */}
+      {/* 2. G-ONE EXPLORER & BUILD HIGHLIGHT BANNER */}
       <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 md:p-10 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 border border-slate-800 relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <Cpu className="w-64 h-64" />
@@ -278,7 +488,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Top Opportunity Matches Section */}
+      {/* 3. TOP OPPORTUNITY MATCHES SECTION */}
       <div>
         <div className="flex justify-between items-end mb-6">
           <div>
@@ -349,14 +559,14 @@ export default function Dashboard() {
                 onClick={() => navigate(`/opportunities/${opp.id}`)}
                 className="w-full bg-slate-50 p-4 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 border-t border-slate-100"
               >
-                View Full Profile Pathway <ArrowUpRight className="w-4 h-4" />
+                View Full Pathway <ArrowUpRight className="w-4 h-4" />
               </button>
             </div>
           ))}
         </div>
       </div>
 
-      {/* PHASE 3: MY ENTREPRENEURIAL EXPLORATION */}
+      {/* 4. FINANCIAL SIMULATION & BUSINESS BUILDER */}
       <section className="bg-slate-900 text-white rounded-3xl border border-slate-800 p-8 shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-emerald-500/10 via-blue-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
@@ -364,7 +574,7 @@ export default function Dashboard() {
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-5">
             <div>
               <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">
-                <Briefcase className="w-4 h-4" /> Phase 3 • Financial Simulation Engine
+                <Briefcase className="w-4 h-4" /> Financial Simulation Engine
               </div>
               <h2 className="text-2xl font-bold tracking-tight text-white">
                 My Entrepreneurial Exploration
@@ -470,12 +680,12 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* PHASE 4: PERSONALIZED ACTION ROADMAP & PORTFOLIO */}
+      {/* 5. PERSONALIZED ACTION ROADMAP & PORTFOLIO */}
       <section className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
           <div>
             <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">
-              <Compass className="w-4 h-4" /> Phase 4 • Action Roadmap & Evidence
+              <Compass className="w-4 h-4" /> Action Roadmap & Evidence
             </div>
             <h2 className="text-2xl font-bold tracking-tight text-slate-900">
               Personalised Skill & Action Roadmap
@@ -488,7 +698,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/roadmap')}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <Compass className="w-4 h-4" /> View My Roadmap
             </button>
@@ -569,4 +779,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
