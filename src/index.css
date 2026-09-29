@@ -1,55 +1,19 @@
 @import "tailwindcss";
 
-@variant dark (&:where(.dark, .dark *));
-
 @theme {
-  --font-brand: 'Syne', sans-serif;
-  --font-heading: 'Space Grotesk', sans-serif;
-  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
-  --font-hand: 'Caveat', cursive;
-  --font-kalam: 'Kalam', cursive;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  --font-heading: 'Bricolage Grotesque', 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
-  --animate-float: float 4s ease-in-out infinite;
-  --animate-pulse-glow: pulseGlow 2.5s ease-in-out infinite;
-  --animate-shimmer: shimmer 2s linear infinite;
-  --animate-slide-up: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-scale-in: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-fade-in: fadeIn 0.3s ease-out forwards;
-
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-6px);
-    }
-  }
-
-  @keyframes pulseGlow {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.85;
-      transform: scale(1.02);
-    }
-  }
-
-  @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
-  }
+  --animate-slide-up: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-scale-in: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-fade-in: fadeIn 0.2s ease-out forwards;
 
   @keyframes slideUp {
     from {
       opacity: 0;
-      transform: translateY(12px);
+      transform: translateY(8px);
     }
     to {
       opacity: 1;
@@ -60,7 +24,7 @@
   @keyframes scaleIn {
     from {
       opacity: 0;
-      transform: scale(0.96);
+      transform: scale(0.98);
     }
     to {
       opacity: 1;
@@ -84,28 +48,16 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    transition: background-color 200ms ease, color 200ms ease;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  body {
-    @apply bg-slate-50 text-slate-900 dark:bg-[#0B0F17] dark:text-slate-100;
-  }
-
-  h1, h2, h3, .font-heading {
-    font-family: var(--font-heading);
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
     letter-spacing: -0.02em;
   }
 
-  .font-brand {
-    font-family: var(--font-brand);
-  }
-
-  .font-hand {
-    font-family: var(--font-hand);
-  }
-
-  .font-kalam {
-    font-family: var(--font-kalam);
+  h4, h5, h6 {
+    font-family: var(--font-display);
   }
 
   code, pre, .font-mono {
@@ -113,102 +65,41 @@
   }
 }
 
-/* Custom interactive animation helper classes */
+/* Minimal interactive card helper classes */
 .card-hover-lift {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .card-hover-lift:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.07), 0 8px 12px -6px rgba(0, 0, 0, 0.04);
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 6px -2px rgba(15, 23, 42, 0.05);
 }
 
 .card-interactive {
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.15s ease;
 }
 
 .card-interactive:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.06);
+  border-color: #cbd5e1;
 }
 
 .btn-press {
-  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease, box-shadow 0.15s ease;
+  transition: opacity 0.12s ease;
 }
 
 .btn-press:active {
-  transform: scale(0.975);
+  opacity: 0.9;
 }
 
-/* Subtle Shimmer Sweep on Important Badges */
+/* Static clean badge */
 .badge-shimmer {
   position: relative;
-  overflow: hidden;
-}
-
-.badge-shimmer::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.35),
-    transparent
-  );
-  transform: skewX(-20deg);
-  animation: badgeShimmer 4s infinite cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-@keyframes badgeShimmer {
-  0% {
-    left: -100%;
-  }
-  30% {
-    left: 200%;
-  }
-  100% {
-    left: 200%;
-  }
-}
-
-/* Organic gentle float */
-.float-subtle {
-  animation: floatSubtle 5s ease-in-out infinite;
-}
-
-@keyframes floatSubtle {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
-}
-
-/* Satisfying bounce pop for completed tasks, stars, and checkboxes */
-.pop-in {
-  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-@keyframes popIn {
-  0% {
-    transform: scale(0.85);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
 }
 
 /* Custom subtle scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {

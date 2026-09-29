@@ -88,26 +88,18 @@ export function StaggerItem({ children, className, ...props }: StaggerItemProps)
   );
 }
 
-// Live Status Pulse Dot (makes systems look active, connected, and human-monitored)
+// Live Status Indicator Dot (clean, minimal status indicator)
 export function LivePulseDot({ color = 'emerald', className = '' }: { color?: 'emerald' | 'blue' | 'amber' | 'indigo'; className?: string }) {
   const colorMap = {
-    emerald: 'bg-emerald-500',
-    blue: 'bg-blue-500',
-    amber: 'bg-amber-500',
-    indigo: 'bg-indigo-500'
-  };
-
-  const pingMap = {
-    emerald: 'bg-emerald-400',
-    blue: 'bg-blue-400',
-    amber: 'bg-amber-400',
-    indigo: 'bg-indigo-400'
+    emerald: 'bg-emerald-600',
+    blue: 'bg-blue-600',
+    amber: 'bg-amber-600',
+    indigo: 'bg-indigo-600'
   };
 
   return (
-    <span className={cn("relative flex h-2 w-2", className)}>
-      <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 duration-1000", pingMap[color])} />
-      <span className={cn("relative inline-flex rounded-full h-2 w-2", colorMap[color])} />
+    <span className={cn("inline-flex items-center justify-center", className)}>
+      <span className={cn("inline-block rounded-full h-1.5 w-1.5", colorMap[color])} />
     </span>
   );
 }

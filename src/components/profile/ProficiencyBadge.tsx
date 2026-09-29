@@ -83,11 +83,11 @@ export const PROFICIENCY_CONFIGS: Record<BadgeLevel, ProficiencyConfig> = {
     stars: 5,
     description: 'Demonstrates mastery, creative autonomy, and complex synthesis in real-world scenarios.',
     icon: Award,
-    bgClass: 'bg-amber-50/70 dark:bg-amber-950/40',
-    borderClass: 'border-amber-200/90 dark:border-amber-800/60',
-    textClass: 'text-amber-950 dark:text-amber-300',
-    accentClass: 'bg-amber-500 text-white',
-    glowClass: 'shadow-amber-500/10 ring-amber-400/15',
+    bgClass: 'bg-amber-50/80',
+    borderClass: 'border-amber-200',
+    textClass: 'text-amber-900',
+    accentClass: 'bg-amber-600 text-white',
+    glowClass: '',
     barColor: 'bg-amber-500'
   },
   Strong: {
@@ -97,11 +97,11 @@ export const PROFICIENCY_CONFIGS: Record<BadgeLevel, ProficiencyConfig> = {
     stars: 4,
     description: 'High degree of fluency, consistent execution, and validated practical competency.',
     icon: ShieldCheck,
-    bgClass: 'bg-emerald-50/70 dark:bg-emerald-950/40',
-    borderClass: 'border-emerald-200/90 dark:border-emerald-800/60',
-    textClass: 'text-emerald-950 dark:text-emerald-300',
+    bgClass: 'bg-emerald-50/80',
+    borderClass: 'border-emerald-200',
+    textClass: 'text-emerald-900',
     accentClass: 'bg-emerald-600 text-white',
-    glowClass: 'shadow-emerald-500/10 ring-emerald-400/15',
+    glowClass: '',
     barColor: 'bg-emerald-600'
   },
   Intermediate: {
@@ -111,11 +111,11 @@ export const PROFICIENCY_CONFIGS: Record<BadgeLevel, ProficiencyConfig> = {
     stars: 3,
     description: 'Solid conceptual understanding and autonomous execution on standard deliverables.',
     icon: Target,
-    bgClass: 'bg-indigo-50/70 dark:bg-indigo-950/40',
-    borderClass: 'border-indigo-200/90 dark:border-indigo-800/60',
-    textClass: 'text-indigo-950 dark:text-indigo-300',
+    bgClass: 'bg-indigo-50/80',
+    borderClass: 'border-indigo-200',
+    textClass: 'text-indigo-900',
     accentClass: 'bg-indigo-600 text-white',
-    glowClass: 'shadow-indigo-500/10 ring-indigo-400/15',
+    glowClass: '',
     barColor: 'bg-indigo-600'
   },
   Developing: {
@@ -125,12 +125,12 @@ export const PROFICIENCY_CONFIGS: Record<BadgeLevel, ProficiencyConfig> = {
     stars: 2,
     description: 'Grasps key foundations, building momentum with guided practical execution.',
     icon: Compass,
-    bgClass: 'bg-sky-50/70 dark:bg-sky-950/40',
-    borderClass: 'border-sky-200/90 dark:border-sky-800/60',
-    textClass: 'text-sky-950 dark:text-sky-300',
+    bgClass: 'bg-sky-50/80',
+    borderClass: 'border-sky-200',
+    textClass: 'text-sky-900',
     accentClass: 'bg-sky-600 text-white',
-    glowClass: 'shadow-sky-500/10 ring-sky-400/15',
-    barColor: 'bg-sky-500'
+    glowClass: '',
+    barColor: 'bg-sky-600'
   },
   Novice: {
     canonicalLevel: 'Novice',
@@ -139,12 +139,12 @@ export const PROFICIENCY_CONFIGS: Record<BadgeLevel, ProficiencyConfig> = {
     stars: 1,
     description: 'Initial awareness and foundational orientation; ready for structured progression.',
     icon: BookOpen,
-    bgClass: 'bg-slate-50 dark:bg-slate-800/50',
-    borderClass: 'border-slate-200 dark:border-slate-700',
-    textClass: 'text-slate-800 dark:text-slate-200',
-    accentClass: 'bg-slate-600 text-white',
-    glowClass: 'shadow-slate-500/10 ring-slate-400/15',
-    barColor: 'bg-slate-500'
+    bgClass: 'bg-slate-50',
+    borderClass: 'border-slate-200',
+    textClass: 'text-slate-800',
+    accentClass: 'bg-slate-700 text-white',
+    glowClass: '',
+    barColor: 'bg-slate-600'
   },
   Unassessed: {
     canonicalLevel: 'Unassessed',
@@ -153,12 +153,12 @@ export const PROFICIENCY_CONFIGS: Record<BadgeLevel, ProficiencyConfig> = {
     stars: 0,
     description: 'Self-reported competency. Complete an assessment to earn your verified badge.',
     icon: HelpCircle,
-    bgClass: 'bg-slate-50/60 dark:bg-slate-800/30',
-    borderClass: 'border-dashed border-slate-200 dark:border-slate-700',
-    textClass: 'text-slate-500 dark:text-slate-400',
-    accentClass: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300',
-    glowClass: 'ring-slate-200/40',
-    barColor: 'bg-slate-300 dark:bg-slate-600'
+    bgClass: 'bg-slate-50',
+    borderClass: 'border-dashed border-slate-200',
+    textClass: 'text-slate-600',
+    accentClass: 'bg-slate-300 text-slate-700',
+    glowClass: '',
+    barColor: 'bg-slate-300'
   }
 };
 
@@ -201,11 +201,10 @@ export function ProficiencyBadge({
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 font-bold rounded-full border transition-all shadow-xs hover:scale-105 duration-150",
+          "inline-flex items-center gap-1.5 font-semibold rounded-full border transition-colors shadow-2xs",
           config.bgClass,
           config.borderClass,
           config.textClass,
-          config.canonicalLevel === 'Advanced' && "badge-shimmer",
           size === 'xs' && "px-2 py-0.5 text-[10px]",
           size === 'sm' && "px-2.5 py-0.5 text-xs",
           size === 'md' && "px-3 py-1 text-xs",

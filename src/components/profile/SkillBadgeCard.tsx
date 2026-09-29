@@ -57,7 +57,9 @@ export function SkillBadgeCard({
   const assessedLevel = userSkill.indicativeProficiency || latestAttempt?.indicativeProficiency;
   const isAssessed = Boolean(assessedLevel);
   const canonicalAssessed = normalizeProficiencyLevel(assessedLevel);
-  const config = PROFICIENCY_CONFIGS[canonicalAssessed];
+  const config = (canonicalAssessed && PROFICIENCY_CONFIGS[canonicalAssessed])
+    ? PROFICIENCY_CONFIGS[canonicalAssessed]
+    : PROFICIENCY_CONFIGS['Unassessed'];
 
   // Assessment score metrics
   const scorePct = userSkill.latestScorePercentage ?? latestAttempt?.quizScore?.percentage;
@@ -74,27 +76,23 @@ export function SkillBadgeCard({
   const getRevenueForCategory = (cat: string) => {
     switch (cat) {
       case 'Technical':
-        return '₹1,45,000 – ₹3,50,000 / mo';
+        return '₹28,000 – ₹45,000 / mo';
       case 'Creative':
-        return '₹85,000 – ₹2,20,000 / mo';
+        return '₹22,000 – ₹38,000 / mo';
       case 'Entrepreneurial':
-        return '₹1,20,000 – ₹3,10,000 / mo';
+        return '₹24,000 – ₹42,000 / mo';
       case 'Communication':
-        return '₹65,000 – ₹1,80,000 / mo';
+        return '₹18,000 – ₹32,000 / mo';
       default:
-        return '₹55,000 – ₹1,50,000 / mo';
+        return '₹16,000 – ₹28,000 / mo';
     }
   };
   const revenuePotential = getRevenueForCategory(category);
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      whileHover={{ y: -3, transition: { duration: 0.2, ease: 'easeOut' } }}
+    <div 
       className={cn(
-        "rounded-2xl border p-5 transition-shadow duration-200 bg-white flex flex-col justify-between relative group hover:shadow-lg",
+        "rounded-xl border p-5 transition-colors bg-white flex flex-col justify-between relative group shadow-xs",
         isAssessed ? config.borderClass : "border-slate-200 hover:border-slate-300"
       )}
     >
@@ -107,27 +105,28 @@ export function SkillBadgeCard({
                 {category}
               </span>
               {isAssessed ? (
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-emerald-800 bg-emerald-100/90 border border-emerald-200/80 px-2.5 py-0.5 rounded-full shadow-xs">
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                   <LivePulseDot color="emerald" />
                   Assessment Verified
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full">
                   <HelpCircle className="w-3 h-3 text-slate-400" />
-                  Self-Reported Only
+                  Self-Reported
                 </span>
               )}
             </div>
 
-            <h3 className="font-extrabold text-slate-900 text-base sm:text-lg mt-1 group-hover:text-blue-600 transition-colors">
+            <h3 className="font-bold text-slate-900 text-base sm:text-lg mt-1 group-hover:text-blue-600 transition-colors">
               {skillName}
             </h3>
 
-            {/* High Earning Potential Tag */}
+            {/* Professional Earning Potential Tag */}
             <div className="mt-1.5 flex items-center gap-1.5">
-              <span className="text-[10.5px] font-bold text-amber-900 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md flex items-center gap-1">
-                <Coins className="w-3 h-3 text-amber-600 shrink-0" />
-                Revenue Potential: <span className="font-mono text-amber-800">{revenuePotential}</span>
+              <span className="text-[11px] font-medium text-slate-700 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md flex items-center gap-1.5">
+                <Coins className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="text-slate-500">Earning Potential:</span>
+                <span className="font-mono font-bold text-slate-800">{revenuePotential}</span>
               </span>
             </div>
           </div>
@@ -294,6 +293,6 @@ export function SkillBadgeCard({
           </Link>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

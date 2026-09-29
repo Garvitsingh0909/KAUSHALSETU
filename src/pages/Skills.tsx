@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { SKILLS_DB, Proficiency, SkillCategory, Skill } from '../data/skills';
-import { getSkillRevenueBenchmark, getMonthlyPotentialForProficiency, getHourlyRateForProficiency } from '../utils/revenueEstimates';
-import { Plus, X, Search, CheckCircle2, Sparkles, Loader2, AlertCircle, ShieldCheck, Award, ArrowRight, Zap, TrendingUp, DollarSign } from 'lucide-react';
+import { Plus, X, Search, CheckCircle2, Sparkles, Loader2, AlertCircle, ShieldCheck, Award, ArrowRight, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const PROFICIENCY_LEVELS: Proficiency[] = ['Beginner', 'Developing', 'Intermediate', 'Strong', 'Advanced'];
@@ -73,54 +72,54 @@ export default function Skills() {
     <div className="space-y-8 animate-in fade-in duration-500">
       
       {/* Selected Skills Section */}
-      <section className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <section className="bg-white rounded-xl shadow-xs border border-slate-200 p-5 md:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div>
             <h2 className="text-xl font-bold text-slate-900">My Selected Skills ({userSkills.length})</h2>
             <p className="text-xs text-slate-500 mt-0.5">Skills verified in your portfolio for pathway matching</p>
           </div>
           {userSkills.length > 0 && (
-            <span className="text-xs font-semibold px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100 self-start sm:self-auto">
+            <span className="text-xs font-semibold px-2.5 py-0.5 bg-slate-100 text-slate-700 rounded-md border border-slate-200 self-start sm:self-auto">
               Ready for Opportunity Matching
             </span>
           )}
         </div>
         
         {userSkills.length === 0 ? (
-          <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 p-6">
-            <p className="text-slate-600 font-semibold">You haven't added any skills yet.</p>
-            <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto mb-4">Select from the database below to build your profile or load sample curriculum skills.</p>
+          <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200 p-6">
+            <p className="text-slate-700 font-semibold text-sm">You haven't added any skills yet.</p>
+            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto mb-4">Select from the database below to build your profile or load sample curriculum skills.</p>
             <button
               onClick={triggerDemoMode}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-2xs"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Load Demo Skills
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {userSkills.map(us => {
               const skill = getSkillDetails(us.skillId);
               if (!skill) return null;
               return (
-                <div key={us.skillId} className="border border-slate-200 rounded-2xl p-5 hover:border-blue-300 transition-all bg-white space-y-4">
+                <div key={us.skillId} className="border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors bg-white space-y-3">
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-slate-900 text-base">{skill.name}</h3>
+                        <h3 className="font-bold text-slate-900 text-sm sm:text-base">{skill.name}</h3>
                         {us.indicativeProficiency && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">
                             <ShieldCheck className="w-3 h-3 text-emerald-600" /> Assessed
                           </span>
                         )}
                       </div>
-                      <span className="text-xs font-semibold text-slate-500 px-2 py-0.5 bg-slate-100 rounded-full inline-block mt-1">
+                      <span className="text-[10px] font-semibold text-slate-500 px-2 py-0.5 bg-slate-100 rounded inline-block mt-1">
                         {skill.category}
                       </span>
                     </div>
                     <button 
                       onClick={() => removeSkill(skill.id)}
-                      className="text-slate-400 hover:text-red-500 p-1"
+                      className="text-slate-400 hover:text-red-500 p-1 rounded hover:bg-red-50 transition-colors"
                       title="Remove skill"
                     >
                       <X className="w-4 h-4" />
@@ -143,25 +142,6 @@ export default function Skills() {
                     </div>
 
                     {renderProficiencyBar(us.proficiency)}
-
-                    {/* Revenue Potential Benchmark Badge */}
-                    {(() => {
-                      const benchmark = getSkillRevenueBenchmark(skill.id, skill.category);
-                      const monthlyEst = getMonthlyPotentialForProficiency(benchmark, us.proficiency);
-                      const hourlyEst = getHourlyRateForProficiency(benchmark, us.proficiency);
-                      return (
-                        <div className="p-2.5 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-900">
-                          <div className="flex items-center gap-1.5 font-bold">
-                            <TrendingUp className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                            <span>Monthly Earning Potential:</span>
-                          </div>
-                          <div className="text-right font-mono">
-                            <span className="font-black text-emerald-800 text-sm">₹{monthlyEst.toLocaleString()}</span>
-                            <span className="text-[10px] text-emerald-700 block">~₹{hourlyEst}/hr rate</span>
-                          </div>
-                        </div>
-                      );
-                    })()}
 
                     {/* Assessed Indicative Level (Evidence-Based) */}
                     {us.indicativeProficiency ? (
@@ -206,42 +186,41 @@ export default function Skills() {
       </section>
 
       {/* Skill Database Section */}
-      <section className="bg-slate-900 rounded-3xl shadow-xl border border-slate-800 p-6 md:p-8 text-white">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+      <section className="bg-slate-900 rounded-xl shadow-xs border border-slate-800 p-5 md:p-6 text-white">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-5">
           <div>
             <h2 className="text-xl font-bold">Skill Database</h2>
-            <p className="text-sm text-slate-400 mt-1">Select skills to add to your profile</p>
+            <p className="text-xs text-slate-400 mt-0.5">Select skills to add to your profile</p>
           </div>
           
-          <div className="relative w-full md:w-64">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <div className="relative w-full md:w-60">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
               type="text"
               placeholder="Search skills..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-850 border border-slate-700 text-white rounded-xl pl-9 pr-8 py-2 text-sm focus:outline-none focus:border-blue-400"
+              className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg pl-8 pr-7 py-1.5 text-xs focus:outline-none focus:border-slate-500"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5"
                 title="Clear search"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-3 h-3" />
               </button>
             )}
           </div>
         </div>
 
         {/* Custom Skill Generator */}
-        <div className="mb-6 p-4 bg-slate-850 border border-blue-500/30 rounded-2xl flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="mb-5 p-3.5 bg-slate-800/80 border border-slate-700 rounded-lg flex flex-col md:flex-row gap-3 items-center justify-between">
           <div>
-            <h3 className="font-semibold text-white flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-blue-400" />
-              Can't find your skill?
+            <h3 className="font-semibold text-white text-xs sm:text-sm flex items-center gap-1.5">
+              <span>Can't find your skill?</span>
             </h3>
-            <p className="text-sm text-slate-400">Let G-ONE generate a complete skill profile for you.</p>
+            <p className="text-[11px] text-slate-400">Generate a complete skill profile directly.</p>
           </div>
           <div className="flex w-full md:w-auto gap-2">
             <input 
@@ -250,14 +229,14 @@ export default function Skills() {
               value={customSkillName}
               onChange={e => setCustomSkillName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleGenerateSkill()}
-              className="w-full md:w-48 bg-slate-800 border border-slate-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+              className="w-full md:w-44 bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-slate-500"
             />
             <button
               disabled={!customSkillName || isGenerating}
               onClick={handleGenerateSkill}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+              className="bg-white text-slate-900 px-3.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-slate-100 transition-colors disabled:opacity-50 flex items-center gap-1.5 whitespace-nowrap"
             >
-              {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Generate'}
+              {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Generate'}
             </button>
           </div>
         </div>
@@ -345,28 +324,18 @@ export default function Skills() {
               <button
                 key={skill.id}
                 onClick={() => addSkill(skill.id)}
-                className="text-left bg-slate-850 border border-slate-750 hover:border-blue-400 hover:bg-slate-800 rounded-2xl p-4 transition-all group flex flex-col h-full shadow-sm"
+                className="text-left bg-slate-800/60 border border-slate-700/80 hover:border-slate-500 hover:bg-slate-800 rounded-xl p-3.5 transition-colors group flex flex-col h-full"
               >
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">{skill.name}</h3>
-                  <div className="bg-slate-800 group-hover:bg-blue-600 text-slate-400 group-hover:text-white rounded-full p-1 transition-colors">
-                    <Plus className="w-4 h-4" />
+                <div className="flex justify-between items-start mb-1.5">
+                  <h3 className="font-semibold text-white text-xs sm:text-sm group-hover:text-blue-300 transition-colors">{skill.name}</h3>
+                  <div className="bg-slate-700 text-slate-300 rounded-md p-1 transition-colors">
+                    <Plus className="w-3.5 h-3.5" />
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 mb-3">
-                  <span className="text-xs font-medium text-slate-400 px-2 py-0.5 bg-slate-800 rounded-full inline-block">
-                    {skill.category}
-                  </span>
-                  {(() => {
-                    const bm = getSkillRevenueBenchmark(skill.id, skill.category);
-                    return (
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-800/80 px-2 py-0.5 rounded-full font-mono">
-                        ₹{bm.monthlyEarningPotentialINR.beginner.toLocaleString()} – ₹{bm.monthlyEarningPotentialINR.advanced.toLocaleString()}/mo
-                      </span>
-                    );
-                  })()}
-                </div>
-                <p className="text-xs text-slate-400 line-clamp-2 mt-auto leading-relaxed">
+                <span className="text-[10px] font-medium text-slate-400 px-2 py-0.5 bg-slate-800 rounded inline-block w-fit mb-2">
+                  {skill.category}
+                </span>
+                <p className="text-[11px] text-slate-400 line-clamp-2 mt-auto leading-relaxed">
                   {skill.description}
                 </p>
               </button>

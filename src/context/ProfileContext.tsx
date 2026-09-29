@@ -57,7 +57,7 @@ interface ProfileContextType {
 }
 
 const defaultProfile: UserProfile = {
-  name: 'Garvit Singh',
+  name: 'garvit Singh',
   email: 'garvit.singh@student.edu.in',
   role: 'Student',
   systemRole: 'student',
@@ -122,7 +122,13 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === 'object') {
-          return { ...defaultProfile, ...parsed };
+          const name = (!parsed.name || typeof parsed.name !== 'string' || !parsed.name.trim() || parsed.name.toLowerCase().includes('sharma') || parsed.name.toLowerCase().includes('aarav') || parsed.name.toLowerCase().includes('student learner'))
+            ? defaultProfile.name
+            : parsed.name;
+          const schoolOrOrg = (!parsed.schoolOrOrg || typeof parsed.schoolOrOrg !== 'string' || !parsed.schoolOrOrg.trim() || parsed.schoolOrOrg.includes('Delhi Public School'))
+            ? defaultProfile.schoolOrOrg
+            : parsed.schoolOrOrg;
+          return { ...defaultProfile, ...parsed, name, schoolOrOrg };
         }
       }
     } catch (e) {
@@ -137,7 +143,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.filter(item => item && item.skillId);
+          const valid = parsed.filter(item => item && typeof item === 'object' && item.skillId);
+          if (valid.length > 0) return valid;
         }
       }
     } catch (e) {
@@ -308,7 +315,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     setProfile(prev => ({
       ...defaultProfile,
       ...prev,
-      name: 'Garvit Singh',
+      name: 'garvit Singh',
       email: 'garvit.singh@student.edu.in',
       role: 'Student',
       schoolOrOrg: 'Sunbeam Mau',

@@ -44,7 +44,6 @@ export default function OpportunityExplorer() {
   const { userSkills, customSkills, customOpportunities, addCustomOpportunity } = useProfile();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTrack, setActiveTrack] = useState<'ALL' | 'WORK' | 'BUILD' | 'LEARN'>('ALL');
   const [activeCategory, setActiveCategory] = useState<OpportunityCategory | 'All'>('All');
   const [matchFilter, setMatchFilter] = useState<'all' | 'high' | 'good'>('all');
   const [sortBy, setSortBy] = useState<OpportunitySortOption>('match');
@@ -57,20 +56,6 @@ export default function OpportunityExplorer() {
   const [skillSearchQuery, setSkillSearchQuery] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
-
-  // Helper to categorize opportunities into WORK, BUILD, LEARN
-  const getOpportunityTrack = (opp: any): 'WORK' | 'BUILD' | 'LEARN' => {
-    const cat = (opp.category || '').toLowerCase();
-    const type = (opp.opportunityType || '').toLowerCase();
-    const title = (opp.title || '').toLowerCase();
-    if (cat.includes('career') || type.includes('freelance') || type.includes('intern') || type.includes('job') || type.includes('consult') || title.includes('freelance') || title.includes('internship') || cat.includes('service')) {
-      return 'WORK';
-    }
-    if (cat.includes('learning') || cat.includes('course') || cat.includes('cert') || type.includes('course') || type.includes('study') || type.includes('workshop')) {
-      return 'LEARN';
-    }
-    return 'BUILD';
-  };
 
   const allSkills = useMemo(() => [...SKILLS_DB, ...customSkills], [customSkills]);
   const allOpps = useMemo(() => [...OPPORTUNITIES_DB, ...customOpportunities], [customOpportunities]);
@@ -85,7 +70,6 @@ export default function OpportunityExplorer() {
 
   const isFilterOrSortActive = 
     searchTerm.trim() !== '' || 
-    activeTrack !== 'ALL' ||
     activeCategory !== 'All' || 
     matchFilter !== 'all' || 
     difficultyFilter !== 'all' || 
@@ -94,7 +78,6 @@ export default function OpportunityExplorer() {
 
   const handleResetAllFilters = () => {
     setSearchTerm('');
-    setActiveTrack('ALL');
     setActiveCategory('All');
     setMatchFilter('all');
     setDifficultyFilter('all');
@@ -142,8 +125,6 @@ export default function OpportunityExplorer() {
         matchesSearch = words.every(word => searchableCorpus.includes(word));
       }
 
-      const track = getOpportunityTrack(opp);
-      const matchesTrack = activeTrack === 'ALL' || track === activeTrack;
       const matchesCategory = activeCategory === 'All' || opp.category === activeCategory;
       const matchesMatch = matchFilter === 'all' 
         ? true 
@@ -162,7 +143,7 @@ export default function OpportunityExplorer() {
         return true;
       })();
 
-      return matchesSearch && matchesTrack && matchesCategory && matchesMatch && matchesDifficulty && matchesType;
+      return matchesSearch && matchesCategory && matchesMatch && matchesDifficulty && matchesType;
     }).sort((a, b) => {
       if (sortBy === 'match') {
         // 1. Highest Match Score
@@ -190,7 +171,7 @@ export default function OpportunityExplorer() {
       }
       return 0;
     });
-  }, [allOpps, userSkills, allSkills, searchTerm, activeTrack, activeCategory, matchFilter, difficultyFilter, typeFilter, sortBy]);
+  }, [allOpps, userSkills, allSkills, searchTerm, activeCategory, matchFilter, difficultyFilter, typeFilter, sortBy]);
 
   const fallbackRecommendations = useMemo(() => {
     if (matchedOpps.length > 0) return [];
@@ -321,111 +302,54 @@ export default function OpportunityExplorer() {
   }, [combinerSourceTab, userSkills, allSkills, skillSearchQuery]);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300 max-w-7xl mx-auto pb-12">
+    <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
       
-      {/* 1. HEADER & SEARCH (CLEAN EDITORIAL PRESENCE) */}
-      <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 md:p-8 shadow-xs transition-colors">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase">
-                VOCATIONAL PATHWAYS
-              </span>
-              <span className="font-hand text-slate-500 dark:text-slate-400 text-sm italic ml-1">
-                “Look beyond the classroom.”
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-bold text-slate-950 dark:text-white tracking-tight mt-1">
-              OPPORTUNITIES
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              Where could your skills create value?
-            </p>
+      {/* Header & Search */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">
+            <Sparkles className="w-4 h-4" /> Opportunity Navigation Engine
           </div>
-          
-          <div className="w-full md:w-80 flex flex-col gap-2">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search pathways, problems, skills..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl pl-10 pr-9 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-blue-500 transition-colors"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5"
-                  title="Clear search"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5 flex-wrap text-xs text-slate-500 dark:text-slate-400">
-              <span className="text-[10px] font-mono text-slate-400 uppercase">Tags:</span>
-              {QUICK_SEARCH_TAGS.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => setSearchTerm(tag)}
-                  className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-medium transition-colors"
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">Opportunity Explorer</h1>
+          <p className="text-slate-600 max-w-2xl text-sm leading-relaxed">
+            Discover real-world applications for your skills. The G-ONE engine analyzes your profile to rank opportunities based on your strengths, problems you can solve, and interdisciplinary intersections.
+          </p>
         </div>
-
-        {/* 2. STRUCTURED TRACK ORGANIZER: WORK • BUILD • LEARN */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-6">
-          {[
-            { id: 'ALL', label: 'ALL PATHWAYS', desc: 'Complete vocational library' },
-            { id: 'WORK', label: 'WORK', desc: 'Jobs • Internships • Freelancing' },
-            { id: 'BUILD', label: 'BUILD', desc: 'Projects • Services • Products' },
-            { id: 'LEARN', label: 'LEARN', desc: 'Courses • Certifications • Further Study' }
-          ].map(track => {
-            const count = track.id === 'ALL' 
-              ? allOpps.length 
-              : allOpps.filter(o => getOpportunityTrack(o) === track.id).length;
-            const isSelected = activeTrack === track.id;
-            return (
+        
+        <div className="w-full md:w-80 flex flex-col gap-2">
+          <div className="relative">
+            <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search problems, solutions, skills..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white border border-slate-300 rounded-xl pl-11 pr-10 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all"
+            />
+            {searchTerm && (
               <button
-                key={track.id}
-                onClick={() => setActiveTrack(track.id as any)}
-                className={cn(
-                  "p-4 rounded-xl border text-left transition-all group flex flex-col justify-between",
-                  isSelected
-                    ? "bg-slate-900 dark:bg-blue-600 text-white border-slate-900 dark:border-blue-600 shadow-xs"
-                    : "bg-slate-50/70 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100/60 dark:hover:bg-slate-800/60"
-                )}
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition-colors"
+                title="Clear search"
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className={cn(
-                    "text-xs font-mono font-bold tracking-wider",
-                    isSelected ? "text-blue-300 dark:text-white" : "text-slate-800 dark:text-slate-200"
-                  )}>
-                    {track.label}
-                  </span>
-                  <span className={cn(
-                    "text-[10px] font-mono px-2 py-0.5 rounded-full font-bold",
-                    isSelected ? "bg-slate-800 dark:bg-blue-700 text-slate-200 dark:text-white" : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
-                  )}>
-                    {count}
-                  </span>
-                </div>
-                <p className={cn(
-                  "text-[11px] leading-snug",
-                  isSelected ? "text-slate-300 dark:text-blue-100" : "text-slate-500 dark:text-slate-400"
-                )}>
-                  {track.desc}
-                </p>
+                <X className="w-4 h-4" />
               </button>
-            );
-          })}
+            )}
+          </div>
+          <div className="flex items-center gap-1.5 flex-wrap text-xs text-slate-500">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Try:</span>
+            {QUICK_SEARCH_TAGS.map(tag => (
+              <button
+                key={tag}
+                onClick={() => setSearchTerm(tag)}
+                className="hover:text-blue-600 hover:underline transition-colors text-slate-600 font-medium"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
-      </section>
+      </div>
 
       {/* Dynamic Skill Combiner Section */}
       <div id="skill-combiner-section" className="bg-slate-900 rounded-3xl p-6 md:p-8 text-white relative overflow-hidden shadow-xl border border-slate-800 scroll-mt-6">
@@ -711,33 +635,33 @@ export default function OpportunityExplorer() {
     </div>
 
       {/* Filtering and Sorting Control Panel */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 md:p-6 shadow-sm space-y-5" id="filter-sort-control-panel">
+      <div className="bg-white rounded-3xl border border-slate-200 p-5 md:p-6 shadow-sm space-y-5" id="filter-sort-control-panel">
         
         {/* Panel Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50 shrink-0">
+            <div className="w-9 h-9 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shrink-0">
               <SlidersHorizontal className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm md:text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <h3 className="text-sm md:text-base font-bold text-slate-900 flex items-center gap-2">
                 Pathway Filtering & Sorting Engine
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-slate-500">
                 Calibrate opportunities by skill match, release date, and economic return
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
-            <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+            <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700">
               {matchedOpps.length} of {allOpps.length} Pathways
             </span>
             {isFilterOrSortActive && (
               <button
                 id="reset-controls-top-btn"
                 onClick={handleResetAllFilters}
-                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 hover:underline px-2.5 py-1.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/50 transition-colors"
+                className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 hover:underline px-2.5 py-1.5 rounded-xl bg-blue-50/70 border border-blue-100 transition-colors"
                 title="Reset all filters and sorting to default"
               >
                 <RotateCcw className="w-3.5 h-3.5" /> Reset All
@@ -747,9 +671,9 @@ export default function OpportunityExplorer() {
         </div>
 
         {/* PRIMARY SORTING CONTROL PANEL */}
-        <div className="bg-slate-50/90 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/60 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 shrink-0">
-            <ArrowUpDown className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+        <div className="bg-slate-50/90 rounded-2xl p-4 border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-slate-700 shrink-0">
+            <ArrowUpDown className="w-4 h-4 text-blue-600" />
             <span className="text-xs font-bold uppercase tracking-wider">Sort Pathways:</span>
           </div>
 
@@ -762,10 +686,10 @@ export default function OpportunityExplorer() {
                 "px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border",
                 sortBy === 'match'
                   ? "bg-blue-600 text-white border-blue-600 shadow-sm ring-2 ring-blue-600/20"
-                  : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
+                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100 hover:text-slate-900"
               )}
             >
-              <BrainCircuit className={cn("w-4 h-4", sortBy === 'match' ? "text-white" : "text-blue-600 dark:text-blue-400")} />
+              <BrainCircuit className={cn("w-4 h-4", sortBy === 'match' ? "text-white" : "text-blue-600")} />
               <span>Highest Match Score</span>
             </button>
 
@@ -777,10 +701,10 @@ export default function OpportunityExplorer() {
                 "px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border",
                 sortBy === 'newest'
                   ? "bg-amber-600 text-white border-amber-600 shadow-sm ring-2 ring-amber-600/20"
-                  : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
+                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100 hover:text-slate-900"
               )}
             >
-              <Sparkles className={cn("w-4 h-4", sortBy === 'newest' ? "text-white" : "text-amber-500 dark:text-amber-400")} />
+              <Sparkles className={cn("w-4 h-4", sortBy === 'newest' ? "text-white" : "text-amber-500")} />
               <span>Newest</span>
             </button>
 
@@ -792,10 +716,10 @@ export default function OpportunityExplorer() {
                 "px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border",
                 sortBy === 'compensation'
                   ? "bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-600/20"
-                  : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
+                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100 hover:text-slate-900"
               )}
             >
-              <IndianRupee className={cn("w-4 h-4", sortBy === 'compensation' ? "text-white" : "text-emerald-600 dark:text-emerald-400")} />
+              <IndianRupee className={cn("w-4 h-4", sortBy === 'compensation' ? "text-white" : "text-emerald-600")} />
               <span>Highest Compensation</span>
             </button>
           </div>
@@ -805,14 +729,14 @@ export default function OpportunityExplorer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
           {/* Compatibility Threshold Filter */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
-              <BrainCircuit className="w-3 h-3 text-blue-600 dark:text-blue-400" /> Compatibility Threshold
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+              <BrainCircuit className="w-3 h-3 text-blue-600" /> Compatibility Threshold
             </label>
             <select
               id="filter-match-score"
               value={matchFilter}
               onChange={(e) => setMatchFilter(e.target.value as any)}
-              className="w-full bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              className="w-full bg-slate-50 hover:bg-white text-slate-800 text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <option value="all">All Match Scores (0% – 100%)</option>
               <option value="high">High Compatibility (≥75% Score)</option>
@@ -822,14 +746,14 @@ export default function OpportunityExplorer() {
 
           {/* Difficulty Filter */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
-              <Compass className="w-3 h-3 text-purple-600 dark:text-purple-400" /> Complexity Level
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+              <Compass className="w-3 h-3 text-purple-600" /> Complexity Level
             </label>
             <select
               id="filter-difficulty"
               value={difficultyFilter}
               onChange={(e) => setDifficultyFilter(e.target.value as any)}
-              className="w-full bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              className="w-full bg-slate-50 hover:bg-white text-slate-800 text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <option value="all">All Complexity Levels</option>
               <option value="Beginner">Beginner (Foundational)</option>
@@ -840,14 +764,14 @@ export default function OpportunityExplorer() {
 
           {/* Opportunity Format Filter */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
-              <Tag className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> Opportunity Format
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+              <Tag className="w-3 h-3 text-emerald-600" /> Opportunity Format
             </label>
             <select
               id="filter-type"
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value as any)}
-              className="w-full bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              className="w-full bg-slate-50 hover:bg-white text-slate-800 text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <option value="all">All Formats & Pathways</option>
               <option value="freelance">Freelance / Agency Work</option>
@@ -859,9 +783,9 @@ export default function OpportunityExplorer() {
         </div>
 
         {/* Category Pills Row */}
-        <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+        <div className="pt-2 border-t border-slate-100">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 hide-scrollbar">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
               <Filter className="w-3 h-3 text-slate-400" /> Sector:
             </span>
             <button
@@ -869,13 +793,11 @@ export default function OpportunityExplorer() {
               onClick={() => setActiveCategory('All')}
               className={cn(
                 "px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors border flex items-center gap-1.5",
-                activeCategory === 'All' 
-                  ? "bg-slate-900 dark:bg-blue-600 text-white border-slate-900 dark:border-blue-600 shadow-xs" 
-                  : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+                activeCategory === 'All' ? "bg-slate-900 text-white border-slate-900 shadow-xs" : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
               )}
             >
               <span>All Sectors</span>
-              <span className={cn("text-[10px] px-1.5 py-0.2 rounded-full", activeCategory === 'All' ? "bg-slate-800 dark:bg-blue-700 text-slate-200 dark:text-white" : "bg-slate-200/80 dark:bg-slate-700 text-slate-600 dark:text-slate-300")}>
+              <span className={cn("text-[10px] px-1.5 py-0.2 rounded-full", activeCategory === 'All' ? "bg-slate-800 text-slate-200" : "bg-slate-200/80 text-slate-600")}>
                 {allOpps.length}
               </span>
             </button>
@@ -888,13 +810,11 @@ export default function OpportunityExplorer() {
                   onClick={() => setActiveCategory(cat)}
                   className={cn(
                     "px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors border flex items-center gap-1.5",
-                    activeCategory === cat 
-                      ? "bg-slate-900 dark:bg-blue-600 text-white border-slate-900 dark:border-blue-600 shadow-xs" 
-                      : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    activeCategory === cat ? "bg-slate-900 text-white border-slate-900 shadow-xs" : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                   )}
                 >
                   <span>{cat}</span>
-                  <span className={cn("text-[10px] px-1.5 py-0.2 rounded-full", activeCategory === cat ? "bg-slate-800 dark:bg-blue-700 text-slate-200 dark:text-white" : "bg-slate-200/80 dark:bg-slate-700 text-slate-600 dark:text-slate-300")}>
+                  <span className={cn("text-[10px] px-1.5 py-0.2 rounded-full", activeCategory === cat ? "bg-slate-800 text-slate-200" : "bg-slate-200/80 text-slate-600")}>
                     {count}
                   </span>
                 </button>
@@ -904,65 +824,65 @@ export default function OpportunityExplorer() {
         </div>
 
         {/* Active Filter & Sort Status Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-slate-100 text-xs">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-slate-500 dark:text-slate-400 font-medium">
+            <span className="text-slate-500 font-medium">
               Active View:
             </span>
 
             {/* Sort Mode Badge */}
             <span className={cn(
               "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold border",
-              sortBy === 'match' && "bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-900/50",
-              sortBy === 'newest' && "bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900/50",
-              sortBy === 'compensation' && "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50"
+              sortBy === 'match' && "bg-blue-50 text-blue-800 border-blue-200",
+              sortBy === 'newest' && "bg-amber-50 text-amber-800 border-amber-200",
+              sortBy === 'compensation' && "bg-emerald-50 text-emerald-800 border-emerald-200"
             )}>
-              {sortBy === 'match' && <BrainCircuit className="w-3 h-3 text-blue-600 dark:text-blue-400" />}
-              {sortBy === 'newest' && <Sparkles className="w-3 h-3 text-amber-500 dark:text-amber-400" />}
-              {sortBy === 'compensation' && <IndianRupee className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />}
+              {sortBy === 'match' && <BrainCircuit className="w-3 h-3 text-blue-600" />}
+              {sortBy === 'newest' && <Sparkles className="w-3 h-3 text-amber-500" />}
+              {sortBy === 'compensation' && <IndianRupee className="w-3 h-3 text-emerald-600" />}
               Sorted by: {sortBy === 'match' ? 'Highest Match Score' : sortBy === 'newest' ? 'Newest' : 'Highest Compensation'}
             </span>
 
             {searchTerm && (
-              <span className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50 px-2.5 py-1 rounded-lg font-semibold">
+              <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-lg font-semibold">
                 Search: "{searchTerm}"
-                <button onClick={() => setSearchTerm('')} className="hover:text-blue-950 dark:hover:text-white p-0.5" title="Remove search filter">
+                <button onClick={() => setSearchTerm('')} className="hover:text-blue-950 p-0.5" title="Remove search filter">
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
 
             {activeCategory !== 'All' && (
-              <span className="inline-flex items-center gap-1.5 bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-900/50 px-2.5 py-1 rounded-lg font-semibold">
+              <span className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-800 border border-purple-200 px-2.5 py-1 rounded-lg font-semibold">
                 Category: {activeCategory}
-                <button onClick={() => setActiveCategory('All')} className="hover:text-purple-950 dark:hover:text-white p-0.5" title="Remove category filter">
+                <button onClick={() => setActiveCategory('All')} className="hover:text-purple-950 p-0.5" title="Remove category filter">
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
 
             {matchFilter !== 'all' && (
-              <span className="inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50 px-2.5 py-1 rounded-lg font-semibold">
+              <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-lg font-semibold">
                 Compatibility: {matchFilter === 'high' ? '≥75% Match' : '≥50% Match'}
-                <button onClick={() => setMatchFilter('all')} className="hover:text-emerald-950 dark:hover:text-white p-0.5" title="Remove match filter">
+                <button onClick={() => setMatchFilter('all')} className="hover:text-emerald-950 p-0.5" title="Remove match filter">
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
 
             {difficultyFilter !== 'all' && (
-              <span className="inline-flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900/50 px-2.5 py-1 rounded-lg font-semibold">
+              <span className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-800 border border-indigo-200 px-2.5 py-1 rounded-lg font-semibold">
                 Level: {difficultyFilter}
-                <button onClick={() => setDifficultyFilter('all')} className="hover:text-indigo-950 dark:hover:text-white p-0.5" title="Remove difficulty filter">
+                <button onClick={() => setDifficultyFilter('all')} className="hover:text-indigo-950 p-0.5" title="Remove difficulty filter">
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
 
             {typeFilter !== 'all' && (
-              <span className="inline-flex items-center gap-1.5 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-900/50 px-2.5 py-1 rounded-lg font-semibold capitalize">
+              <span className="inline-flex items-center gap-1.5 bg-teal-50 text-teal-800 border border-teal-200 px-2.5 py-1 rounded-lg font-semibold capitalize">
                 Format: {typeFilter}
-                <button onClick={() => setTypeFilter('all')} className="hover:text-teal-950 dark:hover:text-white p-0.5" title="Remove type filter">
+                <button onClick={() => setTypeFilter('all')} className="hover:text-teal-950 p-0.5" title="Remove type filter">
                   <X className="w-3 h-3" />
                 </button>
               </span>
@@ -972,7 +892,7 @@ export default function OpportunityExplorer() {
           {isFilterOrSortActive && (
             <button
               onClick={handleResetAllFilters}
-              className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold flex items-center gap-1 hover:underline ml-auto"
+              className="text-slate-500 hover:text-slate-900 font-semibold flex items-center gap-1 hover:underline ml-auto"
             >
               <RotateCcw className="w-3.5 h-3.5" /> Clear all filters & sort
             </button>
@@ -985,12 +905,12 @@ export default function OpportunityExplorer() {
         {matchedOpps.length === 0 ? (
           <div className="col-span-full space-y-8">
             {/* Graceful Empty Feedback Card */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 md:p-12 shadow-sm text-center">
-              <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50 flex items-center justify-center mx-auto mb-4">
+            <div className="bg-white rounded-3xl border border-slate-200 p-8 md:p-12 shadow-sm text-center">
+              <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto mb-4">
                 <Compass className="w-8 h-8" />
               </div>
               
-              <h3 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+              <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">
                 {searchTerm && activeCategory !== 'All' ? (
                   <>No pathways match "{searchTerm}" in the {activeCategory} category</>
                 ) : searchTerm ? (
@@ -1000,7 +920,7 @@ export default function OpportunityExplorer() {
                 )}
               </h3>
               
-              <p className="text-slate-600 dark:text-slate-300 max-w-xl mx-auto mb-8 text-sm leading-relaxed">
+              <p className="text-slate-600 max-w-xl mx-auto mb-8 text-sm leading-relaxed">
                 We couldn't find an existing curriculum pathway matching all your current filter criteria. You can easily broaden your scope or build a custom cross-disciplinary project.
               </p>
 
@@ -1009,15 +929,15 @@ export default function OpportunityExplorer() {
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold rounded-xl text-xs transition-colors flex items-center gap-2"
+                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold rounded-xl text-xs transition-colors flex items-center gap-2"
                   >
-                    <X className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" /> Clear Search Term
+                    <X className="w-3.5 h-3.5 text-slate-500" /> Clear Search Term
                   </button>
                 )}
                 {activeCategory !== 'All' && (
                   <button
                     onClick={() => setActiveCategory('All')}
-                    className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold rounded-xl text-xs transition-colors"
+                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold rounded-xl text-xs transition-colors"
                   >
                     View All Categories ({allOpps.length})
                   </button>
@@ -1025,7 +945,7 @@ export default function OpportunityExplorer() {
                 <button
                   id="reset-empty-filters-btn"
                   onClick={handleResetAllFilters}
-                  className="px-4 py-2.5 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition-colors flex items-center gap-1.5"
+                  className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl text-xs transition-colors flex items-center gap-1.5"
                 >
                   <RotateCcw className="w-3.5 h-3.5" /> Reset All Filters & Sorting
                 </button>
@@ -1034,28 +954,28 @@ export default function OpportunityExplorer() {
                     const el = document.getElementById('skill-combiner-section');
                     el?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="px-4 py-2.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-900/50 font-semibold rounded-xl text-xs transition-colors flex items-center gap-1.5"
+                  className="px-4 py-2.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-semibold rounded-xl text-xs transition-colors flex items-center gap-1.5"
                 >
-                  <BrainCircuit className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> Synthesize with G-ONE
+                  <BrainCircuit className="w-3.5 h-3.5 text-blue-600" /> Synthesize with G-ONE
                 </button>
               </div>
 
               {/* Suggestions / Guidance */}
-              <div className="max-w-2xl mx-auto text-left bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">
-                  <HelpCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Search Tips & Guidance:
+              <div className="max-w-2xl mx-auto text-left bg-slate-50 rounded-2xl p-6 border border-slate-200">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
+                  <HelpCircle className="w-4 h-4 text-blue-600" /> Search Tips & Guidance:
                 </div>
-                <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <ul className="space-y-2 text-xs text-slate-600">
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
+                    <span className="text-blue-600 font-bold">•</span>
                     <span><strong>Generalize keywords:</strong> Try broader terms such as <em>design</em>, <em>electronics</em>, <em>content</em>, <em>marketing</em>, or <em>workshop</em>.</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
+                    <span className="text-blue-600 font-bold">•</span>
                     <span><strong>Cross-disciplinary pathways:</strong> Many initiatives combine technical skills with service or community orientation. Switch the category filter to <em>All Pathways</em>.</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
+                    <span className="text-blue-600 font-bold">•</span>
                     <span><strong>Generate custom combinations:</strong> Use the <em>Combine My Skills</em> panel above to have the G-ONE engine synthesize a fresh venture from your personal skills.</span>
                   </li>
                 </ul>
@@ -1067,19 +987,19 @@ export default function OpportunityExplorer() {
               <div className="space-y-4 pt-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <h4 className="text-base font-bold text-slate-900 flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-amber-500" /> Recommended Alternative Pathways
                     </h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Popular pathways from the curriculum ranked by your current skill profile</p>
+                    <p className="text-xs text-slate-500">Popular pathways from the curriculum ranked by your current skill profile</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {fallbackRecommendations.map(opp => (
-                    <div key={opp.id} className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                    <div key={opp.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-all">
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700">
                             {opp.category}
                           </span>
                           <MatchScoreBadge 
@@ -1088,16 +1008,16 @@ export default function OpportunityExplorer() {
                             variant="compact" 
                           />
                         </div>
-                        <h5 className="font-bold text-slate-900 dark:text-slate-100 text-sm mb-1">{opp.title}</h5>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-2">{opp.solution}</p>
-                        <div className="text-[11px] text-emerald-800 dark:text-emerald-300 font-semibold mb-4 flex items-center gap-1">
-                          <IndianRupee className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                        <h5 className="font-bold text-slate-900 text-sm mb-1">{opp.title}</h5>
+                        <p className="text-xs text-slate-500 line-clamp-2 mb-2">{opp.solution}</p>
+                        <div className="text-[11px] text-emerald-800 font-semibold mb-4 flex items-center gap-1">
+                          <IndianRupee className="w-3 h-3 text-emerald-600" />
                           <span>{opp.compensation.label}</span>
                         </div>
                       </div>
                       <button
                         onClick={() => navigate(`/opportunities/${opp.id}`)}
-                        className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 pt-2 border-t border-slate-100 dark:border-slate-800"
+                        className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 pt-2 border-t border-slate-100"
                       >
                         Explore Pathway <ArrowUpRight className="w-3.5 h-3.5" />
                       </button>
@@ -1108,118 +1028,123 @@ export default function OpportunityExplorer() {
             )}
           </div>
         ) : (
-          matchedOpps.map(opp => {
-            const track = getOpportunityTrack(opp);
-            const additionalSkillId = (opp.nextSkills && opp.nextSkills.length > 0)
-              ? opp.nextSkills[0]
-              : (opp.preferredSkills && opp.preferredSkills.length > 0)
-                ? opp.preferredSkills[0]
-                : 'communication';
-            const addSkillObj = allSkills.find(s => s.id === additionalSkillId);
-            const addSkillName = addSkillObj?.name || additionalSkillId;
+          matchedOpps.map(opp => (
+            <div 
+              key={opp.id} 
+              className="bg-white rounded-xl border border-slate-200 hover:border-slate-300 shadow-xs overflow-hidden flex flex-col group transition-colors"
+            >
+              <div className="p-5 md:p-6 flex-1 flex flex-col">
+                <div className="flex justify-between items-start mb-3 gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 uppercase tracking-wider">
+                      {opp.category}
+                    </span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">
+                      {opp.difficulty}
+                    </span>
 
-            return (
-              <div 
-                key={opp.id} 
-                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm transition-all duration-200 flex flex-col justify-between overflow-hidden"
-              >
-                <div className="p-6 space-y-4">
+                    {/* Date / Release Badge */}
+                    {opp.dateInfo.isNew ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                        New
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium text-slate-500 border border-slate-200">
+                        {opp.dateInfo.displayDate}
+                      </span>
+                    )}
+
+                    {opp.webResearch?.isWebGrounded && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        Web Grounded
+                      </span>
+                    )}
+                  </div>
                   
-                  {/* Top Metadata: Track, Category, Match Score */}
-                  <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-900 dark:bg-slate-800 text-white uppercase tracking-wider">
-                        {track}
-                      </span>
-                      <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                        {opp.category}
-                      </span>
-                      <span className="text-slate-300 dark:text-slate-600">·</span>
-                      <span className="text-[11px] font-medium text-slate-400 dark:text-slate-400">
-                        {opp.difficulty}
-                      </span>
-                    </div>
-
+                  <div>
                     <MatchScoreBadge 
                       opportunity={opp} 
                       precomputedMatch={opp.match} 
                       variant="card" 
                     />
                   </div>
-
-                  {/* Opportunity Title */}
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-heading font-bold text-slate-950 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                      {opp.title}
-                    </h3>
-                  </div>
-
-                  {/* Why it matches */}
-                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
-                    <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">
-                      WHY IT MATCHES
-                    </span>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {opp.match.explanation || opp.solution}
-                    </p>
-                  </div>
-
-                  {/* Skills Required */}
-                  <div className="space-y-1.5">
-                    <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">
-                      SKILLS REQUIRED
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {opp.requiredSkills.map(sId => {
-                        const s = allSkills.find(sk => sk.id === sId);
-                        const hasSkill = userSkills.some(us => us.skillId === sId);
-                        return (
-                          <span 
-                            key={sId} 
-                            className={cn(
-                              "text-xs px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1",
-                              hasSkill 
-                                ? "border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300" 
-                                : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-                            )}
-                          >
-                            {hasSkill && <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />}
-                            <span>{s?.name || sId}</span>
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Additional Skill */}
-                  <div className="pt-2 flex items-center gap-2 text-xs">
-                    <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
-                      ADDITIONAL SKILL:
-                    </span>
-                    <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/50 text-blue-900 dark:text-blue-300 font-semibold text-[11px]">
-                      + {addSkillName}
-                    </span>
-                  </div>
                 </div>
                 
-                {/* Clear Action: Explore → */}
-                <div className="bg-slate-50/70 dark:bg-slate-800/50 px-6 py-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500 dark:text-slate-400">
-                    <IndianRupee className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
-                    <span className="tabular-nums font-semibold text-slate-700 dark:text-slate-300">{opp.compensation.label}</span>
-                  </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-1.5 group-hover:text-blue-600 transition-colors">
+                  {opp.title}
+                </h3>
+                
+                <p className="text-xs text-slate-600 line-clamp-2 mb-3 leading-relaxed">
+                  {opp.solution}
+                </p>
 
-                  <button 
-                    onClick={() => navigate(`/opportunities/${opp.id}`)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
-                  >
-                    <span>Explore</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                {/* Compensation & Economic Value */}
+                <div className="flex items-center justify-between text-xs rounded-lg px-2.5 py-1.5 mb-3 border border-slate-200 bg-slate-50/80 text-slate-700">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <IndianRupee className="w-3.5 h-3.5 shrink-0 text-slate-500" />
+                    <span className="truncate">
+                      Est. Compensation: <strong className="text-slate-900 font-semibold">{opp.compensation.label}</strong>
+                    </span>
+                  </div>
+                  {sortBy === 'compensation' && (
+                    <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-900 font-bold shrink-0">
+                      Top
+                    </span>
+                  )}
+                </div>
+
+                {/* Market Demand & Rate Benchmark */}
+                {opp.webResearch?.averageMarketRateINR && (
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-800 font-medium bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1 mb-3">
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="truncate">Benchmark: {opp.webResearch.averageMarketRateINR}</span>
+                  </div>
+                )}
+
+                {/* Key Problems Preview */}
+                <div className="mb-4 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Solves:</span>
+                  <p className="text-xs text-slate-700 line-clamp-1 font-medium">
+                    • {opp.problems[0]}
+                  </p>
+                </div>
+
+                {/* Required Skills Badges */}
+                <div className="flex flex-wrap gap-1 mt-auto pt-3 border-t border-slate-100">
+                  {opp.requiredSkills.map(sId => {
+                    const s = allSkills.find(sk => sk.id === sId);
+                    const hasSkill = userSkills.some(us => us.skillId === sId);
+                    return (
+                      <span 
+                        key={sId} 
+                        className={cn(
+                          "text-[11px] px-2 py-0.5 rounded border font-medium flex items-center gap-1",
+                          hasSkill 
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700" 
+                            : "border-slate-200 bg-slate-50 text-slate-600"
+                        )}
+                      >
+                        {hasSkill && <Check className="w-3 h-3 text-emerald-600" />}
+                        {s?.name || sId}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
-            );
-          })
+              
+              <div className="bg-slate-50 px-5 py-3 flex justify-between items-center border-t border-slate-100">
+                <div className="text-xs font-semibold text-slate-500">
+                  {opp.opportunityType}
+                </div>
+                <button 
+                  onClick={() => navigate(`/opportunities/${opp.id}`)}
+                  className="flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-blue-600 transition-colors"
+                >
+                  <span>View Details</span> <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ))
         )}
       </div>
 
