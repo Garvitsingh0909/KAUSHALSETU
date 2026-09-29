@@ -27,7 +27,6 @@ import { useBusiness } from '../context/BusinessContext';
 import { useProfile } from '../context/ProfileContext';
 import { OPPORTUNITIES } from '../data/opportunities';
 import { CostItem, calculateFinancials, BusinessScenario, CBSE_DEMO_SCENARIO, CBSE_PRESET_SCENARIOS } from '../data/business';
-import { KaushalPathwayBanner } from '../components/common/KaushalPathwayBanner';
 
 export const BusinessBuilder: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -209,12 +208,6 @@ export const BusinessBuilder: React.FC = () => {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-16">
-      {/* Signature Pathway */}
-      <KaushalPathwayBanner 
-        currentStep="CAREER / BUSINESS"
-        subtitle="Translate your skill-based capabilities into viable micro-enterprises with structured unit economics and break-even analysis."
-      />
-
       {/* 1. TOP EDITORIAL BANNER (CLEAN WHITE SURFACE) */}
       <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 lg:p-8 shadow-xs relative overflow-hidden transition-colors">
         <div className="relative z-10 space-y-4">

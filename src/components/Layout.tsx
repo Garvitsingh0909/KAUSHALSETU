@@ -11,7 +11,6 @@ import { cn } from '../lib/utils';
 import { useProfile } from '../context/ProfileContext';
 import { triggerFeatureTour } from './OnboardingManager';
 import { OnboardingManager } from './OnboardingManager';
-import { ThemeToggle } from './ThemeToggle';
 
 interface NavItem {
   name: string;
@@ -116,7 +115,6 @@ export default function Layout() {
         </div>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle />
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -225,11 +223,6 @@ export default function Layout() {
 
         {/* Sidebar Footer Controls */}
         <div className="p-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 bg-slate-50/50 dark:bg-slate-900/50">
-          <div className="flex items-center justify-between px-1 pb-1">
-            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-400 uppercase">Appearance</span>
-            <ThemeToggle showLabel />
-          </div>
-
           <button
             onClick={() => {
               triggerFeatureTour();
@@ -267,10 +260,6 @@ export default function Layout() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center">
-              <ThemeToggle />
-            </div>
-
             <button
               onClick={triggerFeatureTour}
               className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg transition-colors shadow-2xs"

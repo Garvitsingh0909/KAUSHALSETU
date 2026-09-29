@@ -17,7 +17,6 @@ import {
   ArrowUpDown, IndianRupee, Calendar, Clock, ChevronDown
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { KaushalPathwayBanner } from '../components/common/KaushalPathwayBanner';
 
 export type OpportunitySortOption = 'match' | 'newest' | 'compensation';
 
@@ -324,12 +323,6 @@ export default function OpportunityExplorer() {
   return (
     <div className="space-y-8 animate-in fade-in duration-300 max-w-7xl mx-auto pb-12">
       
-      {/* Signature Pathway */}
-      <KaushalPathwayBanner 
-        currentStep="OPPORTUNITY"
-        subtitle="Explore real-world market pathways, freelance gigs, project briefs, and career applications aligned with your skill DNA."
-      />
-
       {/* 1. HEADER & SEARCH (CLEAN EDITORIAL PRESENCE) */}
       <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 md:p-8 shadow-xs transition-colors">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">

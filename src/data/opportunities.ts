@@ -129,121 +129,6 @@ export interface MatchResult {
 
 export const OPPORTUNITIES_DB: Opportunity[] = [
   {
-    id: 'custom_canvas_mural_studio',
-    title: 'Fine Arts & Custom Canvas Mural Studio',
-    category: 'Entrepreneurship',
-    requiredSkills: ['fine_arts_visual', 'client_handling'],
-    preferredSkills: ['pricing', 'marketing', 'photography'],
-    applications: ['Hand-Painted Cafe Murals', 'Custom Framed Canvas Portraits', 'Limited-Edition Art Print Suites', 'Festive Greeting & Keepsake Packs'],
-    problems: [
-      'Commercial retail cafes and modern apartments feel sterile and lack authentic human artistry',
-      'Large interior design agencies quote ₹40,000+ for basic feature wall painting',
-      'Families and art lovers struggle to find accessible, high-craft portrait artists for personal milestones'
-    ],
-    targetUsers: ['Neighborhood cafes, bakeries & boutique stores', 'Homeowners seeking custom commemorative portraits', 'Artisan gift buyers'],
-    solution: 'Deliver bespoke hand-painted canvas artworks, feature wall murals, and high-end commissioned portraits with transparent unit economics.',
-    nextSkills: ['Graphic Design', 'Pricing Strategy', 'Exhibition Presentation', 'Client Discovery'],
-    firstStep: 'Create a 3-piece portfolio sample of botanical or architectural acrylic works on canvas, photograph them in natural light, and present a demo concept to a neighborhood cafe.',
-    opportunityType: 'Creative Studio / Micro-Enterprise',
-    difficulty: 'Intermediate',
-    createdAt: '2026-09-15',
-    compensationValueINR: 12000,
-    compensationLabel: '₹3,500 – ₹12,000 / commission',
-    problemProfile: {
-      overview: 'Hyperlocal cafes, bookstores, and boutique hospitality spaces in India increasingly rely on Instagrammable visual decor to drive organic customer footfall. Meanwhile, generic stock wall art lacks local charm, while commercial agencies charge enterprise prices.',
-      keyChallenges: [
-        'High cost of commercial decor: Agencies demand huge retainers out of reach for independent shop owners.',
-        'Impersonal mass-produced factory prints: Cheap vinyl decals look cheap and peel within months.',
-        'Lack of trusted local student artists who understand professional client boundaries and deadline delivery.'
-      ],
-      urgency: 'Visual ambiance directly dictates consumer dwell time and social media sharing for new businesses.',
-      marketGap: 'Student fine artists with client discovery skills can deliver gorgeous custom feature walls at 1/4th agency fees while earning high margins.'
-    },
-    usersProfile: {
-      primaryAudience: 'Independent cafe owners, boutique retail store managers, and family milestone portrait seekers',
-      audienceSegments: [
-        {
-          segment: 'Independent Cafes & Bakeries',
-          description: 'Local culinary entrepreneurs who need distinctive, photo-worthy interiors.',
-          painPoint: 'Blank walls that look empty and uninviting on social media.',
-          whyTheyCare: 'A stunning mural increases customer photos and foot traffic by 40%.'
-        },
-        {
-          segment: 'Homeowners & Gift Buyers',
-          description: 'Individuals wanting commemorative portraits of pets, family, or ancestral homes.',
-          painPoint: 'Digital phone photos lack the permanence and emotional depth of real hand-painted art.',
-          whyTheyCare: 'Unique heirloom keepsake for birthdays, weddings, or anniversaries.'
-        }
-      ],
-      realWorldContext: 'Local commercial high streets, school exhibitions, community artisan markets.',
-      outreachStrategy: 'Visit 3 local cafes with a curated physical sketchbook portfolio and offer a miniature concept mockup.'
-    },
-    solutionProfile: {
-      summary: 'A turnkey commissioned art micro-service offering site-specific wall murals, framed acrylic canvases, and batch fine-art prints.',
-      coreDeliverables: [
-        { name: 'Custom Wall Mural', description: 'Hand-painted interior mural (up to 3x2m) with sealed acrylics.' },
-        { name: 'Commemorative Canvas', description: '16x20 inch framed acrylic portrait or botanical study.' },
-        { name: 'Limited Art Print Suite', description: 'Batch of 15 archival signed art prints on eco-friendly paper.' }
-      ],
-      howItWorks: '1. Discovery consultation & photo reference -> 2. Digital thumbnail sketch approval -> 3. Material prep -> 4. On-site execution or studio delivery.',
-      economicValue: '₹3,500 – ₹12,000 per project. Typical materials cost ₹600 – ₹1,800, generating 75%+ contribution margins.',
-      skillIntegration: 'Fine Arts provides tactile mastery; Client Handling ensures prompt approvals and zero unpaid revisions.'
-    },
-    firstStepProfile: {
-      immediateAction: 'Photograph 2 existing original artworks in natural lighting, crop into clean square tiles, and draft a 1-page commission rate card.',
-      roadmap: [
-        { phase: 'Phase 1', title: 'Portfolio Curation', action: 'Mount 3 physical sample canvases and draft rate card.', duration: 'Days 1-3' },
-        { phase: 'Phase 2', title: 'Client Discovery', action: 'Present pitch to 2 local cafes for mural or canvas decor.', duration: 'Days 4-7' },
-        { phase: 'Phase 3', title: 'Pilot Commission', action: 'Execute first commissioned artwork at introductory fee.', duration: 'Week 2' },
-        { phase: 'Phase 4', title: 'Showcase & Referral', action: 'Photograph finished piece on-site and request client testimonial.', duration: 'Weeks 3-4' }
-      ],
-      requiredResources: ['Canvas boards, acrylic paints, brushes, protective varnish, sketchbook'],
-      validationMilestone: 'Securing first paying commission with a 50% advance deposit.',
-      riskMitigation: 'Always collect 50% material deposit before starting work and limit design revisions to 2 rounds.'
-    },
-    webResearch: {
-      marketDemandScore: 96,
-      averageMarketRateINR: '₹3,500 – ₹12,000 per artwork / mural',
-      competitorBenchmark: 'Design agencies charge ₹35,000+; student artists provide agile turnaround for ₹4,000 – ₹10,000.',
-      trendingSignals: ['Artisanal cafes prioritizing authentic hand-painted aesthetic over digital wallpapers.', 'Growing appetite for custom pet and family canvas portraits in urban India.'],
-      isWebGrounded: true
-    }
-  },
-  {
-    id: 'ai_productivity_hub',
-    title: 'AI-Powered Business Workflow Automation',
-    category: 'Technology',
-    requiredSkills: ['ai_prompt_engineering', 'automation_tools'],
-    preferredSkills: ['coding', 'pricing'],
-    applications: ['Automated WhatsApp Lead Capture', 'Product Catalog AI Copy Generation', 'Customer Support Auto-Drafting', 'Daily Spreadsheet Data Sync'],
-    problems: [
-      'Small shopkeepers and clinics waste 3 hours every day on repetitive manual message typing',
-      'Expensive enterprise automation software charges monthly dollar subscriptions',
-      'Small business owners lack technical know-how to integrate free AI tools effectively'
-    ],
-    targetUsers: ['Local medical clinics', 'Neighborhood retail boutiques', 'Tuition academies', 'Independent freelancers'],
-    solution: 'Build zero-code automated workflows integrating WhatsApp Business, Google Sheets, and prompt pipelines to automate lead handling and customer FAQs.',
-    nextSkills: ['Python Scripting', 'API Integration', 'Sales Discovery', 'Unit Economics'],
-    firstStep: 'Build a free Google Sheets + Google Forms automated WhatsApp invoice receipt generator and demo it to a local coaching tutor.',
-    opportunityType: 'Automation Consultancy / Micro-Service',
-    difficulty: 'Intermediate',
-    createdAt: '2026-09-15',
-    compensationValueINR: 10000,
-    compensationLabel: '₹4,000 – ₹12,000 / setup',
-    problemProfile: {
-      overview: 'Micro-enterprises in India are overwhelmed by daily customer chats, repetitive payment confirmation queries, and manual spreadsheet logging.',
-      keyChallenges: ['Manual copy-paste error rates', 'Late replies to incoming customer inquiries', 'High cost of enterprise SaaS tools'],
-      urgency: 'Instant response times determine whether a prospective buyer completes a purchase or goes to a competitor.',
-      marketGap: 'Large IT firms will not take on sub-₹50,000 contracts; a student builder can deliver a working workflow in 2 days for ₹4,000.'
-    },
-    webResearch: {
-      marketDemandScore: 97,
-      averageMarketRateINR: '₹4,000 – ₹12,000 per automation setup',
-      competitorBenchmark: 'SaaS tools charge ₹3,000/mo ongoing; custom micro-services charge one-time setup + maintenance.',
-      isWebGrounded: true
-    }
-  },
-  {
     id: 'coding_and_design_experience_studio',
     title: 'Digital UI/UX & Web Experience Studio',
     category: 'Technology',
@@ -859,6 +744,180 @@ export const OPPORTUNITIES_DB: Opportunity[] = [
       requiredResources: ['Smartphone camera or entry DSLR', '2 sheets of white/black poster board for backdrops', 'Free Snapseed / Lightroom Mobile app', 'Google Drive for client delivery'],
       validationMilestone: 'The first client posting your photo on their business status or online storefront.',
       riskMitigation: 'Always clarify before the shoot how many items will be photographed to prevent clients bringing 30 items for a 5-item package.'
+    }
+  },
+  {
+    id: 'smart_agritech_telemetry_agency',
+    title: 'Agritech Telemetry & Smart Irrigation Service',
+    category: 'Technology',
+    requiredSkills: ['agritech_sensors', 'iot_systems'],
+    preferredSkills: ['solar_maintenance', 'data_analysis'],
+    applications: ['Soil moisture telemetry installation', 'Automated drip irrigation setups', 'Solar-powered crop monitoring'],
+    problems: ['Unpredictable crop yield from improper watering', 'High manual labor in greenhouse management'],
+    targetUsers: ['Suburban polyhouse owners', 'School eco-farms', 'Organic vegetable growers'],
+    solution: 'Install low-cost NPK and moisture sensor beacons connected to mobile SMS/dashboard alerts, helping growers cut water usage by 30% while increasing crop yield.',
+    nextSkills: ['python_programming', 'electrical_work', 'pricing'],
+    firstStep: 'Assemble a prototype NPK moisture sensor with an ESP32 micro-controller and run a 3-day test in a potted plant or school garden.',
+    opportunityType: 'Technical Micro-Enterprise',
+    difficulty: 'Intermediate',
+    createdAt: '2026-03-20',
+    compensationValueINR: 12000,
+    compensationLabel: '₹4,000 – ₹12,000 / installation',
+    problemProfile: {
+      overview: 'Polyhouse and small-acre farmers lose thousands in crop damage due to improper soil moisture and salinity levels.',
+      keyChallenges: ['High cost of imported industrial soil telemetry', 'Lack of real-time mobile notifications', 'Water wastage from over-irrigation'],
+      urgency: 'High — climate unpredictability demands precision irrigation.',
+      marketGap: 'Most local farmers rely on manual intuition rather than soil sensor telemetry.'
+    },
+    usersProfile: {
+      primaryAudience: 'Polyhouse farmers, organic vegetable growers, school botanical labs',
+      audienceSegments: [
+        {
+          segment: 'Polyhouse High-Value Crop Growers',
+          description: 'Farmers cultivating exotic vegetables or flowers under polyhouses.',
+          painPoint: 'Fungal root rot from over-watering.',
+          whyTheyCare: 'Saves 30% on water and protects ₹50,000+ crop yields.'
+        }
+      ],
+      realWorldContext: 'Peri-urban farming belts, greenhouse clusters, and school eco-clubs.',
+      outreachStrategy: 'Demonstrate a live moisture beacon on a potted plant at a local farmers meet or agricultural extension office.'
+    },
+    solutionProfile: {
+      summary: 'A complete telemetry installation kit including waterproof soil sensors, solar power module, and smartphone alerts.',
+      coreDeliverables: [
+        { name: 'Sensor Telemetry Module', description: 'Pre-calibrated soil pH, moisture, and temperature beacon.' },
+        { name: 'Alert Dashboard / SMS Gateway', description: 'Automated SMS or WhatsApp notification when moisture drops below threshold.' }
+      ],
+      howItWorks: 'Place sensor in root zone -> connect to solar telemetry module -> receive instant WhatsApp alerts when watering is required.',
+      economicValue: '₹4,000 – ₹12,000 per polyhouse setup. Material cost ~₹2,200.',
+      skillIntegration: 'Agritech Sensors provides domain calibration; IoT handles wireless connectivity.'
+    },
+    firstStepProfile: {
+      immediateAction: 'Connect an ESP32 with a capacitive soil moisture sensor and log readings to a free cloud dashboard.',
+      roadmap: [
+        { phase: 'Stage 1', title: 'Circuit Assembly', action: 'Wire soil sensor and solar module to ESP32 board.', duration: 'Days 1-2' },
+        { phase: 'Stage 2', title: 'Field Calibration', action: 'Test sensor accuracy in dry vs wet soil samples.', duration: 'Days 3-4' },
+        { phase: 'Stage 3', title: 'Pilot Demo', action: 'Install unit in a local nursery for 1 week.', duration: 'Week 2' }
+      ],
+      requiredResources: ['ESP32 board', 'Capacitive soil sensor', 'Mini solar panel', 'Waterproof box'],
+      validationMilestone: 'Nursery owner confirming reduced watering frequency after 1 week.',
+      riskMitigation: 'Seal all wire junctions with silicone to prevent water ingress.'
+    }
+  },
+  {
+    id: 'aerial_survey_drone_studio',
+    title: 'Drone Aerial Survey & Mapping Studio',
+    category: 'Service',
+    requiredSkills: ['drone_piloting', 'photography'],
+    preferredSkills: ['3d_modeling', 'video_editing'],
+    applications: ['Land elevation mapping', 'Agricultural crop health scouting', 'Real estate aerial photography'],
+    problems: ['Expensive ground land surveys', 'Inability to detect crop damage early over large fields'],
+    targetUsers: ['Real estate developers', 'Agronomists & large farmers', 'Event organizers'],
+    solution: 'Provide high-resolution aerial mapping, land elevation models, and cinematic property videos using GPS-stabilized UAV drones.',
+    nextSkills: ['pricing', 'client_handling', 'marketing'],
+    firstStep: 'Conduct a pilot aerial survey of a nearby sports ground or campus building and generate a 2D orthomosaic map.',
+    opportunityType: 'Creative Tech Service',
+    difficulty: 'Intermediate',
+    createdAt: '2026-03-20',
+    compensationValueINR: 15000,
+    compensationLabel: '₹5,000 – ₹15,000 / project',
+    problemProfile: {
+      overview: 'Traditional land surveys take days and cost significant money, while real estate listings with ground-only photos get lower engagement.',
+      keyChallenges: ['High machinery survey costs', 'Lack of elevation mapping for construction planning'],
+      urgency: 'Medium-High',
+      marketGap: 'Suburban real estate agents lack affordable aerial videography options.'
+    },
+    usersProfile: {
+      primaryAudience: 'Property builders, farmland owners, festival organizers',
+      audienceSegments: [
+        {
+          segment: 'Real Estate Builders & Brokers',
+          description: 'Developers selling residential plots or farmland.',
+          painPoint: 'Ground photos fail to capture neighborhood scale and boundaries.',
+          whyTheyCare: 'Aerial videos double property inquiry rates.'
+        }
+      ],
+      realWorldContext: 'Suburban construction zones, agricultural acreage, event grounds.',
+      outreachStrategy: 'Offer a 30-second free aerial highlight video for a local builder\'s plot.'
+    },
+    solutionProfile: {
+      summary: 'High-res aerial orthomosaic mapping and 4K property walkthrough showreel.',
+      coreDeliverables: [
+        { name: '4K Aerial Property Showreel', description: 'Color-graded 60-second video showcasing plot boundaries.' },
+        { name: 'High-Res Orthomosaic Map', description: 'Stitched high-resolution top-down land photo.' }
+      ],
+      howItWorks: 'Plan automated flight path -> capture grid photos -> process in WebODM -> deliver map and video.',
+      economicValue: '₹5,000 – ₹15,000 per project. High margin service.',
+      skillIntegration: 'Drone Piloting executes safe flight; Photography ensures crisp exposure.'
+    },
+    firstStepProfile: {
+      immediateAction: 'Fly a 10-minute grid flight over an open area and process images through open-source photogrammetry.',
+      roadmap: [
+        { phase: 'Stage 1', title: 'Flight Practice', action: 'Master manual hover and automated waypoint missions.', duration: 'Days 1-3' },
+        { phase: 'Stage 2', title: 'Map Stitching', action: 'Process trial grid photos into a 2D map.', duration: 'Days 4-5' },
+        { phase: 'Stage 3', title: 'Portfolio Reel', action: 'Create a 45-second aerial showreel.', duration: 'Week 2' }
+      ],
+      requiredResources: ['Drone with camera', 'OpenODM software', 'Video editor'],
+      validationMilestone: 'First commercial builder booking a plot survey.',
+      riskMitigation: 'Always check local airspace regulations before flying.'
+    }
+  },
+  {
+    id: 'motion_graphics_explainer_agency',
+    title: '2D Motion Graphics & Explainer Video Agency',
+    category: 'Service',
+    requiredSkills: ['animation_motion_graphics', 'video_editing'],
+    preferredSkills: ['copywriting_storytelling', 'audio_podcasting'],
+    applications: ['Animated product explainer videos', 'Social media kinetic ads', 'App onboarding motion graphics'],
+    problems: ['Boring text ads suffering low engagement', 'Complex SaaS products hard to explain in text'],
+    targetUsers: ['EdTech startups', 'Local brand marketers', 'App developers'],
+    solution: 'Produce sleek 30 to 60-second animated explainer videos featuring kinetic typography, custom vector motion, and sound design.',
+    nextSkills: ['client_handling', 'pricing', 'graphic_design'],
+    firstStep: 'Animate a 15-second product launch video for an imaginary or local product and share on LinkedIn/Instagram.',
+    opportunityType: 'Creative Freelance',
+    difficulty: 'Intermediate',
+    createdAt: '2026-03-20',
+    compensationValueINR: 10000,
+    compensationLabel: '₹3,000 – ₹10,000 / video',
+    problemProfile: {
+      overview: 'Brands struggle to hold audience attention on social feeds with static images or boring text posts.',
+      keyChallenges: ['Low click-through rates on static ad campaigns', 'High cost of traditional video shoots'],
+      urgency: 'High',
+      marketGap: 'Local SMBs cannot afford ₹50k video agencies but need motion graphics.'
+    },
+    usersProfile: {
+      primaryAudience: 'Online brands, EdTech platforms, local app creators',
+      audienceSegments: [
+        {
+          segment: 'EdTech & Course Creators',
+          description: 'Teachers and coaches selling online courses.',
+          painPoint: 'Dry text curriculum failing to convert students.',
+          whyTheyCare: 'Animated explainers boost course enrollment by 40%.'
+        }
+      ],
+      realWorldContext: 'Instagram reels feeds, YouTube ads, website landing pages.',
+      outreachStrategy: 'Redesign a static ad of a local brand into a 15-second motion video and send it to their founder.'
+    },
+    solutionProfile: {
+      summary: 'End-to-end 60-second animated explainer: script, vector animation, voiceover sync, and music mixing.',
+      coreDeliverables: [
+        { name: '1080p & 9:16 Motion Reel', description: 'Fully animated video with synced audio and captions.' },
+        { name: 'Source Project File', description: 'Editable After Effects / Rive file for future updates.' }
+      ],
+      howItWorks: 'Draft storyboard -> design vector assets -> animate motion -> sync sound design.',
+      economicValue: '₹3,000 – ₹10,000 per video. 100% digital profit margin.',
+      skillIntegration: 'Motion Graphics handles keyframing; Video Editing manages pacing and audio balance.'
+    },
+    firstStepProfile: {
+      immediateAction: 'Create a 15-second kinetic typography video explaining a simple concept like "3 Reasons to Exercise Daily".',
+      roadmap: [
+        { phase: 'Stage 1', title: 'Storyboard', action: 'Draw a 4-frame visual layout on paper.', duration: 'Day 1' },
+        { phase: 'Stage 2', title: 'Animation', action: 'Animate text and shapes to a voice track.', duration: 'Days 2-3' },
+        { phase: 'Stage 3', title: 'Outreach', action: 'Send specimen reel to 5 local business accounts.', duration: 'Week 2' }
+      ],
+      requiredResources: ['After Effects / Rive / Motion software', 'Royalty-free audio track'],
+      validationMilestone: 'First business requesting a custom video quote.',
+      riskMitigation: 'Get script approval from client before starting heavy animation keyframing.'
     }
   }
 ];

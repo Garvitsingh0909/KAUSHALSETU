@@ -32,7 +32,6 @@ import {
   StudentReflection 
 } from '../data/roadmap';
 import { Link } from 'react-router-dom';
-import { KaushalPathwayBanner } from '../components/common/KaushalPathwayBanner';
 
 export const MyProjects: React.FC = () => {
   const { userSkills, allSkills } = useProfile();
@@ -171,12 +170,6 @@ export const MyProjects: React.FC = () => {
 
   return (
     <div className="space-y-8 pb-16 max-w-7xl mx-auto animate-in fade-in duration-300">
-      {/* Signature Pathway */}
-      <KaushalPathwayBanner 
-        currentStep="APPLICATION"
-        subtitle="Connect your verified skills directly to real deliverables, practical project evidence, and documented problem-solving experiences."
-      />
-
       {/* Top Banner & Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>

@@ -32,7 +32,6 @@ import { useBusiness } from '../context/BusinessContext';
 import { useRoadmap } from '../context/RoadmapContext';
 import { useGOne } from '../context/GOneContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { KaushalPathwayBanner } from '../components/common/KaushalPathwayBanner';
 import { cn } from '../lib/utils';
 
 type GOnePipelineStage = 'Analyzing' | 'Connecting' | 'Matching' | 'Generating';
@@ -135,12 +134,6 @@ export const GOneInsights: React.FC = () => {
   return (
     <div className="space-y-7 pb-16 max-w-6xl mx-auto animate-in fade-in duration-300">
       
-      {/* 1. Signature Pathway */}
-      <KaushalPathwayBanner 
-        currentStep="VALUE"
-        subtitle="G-ONE synthesizes your verified competencies into viable solutions, value creation, and market opportunities."
-      />
-
       {/* 2. Top Banner Header */}
       <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 md:p-8 shadow-xs transition-colors">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">

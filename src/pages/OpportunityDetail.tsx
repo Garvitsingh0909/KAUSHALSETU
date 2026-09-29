@@ -15,7 +15,7 @@ import { cn } from '../lib/utils';
 export default function OpportunityDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { userSkills, customSkills, customOpportunities } = useProfile();
+  const { userSkills, customSkills, customOpportunities, financialGoal } = useProfile();
   const [activeTab, setActiveTab] = useState<'all' | 'problem' | 'users' | 'solution' | 'firstStep'>('all');
   
   const allSkills = [...SKILLS_DB, ...customSkills];
@@ -115,54 +115,80 @@ export default function OpportunityDetail() {
       <div className="flex items-center justify-between">
         <button 
           onClick={() => navigate('/opportunities')}
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Explorer
         </button>
 
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 dark:text-slate-400">
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
           <span>Skill to Opportunity</span>
           <span>•</span>
-          <span className="text-slate-700 dark:text-slate-300">Entrepreneurship & Financial Literacy</span>
+          <span className="text-slate-700">Entrepreneurship & Financial Literacy</span>
         </div>
       </div>
 
       {/* Hero Header Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 md:p-12 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+      <div className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm relative overflow-hidden">
         <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-          <Target className="w-80 h-80 text-blue-900 dark:text-blue-300" />
+          <Target className="w-80 h-80 text-blue-900" />
         </div>
         
         <div className="relative z-10">
           <div className="flex flex-wrap items-center gap-3 mb-6">
-            <span className="px-3 py-1 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-blue-100 dark:border-blue-900/50">
+            <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider rounded-lg border border-blue-100">
               {opportunity.category}
             </span>
-            <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-slate-200 dark:border-slate-700">
+            <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider rounded-lg border border-slate-200">
               {opportunity.opportunityType}
             </span>
-            <span className="px-3 py-1 bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-amber-200 dark:border-amber-900/50">
+            <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold uppercase tracking-wider rounded-lg border border-amber-200">
               {opportunity.difficulty} Level
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-emerald-200 dark:border-emerald-900/50">
-              <Globe className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Web-Researched ({webResearch.marketDemandScore}% Demand)
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider rounded-lg border border-emerald-200">
+              <Globe className="w-3.5 h-3.5 text-emerald-600" /> Web-Researched ({webResearch.marketDemandScore}% Demand)
             </span>
-            <span className="ml-auto inline-flex items-center gap-1 text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-3 py-1 rounded-md border border-slate-200 dark:border-slate-700">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" /> Powered by G-ONE Intelligence
+            <span className="ml-auto inline-flex items-center gap-1 text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-md border border-slate-200">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Powered by G-ONE Intelligence
             </span>
           </div>
           
-          <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-6">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
             {opportunity.title}
           </h1>
 
-          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed mb-8">
+          <p className="text-lg text-slate-600 max-w-3xl leading-relaxed mb-6">
             {opportunity.solution}
           </p>
+
+          {/* Goal Contribution Banner */}
+          <div className="p-4 bg-emerald-50/80 border border-emerald-200 rounded-2xl mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-emerald-950">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0 text-lg">
+                ₹
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">
+                  Financial Goal Contribution
+                </span>
+                <span className="font-extrabold text-sm text-emerald-900">
+                  Est. Compensation: {opportunity.compensationLabel || '₹3,000 – ₹10,000 / project'}
+                </span>
+              </div>
+            </div>
+
+            <div className="text-left sm:text-right shrink-0 font-mono">
+              <span className="font-black text-emerald-800 text-sm block">
+                Target Goal: ₹{financialGoal.monthlyTargetINR.toLocaleString()}/mo
+              </span>
+              <span className="text-[11px] text-emerald-700 font-semibold block">
+                Requires ~{Math.ceil(financialGoal.monthlyTargetINR / Math.max(1, opportunity.compensationValueINR || 3000))} client projects to hit 100%
+              </span>
+            </div>
+          </div>
           
           {/* Skill Interlock Bar */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-6 border-t border-slate-100">
             <div className="flex flex-wrap items-center gap-3">
               <MatchScoreBadge 
                 opportunity={opportunity} 
@@ -181,7 +207,7 @@ export default function OpportunityDetail() {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mr-2">Core Skills:</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mr-2">Core Skills:</span>
               {opportunity.requiredSkills.map(sId => {
                 const s = allSkills.find(sk => sk && sk.id === sId);
                 const hasSkill = userSkills.some(us => us.skillId === sId);
@@ -191,11 +217,11 @@ export default function OpportunityDetail() {
                     className={cn(
                       "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 border",
                       hasSkill 
-                        ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50" 
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                        : "bg-slate-100 text-slate-700 border-slate-200"
                     )}
                   >
-                    {hasSkill && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                    {hasSkill && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />}
                     {s?.name || sId}
                   </span>
                 );
@@ -206,7 +232,7 @@ export default function OpportunityDetail() {
       </div>
 
       {/* Profile Section Navigation Bar */}
-      <div className="bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl flex items-center gap-1 overflow-x-auto hide-scrollbar border border-slate-200 dark:border-slate-700">
+      <div className="bg-slate-100 p-1.5 rounded-2xl flex items-center gap-1 overflow-x-auto hide-scrollbar border border-slate-200">
         {[
           { id: 'all', label: 'Full Profile View' },
           { id: 'problem', label: '1. The Problem' },
@@ -221,8 +247,8 @@ export default function OpportunityDetail() {
             className={cn(
               "px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all",
               activeTab === tab.id 
-                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm border border-slate-200/80 dark:border-slate-700" 
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-white text-slate-900 shadow-sm border border-slate-200/80" 
+                : "text-slate-600 hover:text-slate-900"
             )}
           >
             {tab.label}
@@ -235,41 +261,41 @@ export default function OpportunityDetail() {
 
         {/* SECTION 1: THE PROBLEM */}
         {(activeTab === 'all' || activeTab === 'problem') && (
-          <section className="bg-white dark:bg-slate-900 rounded-3xl p-8 md:p-10 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+          <section className="bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold">
                   <AlertCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">Profile Section 01</span>
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">The Problem & Market Need</h2>
+                  <span className="text-xs font-bold text-red-600 uppercase tracking-wider">Profile Section 01</span>
+                  <h2 className="text-2xl font-bold text-slate-900">The Problem & Market Need</h2>
                 </div>
               </div>
-              <span className="text-xs text-slate-400 dark:text-slate-400 font-medium">Why this needs solving</span>
+              <span className="text-xs text-slate-400 font-medium">Why this needs solving</span>
             </div>
 
             {/* Problem Overview */}
-            <div className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Context & Overview</h3>
-              <p className="text-base text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Context & Overview</h3>
+              <p className="text-base text-slate-700 leading-relaxed font-medium">
                 {problem.overview}
               </p>
             </div>
 
             {/* Key Challenges */}
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">Specific Pain Points</h3>
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Specific Pain Points</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {problem.keyChallenges.map((challenge, idx) => (
-                  <div key={idx} className="p-5 rounded-2xl bg-red-50/50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/40 text-slate-800 dark:text-slate-200 flex flex-col justify-between">
+                  <div key={idx} className="p-5 rounded-2xl bg-red-50/50 border border-red-100 text-slate-800 flex flex-col justify-between">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300 text-xs font-bold flex items-center justify-center">
+                      <span className="w-6 h-6 rounded-full bg-red-100 text-red-700 text-xs font-bold flex items-center justify-center">
                         {idx + 1}
                       </span>
-                      <span className="text-xs font-bold text-red-700 dark:text-red-300 uppercase tracking-wider">Challenge {idx + 1}</span>
+                      <span className="text-xs font-bold text-red-700 uppercase tracking-wider">Challenge {idx + 1}</span>
                     </div>
-                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
                       {challenge}
                     </p>
                   </div>
@@ -279,22 +305,22 @@ export default function OpportunityDetail() {
 
             {/* Urgency & Market Gap Bento */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-              <div className="p-6 rounded-2xl bg-amber-50/60 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50">
-                <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold text-sm mb-2">
+              <div className="p-6 rounded-2xl bg-amber-50/60 border border-amber-200">
+                <div className="flex items-center gap-2 text-amber-800 font-bold text-sm mb-2">
                   <TrendingUp className="w-4 h-4" />
                   Urgency & Real-World Impact
                 </div>
-                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                <p className="text-sm text-slate-700 leading-relaxed">
                   {problem.urgency}
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50">
-                <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 font-bold text-sm mb-2">
+              <div className="p-6 rounded-2xl bg-blue-50/60 border border-blue-200">
+                <div className="flex items-center gap-2 text-blue-800 font-bold text-sm mb-2">
                   <Compass className="w-4 h-4" />
                   The Student Innovation Advantage (Market Gap)
                 </div>
-                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                <p className="text-sm text-slate-700 leading-relaxed">
                   {problem.marketGap}
                 </p>
               </div>
@@ -304,50 +330,50 @@ export default function OpportunityDetail() {
 
         {/* SECTION 2: POTENTIAL USERS */}
         {(activeTab === 'all' || activeTab === 'users') && (
-          <section className="bg-white dark:bg-slate-900 rounded-3xl p-8 md:p-10 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+          <section className="bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
                   <Users className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Profile Section 02</span>
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Potential Users & Target Audience</h2>
+                  <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">Profile Section 02</span>
+                  <h2 className="text-2xl font-bold text-slate-900">Potential Users & Target Audience</h2>
                 </div>
               </div>
-              <span className="text-xs text-slate-400 dark:text-slate-400 font-medium">Who experiences this problem</span>
+              <span className="text-xs text-slate-400 font-medium">Who experiences this problem</span>
             </div>
 
             {/* Primary Audience Banner */}
-            <div className="bg-purple-50/50 dark:bg-purple-950/40 p-6 rounded-2xl border border-purple-100 dark:border-purple-900/50">
-              <span className="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider mb-1 block">Primary Target Customer</span>
-              <p className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            <div className="bg-purple-50/50 p-6 rounded-2xl border border-purple-100">
+              <span className="text-xs font-bold text-purple-700 uppercase tracking-wider mb-1 block">Primary Target Customer</span>
+              <p className="text-lg font-bold text-slate-900">
                 {users.primaryAudience}
               </p>
             </div>
 
             {/* User Segments Grid */}
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">Audience Segments & Real Needs</h3>
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Audience Segments & Real Needs</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {users.audienceSegments.map((segment, idx) => (
-                  <div key={idx} className="p-6 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-sm hover:border-purple-300 dark:hover:border-purple-500 transition-colors flex flex-col justify-between">
+                  <div key={idx} className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-purple-300 transition-colors flex flex-col justify-between">
                     <div>
-                      <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold flex items-center justify-center text-xs mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-xs mb-3">
                         0{idx + 1}
                       </div>
-                      <h4 className="font-bold text-slate-900 dark:text-slate-100 text-base mb-2">{segment.segment}</h4>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 mb-4">{segment.description}</p>
+                      <h4 className="font-bold text-slate-900 text-base mb-2">{segment.segment}</h4>
+                      <p className="text-xs text-slate-600 mb-4">{segment.description}</p>
                     </div>
 
-                    <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-700 text-xs">
+                    <div className="space-y-3 pt-3 border-t border-slate-100 text-xs">
                       <div>
-                        <span className="font-bold text-red-600 dark:text-red-400 block mb-0.5">Their Pain Point:</span>
-                        <span className="text-slate-600 dark:text-slate-300">{segment.painPoint}</span>
+                        <span className="font-bold text-red-600 block mb-0.5">Their Pain Point:</span>
+                        <span className="text-slate-600">{segment.painPoint}</span>
                       </div>
                       <div>
-                        <span className="font-bold text-emerald-600 dark:text-emerald-400 block mb-0.5">Why They Care:</span>
-                        <span className="text-slate-700 dark:text-slate-200 font-medium">{segment.whyTheyCare}</span>
+                        <span className="font-bold text-emerald-600 block mb-0.5">Why They Care:</span>
+                        <span className="text-slate-700 font-medium">{segment.whyTheyCare}</span>
                       </div>
                     </div>
                   </div>
@@ -357,16 +383,16 @@ export default function OpportunityDetail() {
 
             {/* Real World Context & Outreach Strategy */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-              <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Real-World Setting</h4>
-                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Real-World Setting</h4>
+                <p className="text-sm text-slate-700 leading-relaxed">
                   {users.realWorldContext}
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50">
-                <h4 className="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider mb-2">Zero-Cost Outreach Strategy</h4>
-                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <div className="p-6 rounded-2xl bg-emerald-50/60 border border-emerald-200">
+                <h4 className="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-2">Zero-Cost Outreach Strategy</h4>
+                <p className="text-sm text-slate-700 leading-relaxed">
                   {users.outreachStrategy}
                 </p>
               </div>
@@ -453,43 +479,43 @@ export default function OpportunityDetail() {
 
         {/* SECTION 4: SUGGESTED FIRST STEP */}
         {(activeTab === 'all' || activeTab === 'firstStep') && (
-          <section className="bg-white dark:bg-slate-900 rounded-3xl p-8 md:p-10 border border-slate-200 dark:border-slate-800 shadow-sm space-y-8">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+          <section className="bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm space-y-8">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
                   <Zap className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Profile Section 04</span>
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Suggested First Step & Execution Roadmap</h2>
+                  <span className="text-xs font-bold text-amber-600 uppercase tracking-wider">Profile Section 04</span>
+                  <h2 className="text-2xl font-bold text-slate-900">Suggested First Step & Execution Roadmap</h2>
                 </div>
               </div>
-              <span className="text-xs text-slate-400 dark:text-slate-400 font-medium">Turn ideas into real execution</span>
+              <span className="text-xs text-slate-400 font-medium">Turn ideas into real execution</span>
             </div>
 
             {/* Prominent Day-1 Immediate Action */}
-            <div className="bg-gradient-to-r from-amber-50 via-amber-100/50 to-amber-50 dark:from-amber-950/40 dark:via-amber-900/30 dark:to-amber-950/40 p-6 md:p-8 rounded-2xl border border-amber-200 dark:border-amber-900/50">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-2">
+            <div className="bg-gradient-to-r from-amber-50 via-amber-100/50 to-amber-50 p-6 md:p-8 rounded-2xl border border-amber-200">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-800 mb-2">
                 <Sparkles className="w-4 h-4" /> Immediate Day 1 Action
               </div>
-              <p className="text-lg md:text-xl font-bold text-amber-950 dark:text-amber-200 leading-relaxed">
+              <p className="text-lg md:text-xl font-bold text-amber-950 leading-relaxed">
                 {firstStep.immediateAction}
               </p>
             </div>
 
             {/* 4-Phase Weekly Execution Roadmap */}
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">4-Phase Implementation Roadmap</h3>
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">4-Phase Implementation Roadmap</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {firstStep.roadmap.map((step, idx) => (
-                  <div key={idx} className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+                  <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">{step.phase}</span>
-                        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-300 bg-white dark:bg-slate-700 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-600">{step.duration}</span>
+                        <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">{step.phase}</span>
+                        <span className="text-[11px] font-medium text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-200">{step.duration}</span>
                       </div>
-                      <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm mb-2">{step.title}</h4>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{step.action}</p>
+                      <h4 className="font-bold text-slate-900 text-sm mb-2">{step.title}</h4>
+                      <p className="text-xs text-slate-600 leading-relaxed">{step.action}</p>
                     </div>
                   </div>
                 ))}
@@ -498,34 +524,34 @@ export default function OpportunityDetail() {
 
             {/* Required Resources, Validation Milestone & Risk Mitigation */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-              <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Zero-Cost Tools Needed</h4>
-                <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Zero-Cost Tools Needed</h4>
+                <ul className="space-y-2 text-xs text-slate-700">
                   {firstStep.requiredResources.map((res, i) => (
                     <li key={i} className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400 shrink-0" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
                       <span>{res}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="p-6 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50">
-                <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs uppercase tracking-wider mb-2">
+              <div className="p-6 rounded-2xl bg-emerald-50/60 border border-emerald-200">
+                <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs uppercase tracking-wider mb-2">
                   <CheckCircle2 className="w-4 h-4" />
                   Validation Milestone
                 </div>
-                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                <p className="text-xs text-slate-700 leading-relaxed font-medium">
                   {firstStep.validationMilestone}
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-red-50/60 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50">
-                <div className="flex items-center gap-2 text-red-800 dark:text-red-300 font-bold text-xs uppercase tracking-wider mb-2">
+              <div className="p-6 rounded-2xl bg-red-50/60 border border-red-200">
+                <div className="flex items-center gap-2 text-red-800 font-bold text-xs uppercase tracking-wider mb-2">
                   <ShieldAlert className="w-4 h-4" />
                   Risk Mitigation (Avoid Pitfalls)
                 </div>
-                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-700 leading-relaxed">
                   {firstStep.riskMitigation}
                 </p>
               </div>
@@ -535,82 +561,82 @@ export default function OpportunityDetail() {
 
         {/* SECTION 5: WEB MARKET RESEARCH & VERIFIED SOURCES */}
         {(activeTab === 'all' || activeTab === 'webResearch') && (
-          <section className="bg-white dark:bg-slate-900 rounded-3xl p-8 md:p-10 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+          <section className="bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
                   <Globe className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Profile Section 05</span>
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Live Web Market Research & Benchmarks</h2>
+                  <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Profile Section 05</span>
+                  <h2 className="text-2xl font-bold text-slate-900">Live Web Market Research & Benchmarks</h2>
                 </div>
               </div>
-              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-900/50 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" /> Web Grounded ({webResearch.groundedAt})
               </span>
             </div>
 
             {/* Market Intelligence Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50">
+              <div className="p-5 rounded-2xl bg-emerald-50/50 border border-emerald-100">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Demand Score</span>
-                  <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Demand Score</span>
+                  <TrendingUp className="w-4 h-4 text-emerald-600" />
                 </div>
-                <div className="text-2xl font-extrabold text-emerald-950 dark:text-emerald-200 mb-1">
+                <div className="text-2xl font-extrabold text-emerald-950 mb-1">
                   {webResearch.marketDemandScore}/100
                 </div>
-                <div className="w-full bg-emerald-200 dark:bg-emerald-900 rounded-full h-1.5 overflow-hidden">
+                <div className="w-full bg-emerald-200 rounded-full h-1.5 overflow-hidden">
                   <div 
-                    className="bg-emerald-600 dark:bg-emerald-400 h-1.5 rounded-full transition-all duration-500" 
+                    className="bg-emerald-600 h-1.5 rounded-full transition-all duration-500" 
                     style={{ width: `${Math.min(webResearch.marketDemandScore, 100)}%` }} 
                   />
                 </div>
-                <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium mt-1.5 block">High commercial validation</span>
+                <span className="text-[11px] text-emerald-800 font-medium mt-1.5 block">High commercial validation</span>
               </div>
 
-              <div className="p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50">
+              <div className="p-5 rounded-2xl bg-blue-50/50 border border-blue-100">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wider">Average Market Rate</span>
-                  <DollarSign className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Average Market Rate</span>
+                  <DollarSign className="w-4 h-4 text-blue-600" />
                 </div>
-                <div className="text-sm font-extrabold text-blue-950 dark:text-blue-200 mb-1 leading-snug">
+                <div className="text-sm font-extrabold text-blue-950 mb-1 leading-snug">
                   {webResearch.averageMarketRateINR}
                 </div>
-                <span className="text-[11px] text-blue-700 dark:text-blue-300 font-medium">Standard Indian freelancer benchmark</span>
+                <span className="text-[11px] text-blue-700 font-medium">Standard Indian freelancer benchmark</span>
               </div>
 
-              <div className="p-5 rounded-2xl bg-amber-50/50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/50">
+              <div className="p-5 rounded-2xl bg-amber-50/50 border border-amber-100">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">Verified Sources</span>
-                  <BookOpen className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">Verified Sources</span>
+                  <BookOpen className="w-4 h-4 text-amber-600" />
                 </div>
-                <div className="text-2xl font-extrabold text-amber-950 dark:text-amber-200 mb-1">
+                <div className="text-2xl font-extrabold text-amber-950 mb-1">
                   {webResearch.verifiedSources.length} Citations
                 </div>
-                <span className="text-[11px] text-amber-800 dark:text-amber-300 font-medium">Government & platform documentation</span>
+                <span className="text-[11px] text-amber-800 font-medium">Government & platform documentation</span>
               </div>
 
-              <div className="p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50">
+              <div className="p-5 rounded-2xl bg-indigo-50/50 border border-indigo-100">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Search Queries</span>
-                  <Search className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                  <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider">Search Queries</span>
+                  <Search className="w-4 h-4 text-indigo-600" />
                 </div>
-                <div className="text-2xl font-extrabold text-indigo-950 dark:text-indigo-200 mb-1">
+                <div className="text-2xl font-extrabold text-indigo-950 mb-1">
                   {webResearch.searchQueries.length} Queries
                 </div>
-                <span className="text-[11px] text-indigo-800 dark:text-indigo-300 font-medium">Live market research grounding</span>
+                <span className="text-[11px] text-indigo-800 font-medium">Live market research grounding</span>
               </div>
             </div>
 
             {/* Competitor Benchmark Callout */}
-            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-              <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-xs uppercase tracking-wider mb-2">
-                <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+              <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider mb-2">
+                <Building2 className="w-4 h-4 text-blue-600" />
                 Competitor Agency Benchmark vs. Student Micro-Venture
               </div>
-              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+              <p className="text-sm text-slate-700 leading-relaxed font-medium">
                 {webResearch.competitorBenchmark}
               </p>
             </div>
@@ -618,11 +644,11 @@ export default function OpportunityDetail() {
             {/* Trending Signals */}
             {webResearch.trendingSignals && webResearch.trendingSignals.length > 0 && (
               <div>
-                <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Live Market Signals & Trends (2025/2026)</h3>
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Live Market Signals & Trends (2025/2026)</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {webResearch.trendingSignals.map((signal, idx) => (
-                    <div key={idx} className="p-4 rounded-xl bg-emerald-50/30 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-xs text-slate-700 dark:text-slate-300 font-medium flex items-start gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-bold flex items-center justify-center shrink-0 text-[11px]">
+                    <div key={idx} className="p-4 rounded-xl bg-emerald-50/30 border border-emerald-100 text-xs text-slate-700 font-medium flex items-start gap-2.5">
+                      <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center shrink-0 text-[11px]">
                         ✓
                       </span>
                       <span>{signal}</span>
@@ -634,7 +660,7 @@ export default function OpportunityDetail() {
 
             {/* Verified Sources and External Citations */}
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Verified Web Sources & Official Portals</h3>
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Verified Web Sources & Official Portals</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {webResearch.verifiedSources.map((source, idx) => (
                   <a 
@@ -642,22 +668,22 @@ export default function OpportunityDetail() {
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-4 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-400 hover:shadow-sm transition-all group flex flex-col justify-between"
+                    className="p-4 rounded-xl bg-white border border-slate-200 hover:border-blue-400 hover:shadow-sm transition-all group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-1 mb-1.5">
-                        <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
+                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
                           {source.title}
                         </h4>
-                        <ExternalLink className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 shrink-0" />
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 shrink-0" />
                       </div>
                       {source.snippet && (
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                        <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
                           {source.snippet}
                         </p>
                       )}
                     </div>
-                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold mt-3 block truncate">
+                    <span className="text-[10px] text-blue-600 font-semibold mt-3 block truncate">
                       {source.url.replace(/^https?:\/\//, '')}
                     </span>
                   </a>
@@ -666,12 +692,12 @@ export default function OpportunityDetail() {
             </div>
 
             {/* Search Grounding Tags */}
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
+            <div className="pt-2 border-t border-slate-100 flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                 <Search className="w-3 h-3" /> Grounded Search Queries:
               </span>
               {webResearch.searchQueries.map((q, idx) => (
-                <span key={idx} className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-md text-[11px] font-medium border border-slate-200 dark:border-slate-700">
+                <span key={idx} className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-[11px] font-medium border border-slate-200">
                   "{q}"
                 </span>
               ))}
@@ -682,18 +708,18 @@ export default function OpportunityDetail() {
       </div>
 
       {/* Footer Skill Progression & Explainability */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h3 className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-500" /> G-ONE Explainability: Why This Match?
+            <h3 className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4" /> G-ONE Explainability: Why This Match?
             </h3>
-            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-3">
+            <p className="text-sm text-slate-700 leading-relaxed mb-3">
               {matchData.explanation}
             </p>
             {matchData.actionTip && (
-              <div className="p-3 bg-blue-50/70 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-900/50 rounded-xl text-xs text-blue-900 dark:text-blue-200 flex items-start gap-2">
-                <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+              <div className="p-3 bg-blue-50/70 border border-blue-200/80 rounded-xl text-xs text-blue-900 flex items-start gap-2">
+                <Sparkles className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                 <div>
                   <strong className="font-semibold block">Proactive Compatibility Tip:</strong>
                   {matchData.actionTip}
@@ -703,13 +729,13 @@ export default function OpportunityDetail() {
           </div>
 
           <div>
-            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
               Next Skills to Develop to Maximize This Pathway
             </h3>
             <div className="flex flex-wrap gap-2">
               {opportunity.nextSkills.map((skill, i) => (
-                <span key={i} className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 flex items-center gap-1">
-                  <Plus className="w-3 h-3 text-blue-500 dark:text-blue-400" />
+                <span key={i} className="px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 flex items-center gap-1">
+                  <Plus className="w-3 h-3 text-blue-500" />
                   {skill}
                 </span>
               ))}

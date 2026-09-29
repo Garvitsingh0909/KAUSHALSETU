@@ -3,7 +3,6 @@ import { Proficiency, Skill, SKILLS_DB } from '../data/skills';
 import { Opportunity } from '../data/opportunities';
 import { IndicativeProficiency, EvidenceLevel } from '../data/assessmentTypes';
 import { UserSystemRole, AccountStatus } from '../data/adminTypes';
-import { enhanceSkillProfile } from '../utils/skillEnhancer';
 
 export interface UserProfile {
   name: string;
@@ -30,6 +29,24 @@ export interface UserSkill {
   latestRubricScore?: number;
 }
 
+export interface EarningMilestone {
+  id: string;
+  title: string;
+  amount: number;
+  date: string;
+  skillId?: string;
+  category?: string;
+  notes?: string;
+}
+
+export interface FinancialGoal {
+  monthlyTargetINR: number;
+  savingsTargetINR: number;
+  targetMonth: string;
+  selectedSkillIds: string[];
+  milestones: EarningMilestone[];
+}
+
 interface ProfileContextType {
   profile: UserProfile;
   setProfile: (profile: UserProfile | ((prev: UserProfile) => UserProfile)) => void;
@@ -38,6 +55,10 @@ interface ProfileContextType {
   allSkills: Skill[];
   customOpportunities: Opportunity[];
   isAdministrator: boolean;
+  financialGoal: FinancialGoal;
+  updateFinancialGoal: (goal: Partial<FinancialGoal>) => void;
+  addEarningMilestone: (milestone: Omit<EarningMilestone, 'id'>) => void;
+  removeEarningMilestone: (id: string) => void;
   addSkill: (skillId: string) => void;
   addCustomSkill: (skill: Skill) => void;
   addCustomOpportunity: (opp: Opportunity) => void;
@@ -71,6 +92,33 @@ const defaultProfile: UserProfile = {
   interests: ''
 };
 
+const defaultFinancialGoal: FinancialGoal = {
+  monthlyTargetINR: 5000,
+  savingsTargetINR: 2000,
+  targetMonth: 'October 2026',
+  selectedSkillIds: ['graphic_design', 'coding', 'photography'],
+  milestones: [
+    {
+      id: 'm-1',
+      title: 'Bakery Menu Redesign Project',
+      amount: 1500,
+      date: '2026-09-22',
+      skillId: 'graphic_design',
+      category: 'Freelance Service',
+      notes: 'Delivered print & WhatsApp graphics for local bakery'
+    },
+    {
+      id: 'm-2',
+      title: 'School Club Website Landing Page',
+      amount: 1000,
+      date: '2026-09-25',
+      skillId: 'coding',
+      category: 'Web Project',
+      notes: 'Built 1-page responsive portal on Vercel'
+    }
+  ]
+};
+
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
@@ -87,6 +135,21 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       console.error("Failed to parse saved profile:", e);
     }
     return defaultProfile;
+  });
+
+  const [financialGoal, setFinancialGoal] = useState<FinancialGoal>(() => {
+    try {
+      const saved = localStorage.getItem('ks_financial_goal');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') {
+          return { ...defaultFinancialGoal, ...parsed };
+        }
+      }
+    } catch (e) {
+      console.error("Failed to parse financial goal:", e);
+    }
+    return defaultFinancialGoal;
   });
 
   const [userSkills, setUserSkills] = useState<UserSkill[]>(() => {
@@ -110,11 +173,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          return parsed
-            .filter(item => item && item.id && item.name)
-            // Filter out old basic art skill if it exists so it defaults to the official curated fine arts visual skill
-            .filter(item => !['art', 'art_skill', 'drawing_art'].includes(item.id.toLowerCase()))
-            .map(item => enhanceSkillProfile(item));
+          return parsed.filter(item => item && item.id && item.name);
         }
       }
     } catch (e) {
@@ -145,8 +204,37 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   }, [profile]);
 
   useEffect(() => {
+    localStorage.setItem('ks_financial_goal', JSON.stringify(financialGoal));
+  }, [financialGoal]);
+
+  useEffect(() => {
     localStorage.setItem('ks_skills', JSON.stringify(userSkills));
   }, [userSkills]);
+
+  const updateFinancialGoal = useCallback((updated: Partial<FinancialGoal>) => {
+    setFinancialGoal(prev => ({
+      ...prev,
+      ...updated
+    }));
+  }, []);
+
+  const addEarningMilestone = useCallback((milestone: Omit<EarningMilestone, 'id'>) => {
+    const newEntry: EarningMilestone = {
+      ...milestone,
+      id: `m-${Date.now()}`
+    };
+    setFinancialGoal(prev => ({
+      ...prev,
+      milestones: [newEntry, ...prev.milestones]
+    }));
+  }, []);
+
+  const removeEarningMilestone = useCallback((id: string) => {
+    setFinancialGoal(prev => ({
+      ...prev,
+      milestones: prev.milestones.filter(m => m.id !== id)
+    }));
+  }, []);
   
   useEffect(() => {
     localStorage.setItem('ks_custom_skills', JSON.stringify(customSkills));
@@ -167,17 +255,16 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   }, []);
   
   const addCustomSkill = useCallback((skill: Skill) => {
-    if (!skill || !skill.name) return;
-    const enhanced = enhanceSkillProfile(skill);
+    if (!skill || !skill.id || !skill.name) return;
     setCustomSkills(prev => {
-      if (prev.some(s => s && s.id === enhanced.id) || SKILLS_DB.some(s => s && s.id === enhanced.id)) {
+      if (prev.some(s => s && s.id === skill.id) || SKILLS_DB.some(s => s && s.id === skill.id)) {
         return prev;
       }
-      return [...prev, enhanced];
+      return [...prev, skill];
     });
     setUserSkills(prev => {
-      if (prev.some(s => s && s.skillId === enhanced.id)) return prev;
-      return [...prev, { skillId: enhanced.id, proficiency: 'Beginner' }];
+      if (prev.some(s => s && s.skillId === skill.id)) return prev;
+      return [...prev, { skillId: skill.id, proficiency: 'Beginner' }];
     });
   }, []);
   
@@ -261,10 +348,12 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     setUserSkills([]);
     setCustomSkills([]);
     setCustomOpportunities([]);
+    setFinancialGoal(defaultFinancialGoal);
     localStorage.removeItem('ks_profile');
     localStorage.removeItem('ks_skills');
     localStorage.removeItem('ks_custom_skills');
     localStorage.removeItem('ks_custom_opps');
+    localStorage.removeItem('ks_financial_goal');
   }, []);
 
   const triggerDemoMode = useCallback(() => {
@@ -376,6 +465,10 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       allSkills,
       customOpportunities,
       isAdministrator,
+      financialGoal,
+      updateFinancialGoal,
+      addEarningMilestone,
+      removeEarningMilestone,
       addSkill,
       addCustomSkill,
       addCustomOpportunity,

@@ -30,7 +30,6 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { KaushalPathwayBanner } from '../components/common/KaushalPathwayBanner';
 import { cn } from '../lib/utils';
 
 const CATEGORIES: SkillCategory[] = [
@@ -298,7 +297,6 @@ export default function SkillDNA() {
   if (userSkills.length === 0) {
     return (
       <div className="space-y-6 max-w-2xl mx-auto my-8 pb-16">
-        <KaushalPathwayBanner currentStep="CAPABILITY" />
         <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 md:p-12 border border-slate-200/90 dark:border-slate-800 shadow-xs text-center">
           <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 flex items-center justify-center mx-auto mb-4">
             <BrainCircuit className="w-7 h-7" />
@@ -331,12 +329,6 @@ export default function SkillDNA() {
   return (
     <div className="space-y-7 animate-in fade-in duration-300 max-w-6xl mx-auto pb-16">
       
-      {/* 1. Signature Pathway */}
-      <KaushalPathwayBanner 
-        currentStep="CAPABILITY"
-        subtitle="Your Skill DNA visualizes your multi-domain capability and unique vocational combinations."
-      />
-
       {/* 2. Header & DNA Archetype Banner */}
       <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-6 md:p-8 space-y-6 transition-colors">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">

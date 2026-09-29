@@ -27,43 +27,78 @@ function generateSmartSkillFallback(skillName: string) {
   const lower = skillName.toLowerCase();
   
   let category: "Technical" | "Creative" | "Communication" | "Practical" | "Entrepreneurial" = "Practical";
-  if (lower.includes('code') || lower.includes('software') || lower.includes('web') || lower.includes('data') || lower.includes('iot') || lower.includes('robot') || lower.includes('hardware') || lower.includes('python') || lower.includes('ai') || lower.includes('app')) {
+  let tools = ["Industry Frameworks", "Standard Operating Procedures", "Cloud Management", "Digital Tools"];
+  let hourlyRate = "$125 - $285/hr";
+  let monthlyRev = "$18,500 - $48,000/mo";
+  let projectRange = "$4,500 - $32,000 / contract";
+
+  if (lower.includes('code') || lower.includes('software') || lower.includes('web') || lower.includes('data') || lower.includes('iot') || lower.includes('robot') || lower.includes('hardware') || lower.includes('python') || lower.includes('ai') || lower.includes('app') || lower.includes('cyber')) {
     category = "Technical";
-  } else if (lower.includes('design') || lower.includes('video') || lower.includes('audio') || lower.includes('photo') || lower.includes('art') || lower.includes('media') || lower.includes('graphic') || lower.includes('ui') || lower.includes('ux') || lower.includes('music') || lower.includes('craft')) {
+    tools = ["TypeScript", "React & Node.js", "Python & PyTorch", "Gemini API & LLM Orchestration", "PostgreSQL & Vector DBs", "Docker & Kubernetes"];
+    hourlyRate = "$145 - $320/hr";
+    monthlyRev = "$24,000 - $65,000/mo";
+    projectRange = "$8,500 - $45,000 / contract";
+  } else if (lower.includes('design') || lower.includes('video') || lower.includes('audio') || lower.includes('photo') || lower.includes('art') || lower.includes('media') || lower.includes('graphic') || lower.includes('ui') || lower.includes('ux') || lower.includes('music') || lower.includes('motion')) {
     category = "Creative";
-  } else if (lower.includes('speak') || lower.includes('writing') || lower.includes('pitch') || lower.includes('negotiat') || lower.includes('present') || lower.includes('story') || lower.includes('english') || lower.includes('hindi') || lower.includes('language')) {
+    tools = ["Figma & Design Tokens", "Adobe Creative Cloud", "After Effects & Cinema 4D", "Midjourney & Stable Diffusion", "Webflow & Framer"];
+    hourlyRate = "$115 - $250/hr";
+    monthlyRev = "$16,500 - $42,000/mo";
+    projectRange = "$5,000 - $28,000 / contract";
+  } else if (lower.includes('speak') || lower.includes('writing') || lower.includes('pitch') || lower.includes('negotiat') || lower.includes('present') || lower.includes('story') || lower.includes('english') || lower.includes('copy') || lower.includes('brand')) {
     category = "Communication";
-  } else if (lower.includes('market') || lower.includes('sale') || lower.includes('finance') || lower.includes('budget') || lower.includes('cost') || lower.includes('business') || lower.includes('pricing') || lower.includes('startup') || lower.includes('retail')) {
+    tools = ["Conversion Copywriting Standards", "Notion Executive Decks", "SEO Keyword Intelligence", "Stakeholder CRM", "Public Relations Toolkits"];
+    hourlyRate = "$120 - $260/hr";
+    monthlyRev = "$15,000 - $38,000/mo";
+    projectRange = "$4,000 - $22,000 / contract";
+  } else if (lower.includes('market') || lower.includes('sale') || lower.includes('finance') || lower.includes('budget') || lower.includes('cost') || lower.includes('business') || lower.includes('pricing') || lower.includes('startup') || lower.includes('growth')) {
     category = "Entrepreneurial";
+    tools = ["Stripe & Financial Analytics", "Google Analytics 4 & Mixpanel", "HubSpot CRM", "Financial Unit Economics Models", "Meta & Google Ads Manager"];
+    hourlyRate = "$150 - $350/hr";
+    monthlyRev = "$28,000 - $85,000/mo";
+    projectRange = "$12,000 - $65,000 / contract";
   }
+
+  const trimmed = skillName.trim();
 
   return {
     id: safeId,
-    name: skillName.trim(),
+    name: trimmed,
     category,
-    description: `Applied capability in ${skillName.trim()} focused on hands-on execution, peer collaboration, and community value creation.`,
+    description: `Enterprise-grade mastery in ${trimmed}, focusing on high-ticket client deliverables, scalable architecture, automated workflows, and high-margin monetization.`,
+    realWorldDefinition: `${trimmed} is an essential modern discipline involving high-tier problem solving, strategic execution, toolchain mastery, and commercial value creation. Professionals in this domain combine technical or creative precision with commercial strategy to drive measurable economic return.`,
+    toolStack: tools,
+    averageHourlyRate: hourlyRate,
+    monthlyRevenuePotential: monthlyRev,
+    projectRateRange: projectRange,
+    marketDemandRating: "Exceptional (98th Percentile)",
+    monetizationModels: [
+      `High-Ticket Enterprise Monthly Retainer (${monthlyRev})`,
+      `Performance-Based Growth & Conversion Royalty`,
+      `Turnkey Fixed-Scope Project Delivery (${projectRange})`,
+      `Specialized Micro-SaaS & Automated Workflow License`
+    ],
     applications: [
-      `Local client service packages utilizing ${skillName.trim()}`,
-      `Interactive school exhibition and community demonstration booths`,
-      `Standard operating procedures (SOPs) and workflow templates for ${skillName.trim()}`,
-      `Peer mentoring and digital knowledge-sharing workshops`
+      `Enterprise-grade custom implementations of ${trimmed}`,
+      `Automated AI-assisted workflow optimization using ${trimmed}`,
+      `High-converting client deliverables & strategic consulting packages`,
+      `Turnkey micro-SaaS and recurring retainer service offerings`
     ],
     problemsSolved: [
-      `Absence of structured execution standards in ${skillName.trim()}`,
-      `High barrier to entry and excessive consultancy costs for local community businesses`,
-      `Fragmented workflows and communication bottlenecks across collaborative projects`
+      `Inability of traditional vendors to deliver high-quality ${trimmed} at agile speeds`,
+      `High agency overheads costing clients upwards of $20,000/mo without guaranteed ROI`,
+      `Fragmented execution bottlenecks and unstandardized workflows in ${trimmed}`
     ],
     opportunities: [
-      `Turnkey ${skillName.trim()} Micro-Service Specialist`,
-      `Freelance Community Consultant & Project Lead`,
-      `Digital Workflow & Media Optimizer`,
-      `Vocational Workshop Facilitator & Educator`
+      `Enterprise ${trimmed} Strategic Consultant ($18,500/mo retainer)`,
+      `Autonomous ${trimmed} AI Workflow Agency ($28,000/mo MRR)`,
+      `High-Ticket ${trimmed} Audit & Security Specialist ($12,000/project)`,
+      `Turnkey ${trimmed} Micro-SaaS Platform ($45,000 ARR)`
     ],
     nextSkills: [
-      category === "Entrepreneurial" ? "Financial Accounting" : "Pricing & Cost Modeling",
-      "Client Discovery & Negotiation",
-      "Digital Presentation & Pitching",
-      "Quality Assurance & Scale Operations"
+      category === "Entrepreneurial" ? "Financial Valuation & Exit Strategy" : "High-Ticket Sales & Negotiation",
+      "AI & Automated Workflow Engineering",
+      "Enterprise Contract Security & IP Law",
+      "Growth Marketing & Account Expansion"
     ]
   };
 }
@@ -94,14 +129,15 @@ async function startServer() {
         }
       });
       
-      const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
       let response;
-      
-      for (const currentModel of candidateModels) {
+      let retries = 2;
+      let delayMs = 1000;
+
+      while (retries > 0) {
         try {
           response = await ai.models.generateContent({
-            model: currentModel,
-            contents: `Generate a structured educational skill profile for the skill: "${skillName}". Follow CBSE Skill Expo - Entrepreneurship & Financial Literacy guidelines.`,
+            model: 'gemini-3.8-flash',
+            contents: `Generate a rich, highly detailed real-world skill profile for the skill: "${skillName}". Define what this skill ACTUALLY is in real-world professional practice, including its actual tool stack, real industry definition, high market rates, high potential revenue streams, and unique monetizable opportunities. Follow high-value entrepreneurial guidelines ($120-$350/hr market value, $18,000-$75,000/mo potential revenue).`,
             config: {
               responseMimeType: "application/json",
               responseSchema: {
@@ -110,23 +146,37 @@ async function startServer() {
                   id: { type: Type.STRING, description: "A unique snake_case ID for the skill, strictly derived from the skill name." },
                   name: { type: Type.STRING, description: "The properly formatted display name of the skill." },
                   category: { type: Type.STRING, enum: ["Technical", "Creative", "Communication", "Practical", "Entrepreneurial"] },
-                  description: { type: Type.STRING, description: "A brief 1-2 sentence description of the skill." },
-                  applications: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 real-world applications of this skill." },
-                  problemsSolved: { type: Type.ARRAY, items: { type: Type.STRING }, description: "3 real-world problems this skill helps solve." },
-                  opportunities: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 career or real-world opportunities." },
-                  nextSkills: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 related skills to learn next." }
+                  description: { type: Type.STRING, description: "A high-impact 1-2 sentence executive summary of the skill." },
+                  realWorldDefinition: { type: Type.STRING, description: "Comprehensive 2-3 sentence definition explaining what this skill really is in industry, its core methodologies, and real-world scope." },
+                  toolStack: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4-6 specific industry standard frameworks, software, or tools used in this skill." },
+                  averageHourlyRate: { type: Type.STRING, description: "Ambitious hourly rate range, e.g., '$125 - $285/hr'." },
+                  monthlyRevenuePotential: { type: Type.STRING, description: "High monthly revenue potential, e.g., '$18,500 - $55,000/mo'." },
+                  projectRateRange: { type: Type.STRING, description: "Contract price range, e.g., '$6,000 - $35,000 / contract'." },
+                  marketDemandRating: { type: Type.STRING, description: "Market demand rating, e.g., 'Exceptional (98th Percentile)'." },
+                  monetizationModels: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 high-margin revenue models for this skill." },
+                  applications: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 real-world commercial applications of this skill." },
+                  problemsSolved: { type: Type.ARRAY, items: { type: Type.STRING }, description: "3 real-world high-value problems this skill addresses." },
+                  opportunities: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 unique, high-value, distinct monetizable opportunity titles with revenue estimates." },
+                  nextSkills: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 related high-value skills to master next." }
                 },
-                required: ["id", "name", "category", "description", "applications", "problemsSolved", "opportunities", "nextSkills"]
+                required: ["id", "name", "category", "description", "realWorldDefinition", "toolStack", "averageHourlyRate", "monthlyRevenuePotential", "projectRateRange", "monetizationModels", "applications", "problemsSolved", "opportunities", "nextSkills"]
               }
             }
           });
-          if (response && response.text) break;
+          break;
         } catch (error: any) {
           if (checkIsQuotaError(error)) {
             recordQuotaExhaustion();
             break;
           }
-          // Continue to next model candidate
+          const isRetryable = error?.status === 503 || error?.status === 'UNAVAILABLE' || (error?.message && error.message.includes('503'));
+          if (isRetryable && retries > 1) {
+            retries--;
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+            delayMs *= 2;
+          } else {
+            break;
+          }
         }
       }
       
@@ -140,7 +190,7 @@ async function startServer() {
       if (checkIsQuotaError(error)) {
         recordQuotaExhaustion();
       }
-      console.log(`[Skills Engine] Synthesized educational skill profile for "${skillName}"`);
+      console.log(`[Skills Engine] Synthesized real-world skill profile for "${skillName}"`);
       return res.json(generateSmartSkillFallback(skillName));
     }
   });
@@ -260,25 +310,33 @@ You MUST respond strictly with a valid JSON object matching this schema (do NOT 
   }
 }`;
 
-      const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
       let response;
+      let retries = 2;
+      let delayMs = 1000;
 
-      for (const currentModel of candidateModels) {
+      while (retries > 0) {
         try {
           response = await ai.models.generateContent({
-            model: currentModel,
+            model: 'gemini-3.8-flash',
             contents: searchPrompt,
             config: {
               tools: [{ googleSearch: {} }]
             }
           });
-          if (response && response.text) break;
+          break;
         } catch (error: any) {
           if (checkIsQuotaError(error)) {
             recordQuotaExhaustion();
             break;
           }
-          // Try next model
+          const isRetryable = error?.status === 503 || error?.status === 'UNAVAILABLE' || (error?.message && error.message.includes('503'));
+          if (isRetryable && retries > 1) {
+            retries--;
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+            delayMs *= 2;
+          } else {
+            break;
+          }
         }
       }
       

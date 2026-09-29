@@ -25,7 +25,6 @@ import { AssessmentResultsSummary } from '../components/assessment/AssessmentRes
 import { AssessmentHistoryModal } from '../components/assessment/AssessmentHistoryModal';
 import { AssessmentCoverageDashboard } from '../components/assessment/AssessmentCoverageDashboard';
 import { AdminAssessmentBuilder } from '../components/assessment/AdminAssessmentBuilder';
-import { KaushalPathwayBanner } from '../components/common/KaushalPathwayBanner';
 import { 
   Sparkles, 
   CheckCircle2, 
@@ -256,12 +255,6 @@ export function SkillAssessment() {
   return (
     <div className="max-w-6xl mx-auto space-y-7 pb-16 animate-in fade-in duration-300">
       
-      {/* 1. Signature Pathway Banner */}
-      <KaushalPathwayBanner 
-        currentStep="CAPABILITY"
-        subtitle="Validate your practical capability through objective knowledge checks and artifact rubrics."
-      />
-
       {/* 2. Header & Mode Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>

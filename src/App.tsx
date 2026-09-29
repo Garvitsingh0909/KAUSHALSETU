@@ -5,7 +5,6 @@
 
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from './context/ThemeContext';
 import { KnowledgeBaseProvider } from './context/KnowledgeBaseContext';
 import { ProfileProvider } from './context/ProfileContext';
 import { AssessmentProvider } from './context/AssessmentContext';
@@ -53,7 +52,6 @@ import { AdminSettings } from './pages/admin/AdminSettings';
 
 export default function App() {
   return (
-    <ThemeProvider>
       <KnowledgeBaseProvider>
         <ProfileProvider>
           <AssessmentProvider>
@@ -121,6 +119,5 @@ export default function App() {
           </AssessmentProvider>
         </ProfileProvider>
       </KnowledgeBaseProvider>
-    </ThemeProvider>
   );
 }

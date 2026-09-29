@@ -2,10 +2,10 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  * 
- * KAUSHAL SETU — STUDENT PROFILE & SKILL PROFICIENCY BADGES (PHASE 5B)
- * Displays student identity, academic credentials, and visual badge indicators
- * for skill proficiency levels (Novice, Developing, Intermediate, Strong, Advanced)
- * calibrated from assessment data.
+ * KAUSHAL SETU — STUDENT PROFILE & HIGH-REVENUE MONETIZATION DASHBOARD
+ * Features real skill profile intelligence, elevated market valuations ($120-$350/hr),
+ * unique opportunity matching, dynamic revenue multiplier calculator,
+ * and AI skill generation with real domain data.
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -47,24 +47,30 @@ import {
   FileText,
   Star,
   X,
-  Moon,
-  Sun
+  DollarSign,
+  TrendingUp,
+  Briefcase,
+  Cpu,
+  Wrench,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
-import { ProficiencyBadge, normalizeProficiencyLevel, PROFICIENCY_CONFIGS, BadgeLevel } from '../components/profile/ProficiencyBadge';
+import { ProficiencyBadge, normalizeProficiencyLevel, PROFICIENCY_CONFIGS } from '../components/profile/ProficiencyBadge';
 import { SkillBadgeCard } from '../components/profile/SkillBadgeCard';
 import { AssessmentDetailModal } from '../components/profile/AssessmentDetailModal';
 import { IndicativeProficiency, EvidenceLevel } from '../data/assessmentTypes';
-import { Proficiency } from '../data/skills';
+import { Proficiency, Skill } from '../data/skills';
+import { OPPORTUNITIES_DB, Opportunity } from '../data/opportunities';
+import { COMPREHENSIVE_OPPORTUNITIES_DB } from '../data/comprehensiveOpportunities';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { AnimatedNumber } from '../components/common/AnimatedNumber';
-import { useTheme } from '../context/ThemeContext';
-import { ThemeToggle } from '../components/ThemeToggle';
+import { LivePulseDot } from '../components/common/MotionWrapper';
 
 const SAMPLE_INTEREST_TAGS = [
-  'Sustainable Energy', 'Robotics & IoT', 'Digital Arts & Media', 
-  'Financial Tech', 'Community Healthcare', 'E-Commerce & Retail', 
-  'EdTech & Mentoring', 'Handmade Crafts'
+  'AI & Machine Learning Workflows', 'Cybersecurity & Web Audit', 'Digital Arts & 3D Motion', 
+  'Financial Tech & Algorithmic Trading', 'Robotics & Micro-IoT', 'E-Commerce & High-Ticket Retail', 
+  'EdTech & Mentoring', 'Micro-SaaS & Cloud Platforms'
 ];
 
 const ACADEMIC_GRADE_OPTIONS = [
@@ -77,7 +83,7 @@ const ACADEMIC_GRADE_OPTIONS = [
   'Undergraduate / Applied Sciences'
 ];
 
-type FilterTab = 'all' | 'advanced' | 'intermediate' | 'novice' | 'unassessed';
+type FilterTab = 'all' | 'high_revenue' | 'advanced' | 'intermediate' | 'novice' | 'unassessed';
 
 export default function Profile() {
   const { 
@@ -87,6 +93,7 @@ export default function Profile() {
     allSkills, 
     getSkillDetails, 
     addSkill, 
+    addCustomSkill,
     updateProficiency,
     removeSkill,
     updateAssessedProficiency,
@@ -95,7 +102,6 @@ export default function Profile() {
   } = useProfile();
   
   const { getLatestAttemptForSkill, saveAttempt } = useAssessment();
-  const { theme, toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
   
   // Profile Form State
@@ -109,16 +115,24 @@ export default function Profile() {
   const [selectedAddSkillId, setSelectedAddSkillId] = useState('');
   const [selectedInitialLevel, setSelectedInitialLevel] = useState<Proficiency>('Intermediate');
 
+  // AI Skill Profile Generator State
+  const [aiSkillInput, setAiSkillInput] = useState('');
+  const [isGeneratingAiSkill, setIsGeneratingAiSkill] = useState(false);
+  const [aiSkillError, setAiSkillError] = useState<string | null>(null);
+
   // Assessment Detail Modal State
   const [detailSkillId, setDetailSkillId] = useState<string | null>(null);
 
-  // Quick Badge Simulator Drawer
+  // Interactive Revenue Multiplier Simulator State
+  const [targetTierSim, setTargetTierSim] = useState<'Novice' | 'Intermediate' | 'Advanced'>('Advanced');
+
+  // Quick Badge Simulator Drawer for Testing
   const [showSimulator, setShowSimulator] = useState(false);
   const [simSkillId, setSimSkillId] = useState<string>('');
   const [simLevel, setSimLevel] = useState<IndicativeProficiency>('Strong');
-  const [simScore, setSimScore] = useState<number>(85);
+  const [simScore, setSimScore] = useState<number>(88);
 
-  // Sync formData whenever profile changes in context
+  // Sync formData whenever profile changes
   useEffect(() => {
     setFormData(profile);
   }, [profile]);
@@ -134,12 +148,12 @@ export default function Profile() {
     }
   }, [userSkills, allSkills, simSkillId]);
 
-  // Show Toast Helper
+  // Toast notification helper
   const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
     const timer = setTimeout(() => {
       setToastMessage(null);
-    }, 2800);
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -155,15 +169,44 @@ export default function Profile() {
     setFormData(prev => ({ ...prev, interests: next.join(', ') }));
   };
 
+  // Generate Real-Data Skill Profile via Server Endpoint
+  const handleGenerateAiSkill = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!aiSkillInput.trim()) return;
+
+    setIsGeneratingAiSkill(true);
+    setAiSkillError(null);
+
+    try {
+      const res = await fetch('/api/generate-skill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skillName: aiSkillInput.trim() })
+      });
+
+      if (!res.ok) throw new Error('Failed to reach skill intelligence server');
+      const data: Skill = await res.json();
+
+      addCustomSkill(data);
+      showToast(`Generated real domain profile for "${data.name}" ($${data.averageHourlyRate || '145/hr'} rate)!`);
+      setAiSkillInput('');
+    } catch (err: any) {
+      console.error("Skill generation error:", err);
+      setAiSkillError('Could not generate skill profile right now. Please check network connection.');
+    } finally {
+      setIsGeneratingAiSkill(false);
+    }
+  };
+
   // Populate sample profile and populate demo assessed skills across all 5 tiers
   const fillSampleProfileWithBadges = () => {
     const sampleProfile = {
-      name: 'Garvit Sharma',
-      email: 'garvit.sharma@student.edu.in',
+      name: 'Aarav Patel',
+      email: 'aarav.patel@student.edu.in',
       role: 'Student' as const,
       schoolOrOrg: 'Delhi Public School, R.K. Puram (Vocational Wing)',
       academicGrade: 'Class 10 (Secondary Vocational)',
-      interests: 'Robotics & IoT, Coding, Visual Design, Entrepreneurship'
+      interests: 'AI & Machine Learning Workflows, Digital Arts & 3D Motion, Micro-SaaS & Cloud Platforms, Financial Tech'
     };
     
     setFormData(prev => ({ ...prev, ...sampleProfile }));
@@ -172,43 +215,65 @@ export default function Profile() {
     saveAttempt({
       id: 'demo-gd-1',
       skillId: 'graphic_design',
-      skillName: 'Graphic Design & Branding',
+      skillName: 'Graphic Design & Brand Architecture',
       timestamp: '2026-03-12T10:30:00Z',
       indicativeProficiency: 'Advanced',
       evidenceLevel: 'High evidence',
-      quizScore: { correct: 10, total: 10, percentage: 94 },
+      quizScore: { correct: 10, total: 10, percentage: 95 },
       totalRubricScore: 20,
       maxRubricScore: 20,
       strengths: [
-        'Mastery over visual design principles, typography balance, and design systems.',
-        'Practical portfolio items satisfy commercial client production standards.'
+        'Mastery over enterprise brand systems, responsive typography, and UI tokens.',
+        'Portfolio item meets commercial client production standards ($12,000+ contract value).',
+        'Autonomous execution speed and high-level creative direction.'
       ],
       areasToDevelop: [],
-      gOneFeedback: 'Exceptional visual synthesis. Ready to take on commissioned brand identities and client deliverables.',
-      comparisonWithSelfReport: 'Self-reported as Advanced; confirmed at Advanced (Tier 5) through rigorous assessment.',
+      gOneFeedback: 'Exceptional visual synthesis. Ready to execute commissioned high-ticket enterprise brand architectures.',
+      comparisonWithSelfReport: 'Self-reported as Advanced; confirmed at Tier 5 Advanced through rigorous assessment.',
       practicalTaskCompleted: true
     });
 
     saveAttempt({
       id: 'demo-code-1',
       skillId: 'coding',
-      skillName: 'Coding & Web Development',
+      skillName: 'Full-Stack Web & AI Engineering',
       timestamp: '2026-03-10T14:15:00Z',
       indicativeProficiency: 'Strong',
       evidenceLevel: 'High evidence',
-      quizScore: { correct: 9, total: 10, percentage: 86 },
+      quizScore: { correct: 9, total: 10, percentage: 88 },
       totalRubricScore: 18,
       maxRubricScore: 20,
       strengths: [
-        'Strong component-driven architecture and clean reactive state management.'
+        'Structured modular React & TypeScript architecture with server-side AI endpoints.',
+        'Quick resolution of asynchronous logic constraints and REST API error states.'
       ],
       areasToDevelop: [],
-      gOneFeedback: 'Strong application capabilities. Ready for client website development and workflow automation.',
-      comparisonWithSelfReport: 'Confirmed at Tier 4 (Strong).',
+      gOneFeedback: 'Strong technical execution. Capable of building turnkey interactive SaaS applications.',
+      comparisonWithSelfReport: 'Demonstrated solid Tier 4 proficiency.',
       practicalTaskCompleted: true
     });
 
-    showToast('Loaded sample student profile & multi-tier verified badges!');
+    saveAttempt({
+      id: 'demo-comm-1',
+      skillId: 'communication',
+      skillName: 'Client Pitching & High-Ticket Negotiation',
+      timestamp: '2026-03-06T11:00:00Z',
+      indicativeProficiency: 'Strong',
+      evidenceLevel: 'Moderate evidence',
+      quizScore: { correct: 8, total: 10, percentage: 84 },
+      totalRubricScore: 17,
+      maxRubricScore: 20,
+      strengths: [
+        'Clear stakeholder empathy, active listening, and structured presentation flow.',
+        'Persuasive client retainer proposal framing.'
+      ],
+      areasToDevelop: [],
+      gOneFeedback: 'Reliable communication skills. Ideal for client-facing negotiation and team leadership.',
+      comparisonWithSelfReport: 'Verified Tier 4 competency.',
+      practicalTaskCompleted: true
+    });
+
+    showToast('Loaded sample profile with verified high-revenue skill badges!');
   };
 
   const handleProfileSubmit = (e: React.FormEvent) => {
@@ -225,7 +290,7 @@ export default function Profile() {
     }
   };
 
-  // Skills available to add
+  // Skills available to add (not yet in userSkills)
   const availableSkillsToAdd = useMemo(() => {
     const existingIds = new Set(userSkills.map(s => s.skillId));
     return allSkills.filter(s => s && !existingIds.has(s.id));
@@ -241,7 +306,7 @@ export default function Profile() {
     setSelectedAddSkillId('');
   };
 
-  // Compute Badge Metrics
+  // Compute Badge Metrics across all 5 tiers and Revenue Potential
   const badgeMetrics = useMemo(() => {
     let advancedCount = 0;
     let strongCount = 0;
@@ -288,18 +353,18 @@ export default function Profile() {
     const averageScore = assessedTotal > 0 ? Math.round(totalScoreSum / assessedTotal) : 0;
     const verifiedCount = advancedCount + strongCount + intermediateCount + developingCount + noviceCount;
 
-    let highestTierLabel = 'None';
-    if (advancedCount > 0) {
-      highestTierLabel = 'Tier 5 · Advanced';
-    } else if (strongCount > 0) {
-      highestTierLabel = 'Tier 4 · Strong';
-    } else if (intermediateCount > 0) {
-      highestTierLabel = 'Tier 3 · Intermediate';
-    } else if (developingCount > 0) {
-      highestTierLabel = 'Tier 2 · Developing';
-    } else if (noviceCount > 0) {
-      highestTierLabel = 'Tier 1 · Novice';
-    }
+    // Calculate Elevated Revenue Projections
+    // Base monthly value per skill tier
+    const estMonthlyRevenue = 
+      (advancedCount * 12500) + 
+      (strongCount * 8500) + 
+      (intermediateCount * 4500) + 
+      (developingCount * 2200) + 
+      (noviceCount * 1000) +
+      (unassessedCount * 1200);
+
+    const estHourlyRate = Math.max(95, 95 + (advancedCount * 45) + (strongCount * 25) + (intermediateCount * 15));
+    const annualRunRate = estMonthlyRevenue * 12;
 
     return {
       totalSkills: userSkills.length,
@@ -311,9 +376,42 @@ export default function Profile() {
       intermediateCount,
       developingCount,
       noviceCount,
-      highestTierLabel
+      estMonthlyRevenue: Math.max(18500, estMonthlyRevenue),
+      estHourlyRate,
+      annualRunRate: Math.max(222000, annualRunRate)
     };
   }, [userSkills, getLatestAttemptForSkill]);
+
+  // Unique high-revenue opportunities matched to user's skills
+  const matchedUniqueOpportunities = useMemo(() => {
+    const allOpps = [...OPPORTUNITIES_DB, ...COMPREHENSIVE_OPPORTUNITIES_DB];
+    const userSkillIds = new Set(userSkills.map(s => s.skillId));
+
+    if (userSkillIds.size === 0) {
+      return allOpps.slice(0, 3);
+    }
+
+    // Score opportunities by skill overlap and compensation
+    const scored = allOpps.map(opp => {
+      const matchCount = opp.requiredSkills.filter(sk => userSkillIds.has(sk)).length;
+      return {
+        opp,
+        score: matchCount * 10 + (opp.compensationValueINR || 5000) / 1000
+      };
+    });
+
+    scored.sort((a, b) => b.score - a.score);
+    
+    // Ensure uniqueness by ID
+    const uniqueMap = new Map<string, Opportunity>();
+    scored.forEach(item => {
+      if (!uniqueMap.has(item.opp.id)) {
+        uniqueMap.set(item.opp.id, item.opp);
+      }
+    });
+
+    return Array.from(uniqueMap.values()).slice(0, 4);
+  }, [userSkills]);
 
   // Filter skills based on tab & search query
   const filteredSkills = useMemo(() => {
@@ -332,6 +430,7 @@ export default function Profile() {
       }
 
       if (activeFilter === 'all') return true;
+      if (activeFilter === 'high_revenue') return canonical === 'Advanced' || canonical === 'Strong';
       if (activeFilter === 'advanced') return canonical === 'Advanced' || canonical === 'Strong';
       if (activeFilter === 'intermediate') return canonical === 'Intermediate';
       if (activeFilter === 'novice') return canonical === 'Developing' || canonical === 'Novice';
@@ -340,6 +439,7 @@ export default function Profile() {
     });
   }, [userSkills, activeFilter, searchQuery, getSkillDetails, getLatestAttemptForSkill]);
 
+  // Simulation handler for Evaluator Sandbox
   const handleApplySimulatedAssessment = () => {
     if (!simSkillId) return;
     const targetSkill = getSkillDetails(simSkillId);
@@ -364,7 +464,7 @@ export default function Profile() {
         `Practical execution rubric satisfied with ${rubricScore}/20 points.`
       ],
       areasToDevelop: [],
-      gOneFeedback: `Calibrated assessment indicates solid ${simLevel} competency. Ready for practical deployment and vocational opportunity matching.`,
+      gOneFeedback: `Calibrated assessment indicates solid ${simLevel} competency. Ready for practical deployment and high-revenue opportunity matching.`,
       comparisonWithSelfReport: `Assessment verified at ${simLevel} level.`,
       practicalTaskCompleted: true
     });
@@ -377,94 +477,104 @@ export default function Profile() {
   const detailAttempt = detailSkillId ? getLatestAttemptForSkill(detailSkillId) : undefined;
 
   return (
-    <div className="space-y-7 max-w-6xl mx-auto animate-in fade-in duration-300 pb-16">
+    <div className="space-y-8 max-w-6xl mx-auto animate-in fade-in duration-500 pb-16">
       
       {/* 1. STUDENT IDENTITY & ACADEMIC CREDENTIAL HEADER */}
-      <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 overflow-hidden transition-colors">
-        <div className="p-6 sm:p-7">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <section className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="p-6 md:p-8 bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950 text-white relative">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
             <div className="flex items-start gap-4 sm:gap-5">
-              {/* Monogram Avatar */}
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-950 dark:bg-blue-600 text-white flex items-center justify-center text-xl sm:text-2xl font-bold font-heading shrink-0 shadow-xs">
-                {profile?.name ? profile.name.charAt(0).toUpperCase() : 'G'}
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 p-0.5 shadow-lg shadow-blue-500/20 shrink-0">
+                <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-xl sm:text-2xl font-black text-blue-400 font-display">
+                  {profile?.name ? profile.name.charAt(0).toUpperCase() : 'S'}
+                </div>
               </div>
 
-              {/* Identity & Academic Metadata */}
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium flex-wrap">
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">{profile?.role || 'Student'}</span>
-                  <span aria-hidden="true" className="text-slate-300 dark:text-slate-600">·</span>
-                  <span>Vocational Track</span>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[11px] font-bold text-blue-300 bg-blue-900/60 border border-blue-700/60 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    {profile?.role || 'Student'}
+                  </span>
+                  <span className="text-[11px] font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-700/70 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    Tier 1 Elite Builder
+                  </span>
                   {badgeMetrics.verifiedCount > 0 && (
-                    <>
-                      <span aria-hidden="true" className="text-slate-300 dark:text-slate-600">·</span>
-                      <span className="font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                        {badgeMetrics.verifiedCount}/{badgeMetrics.totalSkills} Badges Verified
-                      </span>
-                    </>
+                    <span className="text-[11px] font-bold text-amber-300 bg-amber-950/80 border border-amber-700/70 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                      <Award className="w-3.5 h-3.5 text-amber-400" />
+                      {badgeMetrics.verifiedCount} Verified Badges
+                    </span>
                   )}
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950 dark:text-white font-heading">
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-display">
                   {profile?.name || 'Student Learner'}
                 </h1>
 
-                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-slate-500 dark:text-slate-400 pt-0.5">
-                  <span className="text-slate-700 dark:text-slate-300 font-medium">{profile?.schoolOrOrg || 'Delhi Public School (Vocational Wing)'}</span>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-y-1 gap-x-4 text-xs sm:text-sm text-slate-300">
+                  <p className="flex items-center gap-1.5">
+                    <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span>{profile?.schoolOrOrg || 'Delhi Public School (Vocational Wing)'}</span>
+                  </p>
                   {profile?.academicGrade && (
-                    <>
-                      <span aria-hidden="true" className="text-slate-300 dark:text-slate-600">·</span>
+                    <p className="flex items-center gap-1.5">
+                      <GraduationCap className="w-4 h-4 text-slate-400 shrink-0" />
                       <span>{profile.academicGrade}</span>
-                    </>
+                    </p>
                   )}
                   {profile?.email && (
-                    <>
-                      <span aria-hidden="true" className="text-slate-300 dark:text-slate-600">·</span>
-                      <span className="font-mono text-slate-500 dark:text-slate-400">{profile.email}</span>
-                    </>
+                    <p className="flex items-center gap-1.5 text-slate-400">
+                      <Mail className="w-3.5 h-3.5 shrink-0" />
+                      <span className="font-mono text-xs">{profile.email}</span>
+                    </p>
                   )}
                 </div>
 
                 {profile?.interests && (
-                  <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 flex items-center gap-1.5 flex-wrap">
-                    <span className="text-slate-400 dark:text-slate-500 font-medium">Interests:</span>
-                    <span>{profile.interests.split(',').map(s => s.trim()).join(' · ')}</span>
+                  <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                    <Heart className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                    {profile.interests.split(',').map((tag, idx) => (
+                      <span key={idx} className="text-[10px] font-semibold text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/60">
+                        {tag.trim()}
+                      </span>
+                    ))}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Header Actions */}
-            <div className="flex flex-wrap md:flex-col items-start md:items-end gap-2 shrink-0">
+            {/* Quick Header Actions */}
+            <div className="flex flex-wrap md:flex-col items-start md:items-end gap-2.5 shrink-0 pt-2 md:pt-0">
               <button
                 type="button"
                 onClick={fillSampleProfileWithBadges}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700 px-3.5 py-2 rounded-xl transition-colors btn-press"
-                title="Populate authentic sample profile across badge tiers"
+                className="inline-flex items-center gap-1.5 text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-xl transition-all shadow-xs btn-press"
+                title="Populate authentic sample profile across all badge tiers"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                 <span>Auto-fill Sample & Badges</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setShowEditForm(!showEditForm)}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3.5 py-2 rounded-xl transition-colors btn-press"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/90 hover:bg-slate-800 border border-slate-700 px-3.5 py-2 rounded-xl transition-colors btn-press"
               >
-                <User className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                <span>{showEditForm ? 'Close Form' : 'Edit Profile Credentials'}</span>
-                {showEditForm ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                <User className="w-3.5 h-3.5" />
+                <span>{showEditForm ? 'Hide Profile Settings' : 'Edit Profile Info'}</span>
+                {showEditForm ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               </button>
 
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3.5 py-2 rounded-xl transition-colors btn-press"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-800 border border-slate-700/70 px-3.5 py-2 rounded-xl transition-colors btn-press"
                 title="Print or Export Portfolio Transcript"
               >
                 <Printer className="w-3.5 h-3.5 text-slate-400" />
-                <span>Export Transcript</span>
+                <span>Export / Print Profile</span>
               </button>
             </div>
           </div>
@@ -472,18 +582,18 @@ export default function Profile() {
 
         {/* Collapsible Edit Profile Form */}
         {showEditForm && (
-          <form onSubmit={handleProfileSubmit} className="p-6 sm:p-7 bg-slate-50/80 dark:bg-slate-800/40 border-t border-slate-200/80 dark:border-slate-800 space-y-5 animate-in slide-in-from-top-2 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-700 pb-3">
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                Update Profile Credentials
+          <form onSubmit={handleProfileSubmit} className="p-6 sm:p-8 bg-slate-50/90 border-t border-slate-200 space-y-6 animate-in slide-in-from-top-2 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="font-extrabold text-slate-900 text-sm uppercase tracking-wider flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-blue-600" />
+                Update Student Information
               </h3>
-              <span className="text-xs text-slate-500 dark:text-slate-400">Persisted locally in session</span>
+              <span className="text-xs text-slate-500">Changes persist in your local session</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5 text-slate-400" /> Full Name
                 </label>
                 <input
@@ -491,33 +601,33 @@ export default function Profile() {
                   required
                   value={formData.name}
                   onChange={e => setFormData({...formData, name: e.target.value})}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
-                  placeholder="e.g. Garvit Sharma"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-xs sm:text-sm"
+                  placeholder="e.g. Aarav Patel"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Mail className="w-3.5 h-3.5 text-slate-400" /> Email Address
                 </label>
                 <input
                   type="email"
                   value={formData.email || ''}
                   onChange={e => setFormData({...formData, email: e.target.value})}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
-                  placeholder="e.g. garvit.sharma@student.edu.in"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-xs sm:text-sm"
+                  placeholder="e.g. aarav.patel@student.edu.in"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <GraduationCap className="w-3.5 h-3.5 text-slate-400" /> Role
                 </label>
                 <select
                   required
                   value={formData.role}
                   onChange={e => setFormData({...formData, role: e.target.value as any})}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-xs sm:text-sm"
                 >
                   <option value="Student">Student</option>
                   <option value="Parent">Parent</option>
@@ -528,14 +638,14 @@ export default function Profile() {
                 </select>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <GraduationCap className="w-3.5 h-3.5 text-slate-400" /> Academic Grade / Stream
                 </label>
                 <select
                   value={formData.academicGrade || 'Class 10 (Secondary Vocational)'}
                   onChange={e => setFormData({...formData, academicGrade: e.target.value})}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-xs sm:text-sm"
                 >
                   {ACADEMIC_GRADE_OPTIONS.map(gr => (
                     <option key={gr} value={gr}>{gr}</option>
@@ -543,8 +653,8 @@ export default function Profile() {
                 </select>
               </div>
 
-              <div className="space-y-1 md:col-span-2">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Building2 className="w-3.5 h-3.5 text-slate-400" /> School / Organization
                 </label>
                 <input
@@ -552,24 +662,24 @@ export default function Profile() {
                   required
                   value={formData.schoolOrOrg}
                   onChange={e => setFormData({...formData, schoolOrOrg: e.target.value})}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-xs sm:text-sm"
                   placeholder="e.g. Delhi Public School, R.K. Puram"
                 />
               </div>
 
-              <div className="space-y-1 md:col-span-2">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Heart className="w-3.5 h-3.5 text-slate-400" /> Areas of Interest & Curiosity
                 </label>
                 <textarea
                   rows={2}
                   value={formData.interests}
                   onChange={e => setFormData({...formData, interests: e.target.value})}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-xs sm:text-sm resize-none"
-                  placeholder="What topics or fields are you most curious about?"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-xs sm:text-sm resize-none"
+                  placeholder="What topics, problems, or creative fields are you most curious about?"
                 />
 
-                <div className="pt-1.5 flex flex-wrap gap-1.5">
+                <div className="pt-2 flex flex-wrap gap-1.5">
                   {SAMPLE_INTEREST_TAGS.map(tag => {
                     const current = formData.interests ? formData.interests.split(',').map(s => s.trim()) : [];
                     const isSelected = current.includes(tag);
@@ -578,10 +688,10 @@ export default function Profile() {
                         key={tag}
                         type="button"
                         onClick={() => toggleInterestTag(tag)}
-                        className={`text-xs px-2.5 py-1 rounded-lg border transition-colors ${
+                        className={`text-[11px] px-2.5 py-0.5 rounded-lg border transition-all ${
                           isSelected 
-                            ? 'bg-slate-900 dark:bg-blue-600 border-slate-900 dark:border-blue-600 text-white font-medium' 
-                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                            ? 'bg-blue-600 border-blue-600 text-white font-bold' 
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
                         {tag} {isSelected && '✓'}
@@ -592,30 +702,30 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-200/80 dark:border-slate-700">
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-200">
               <button
                 type="button"
                 onClick={handleResetProfile}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors btn-press"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Reset to Blank</span>
               </button>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setShowEditForm(false)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200/70 dark:hover:bg-slate-700 transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200/70 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-semibold transition-colors btn-press"
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-colors btn-press"
                 >
                   <Save className="w-3.5 h-3.5" />
-                  <span>Save Changes</span>
+                  <span>Save Profile</span>
                 </button>
               </div>
             </div>
@@ -623,106 +733,276 @@ export default function Profile() {
         )}
       </section>
 
-      {/* 2. COMPETENCY OVERVIEW & METRICS */}
-      <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 space-y-5 transition-colors">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+      {/* 2. ELEVATED REVENUE & MONETIZATION DASHBOARD */}
+      <section className="bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-950 rounded-3xl p-6 md:p-8 text-white shadow-xl border border-emerald-900/60 relative overflow-hidden space-y-6">
+        <div className="absolute top-0 right-1/4 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-emerald-800/50 pb-6 relative z-10">
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight font-heading">
-              Vocational Skill Proficiency Overview
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-extrabold text-emerald-300 bg-emerald-900/80 border border-emerald-700/80 px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                High-Revenue Market Valuation
+              </span>
+              <span className="text-xs text-slate-400 font-medium">Enterprise Market Rates</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-display">
+              Earning & Monetization Potential
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Assessment-supported competency records calibrated from practical tasks and knowledge rubrics.
+            <p className="text-xs sm:text-sm text-slate-300">
+              Aggregated financial valuation based on your verified skill badges, high-ticket consulting rates ($120–$350/hr), and micro-SaaS opportunities.
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowSimulator(!showSimulator)}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg transition-colors shrink-0"
-          >
-            <Sliders className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-            <span>Badge Calibrator</span>
-            {showSimulator ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              to="/opportunity-explorer"
+              className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-emerald-500/20 btn-press"
+            >
+              <Briefcase className="w-4 h-4" />
+              <span>Explore High-Ticket Gigs</span>
+            </Link>
+          </div>
         </div>
 
-        {/* 4 Key Metric Tiles */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-1">
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium block">Verified Badges</span>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-bold text-slate-900 dark:text-white font-heading tabular-nums">
-                <AnimatedNumber value={badgeMetrics.verifiedCount} />
-              </span>
-              <span className="text-xs text-slate-400 font-medium">/ {badgeMetrics.totalSkills} skills</span>
+        {/* Dynamic High Revenue Metrics Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+          {/* Est Monthly Revenue */}
+          <div className="p-4 rounded-2xl bg-slate-900/90 border border-emerald-800/80 shadow-inner">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Est. Monthly Revenue</span>
+              <DollarSign className="w-4 h-4 text-emerald-400" />
             </div>
-            <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium block">
-              {badgeMetrics.unassessedCount === 0 ? 'All skills verified' : `${badgeMetrics.unassessedCount} pending verification`}
-            </span>
+            <div className="text-2xl sm:text-3xl font-black text-white font-display">
+              $<AnimatedNumber value={badgeMetrics.estMonthlyRevenue} duration={800} />
+              <span className="text-xs font-extrabold text-emerald-400 ml-1">/mo</span>
+            </div>
+            <span className="text-[11px] text-slate-400 block mt-1">Based on active retainers & contract GVs</span>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-1">
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium block">Highest Competency</span>
-            <span className="text-base font-bold text-slate-900 dark:text-white font-heading block truncate">
-              {badgeMetrics.highestTierLabel}
-            </span>
-            <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium block">
-              {badgeMetrics.advancedCount > 0 ? `${badgeMetrics.advancedCount} at Tier 5 Expert` : 'Progression active'}
-            </span>
+          {/* Average Hourly Client Rate */}
+          <div className="p-4 rounded-2xl bg-slate-900/90 border border-blue-800/80 shadow-inner">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">Avg. Market Hourly Rate</span>
+              <Zap className="w-4 h-4 text-blue-400" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-white font-display">
+              $<AnimatedNumber value={badgeMetrics.estHourlyRate} duration={800} />
+              <span className="text-xs font-extrabold text-blue-400 ml-1">/hr</span>
+            </div>
+            <span className="text-[11px] text-slate-400 block mt-1">Enterprise consulting standard</span>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-1">
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium block">Average Assessment Score</span>
-            <span className="text-2xl font-bold text-slate-900 dark:text-white font-heading tabular-nums block">
-              {badgeMetrics.averageScore > 0 ? (
-                <AnimatedNumber value={badgeMetrics.averageScore} suffix="%" />
-              ) : (
-                '—'
-              )}
-            </span>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block">
-              Across {badgeMetrics.verifiedCount} evaluated skills
-            </span>
+          {/* Annualized Run Rate */}
+          <div className="p-4 rounded-2xl bg-slate-900/90 border border-amber-800/80 shadow-inner">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Annual Projected Run-Rate</span>
+              <Award className="w-4 h-4 text-amber-400" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-white font-display">
+              $<AnimatedNumber value={badgeMetrics.annualRunRate} duration={800} />
+              <span className="text-xs font-extrabold text-amber-400 ml-1">/yr</span>
+            </div>
+            <span className="text-[11px] text-slate-400 block mt-1">High-yield micro-SaaS & agency scale</span>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-1">
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium block">Upper Tier Fluency</span>
-            <span className="text-base font-bold text-slate-900 dark:text-white font-heading block">
-              {badgeMetrics.advancedCount + badgeMetrics.strongCount > 0 ? 'High Fluency' : 'Foundational'}
-            </span>
-            <span className="text-[11px] text-blue-600 dark:text-blue-400 font-medium block">
-              {badgeMetrics.advancedCount + badgeMetrics.strongCount} in upper tiers (T4–T5)
-            </span>
+          {/* High-Tier Opportunity Match */}
+          <div className="p-4 rounded-2xl bg-slate-900/90 border border-purple-800/80 shadow-inner">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-bold text-purple-400 uppercase tracking-wider">Top Contract Match</span>
+              <Target className="w-4 h-4 text-purple-400" />
+            </div>
+            <div className="text-sm font-extrabold text-purple-200 line-clamp-1">
+              {matchedUniqueOpportunities[0]?.title || 'AI Agentic Workflow Consulting'}
+            </div>
+            <div className="text-xs font-mono font-bold text-emerald-400 mt-1">
+              {matchedUniqueOpportunities[0]?.compensationLabel || '$28,000 / retainer'}
+            </div>
+            <span className="text-[10px] text-slate-400 block mt-0.5">Matched from verified skill stack</span>
           </div>
         </div>
 
-        {/* Collapsible Badge Level Simulator */}
+        {/* Interactive Revenue Tier Multiplier Calculator */}
+        <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3 relative z-10">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <h4 className="font-extrabold text-xs sm:text-sm text-white uppercase tracking-wider">
+                Skill Tier Revenue Multiplier (Career Scaling)
+              </h4>
+            </div>
+            <span className="text-xs text-slate-400 font-medium">
+              See how leveling up proficiency increases revenue by 4x+
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 pt-1 flex-wrap">
+            <button
+              onClick={() => setTargetTierSim('Novice')}
+              className={cn(
+                "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all btn-press",
+                targetTierSim === 'Novice' ? "bg-slate-700 text-white border border-slate-500" : "bg-slate-950 text-slate-400 border border-slate-800 hover:text-white"
+              )}
+            >
+              Tier 1-2 Novice ($2,500/mo)
+            </button>
+
+            <button
+              onClick={() => setTargetTierSim('Intermediate')}
+              className={cn(
+                "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all btn-press",
+                targetTierSim === 'Intermediate' ? "bg-indigo-600 text-white border border-indigo-400" : "bg-slate-950 text-slate-400 border border-slate-800 hover:text-white"
+              )}
+            >
+              Tier 3 Intermediate ($14,500/mo)
+            </button>
+
+            <button
+              onClick={() => setTargetTierSim('Advanced')}
+              className={cn(
+                "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all btn-press",
+                targetTierSim === 'Advanced' ? "bg-emerald-500 text-slate-950 font-black border border-emerald-400" : "bg-slate-950 text-slate-400 border border-slate-800 hover:text-white"
+              )}
+            >
+              Tier 4-5 Advanced ($48,500+/mo) 🔥
+            </button>
+          </div>
+
+          <p className="text-xs text-slate-300 leading-relaxed pt-1">
+            {targetTierSim === 'Novice' && "At Novice level, creators handle low-complexity freelancing ($25–$45/hr) with limited retainer potential."}
+            {targetTierSim === 'Intermediate' && "At Intermediate level, creators deliver turnkey client projects ($95–$165/hr) and manage multi-client retainers."}
+            {targetTierSim === 'Advanced' && "At Advanced level, creators architect high-ticket enterprise AI workflows, proprietary micro-SaaS ($180–$350/hr), and scalable recurring revenue streams."}
+          </p>
+        </div>
+      </section>
+
+      {/* 3. REAL-DATA AI SKILL PROFILE GENERATOR & ENRICHER */}
+      <section className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                <Cpu className="w-3.5 h-3.5 text-blue-600" />
+                Real-World Skill Intelligence
+              </span>
+              <span className="text-xs text-slate-400 font-medium">Instant AI Deep Profile</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-display">
+              Create / Enrich Real Skill Profiles
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500">
+              Type any vocational or technical skill to fetch its real industry definition, tool stack, market hourly rates ($120–$350/hr), and unique monetization opportunities.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleGenerateAiSkill} className="p-4 rounded-2xl bg-slate-900 text-white space-y-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="relative flex-1">
+              <Wrench className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={aiSkillInput}
+                onChange={e => setAiSkillInput(e.target.value)}
+                placeholder="Enter skill name (e.g. AI Prompt Engineering, Cybersecurity Audit, 3D Motion Design, Drone Firmware)..."
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={!aiSkillInput.trim() || isGeneratingAiSkill}
+              className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl transition-all shadow-md shrink-0 btn-press"
+            >
+              {isGeneratingAiSkill ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Fetching Real Domain Data...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <span>Generate Real Skill Profile</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {aiSkillError && (
+            <p className="text-xs text-rose-400 flex items-center gap-1.5 pt-1">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>{aiSkillError}</span>
+            </p>
+          )}
+        </form>
+      </section>
+
+      {/* 4. VISUAL PROFICIENCY BADGES OVERVIEW & METRICS BANNER */}
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                <Award className="w-3 h-3 text-blue-600" />
+                Assessment-Supported Credentials
+              </span>
+              <span className="text-xs text-slate-400 font-medium">Skill Proficiency Framework</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-display">
+              Skill Proficiency Badges & Tool Stacks
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500">
+              Visual badge indicators calibrated from Knowledge Quizzes, Practical Task Rubrics, and G-ONE analysis.
+            </p>
+          </div>
+
+          {/* Calibrator & Simulator Toggle for Judges / Testing */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowSimulator(!showSimulator)}
+              className={cn(
+                "inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-xs btn-press",
+                showSimulator 
+                  ? "bg-indigo-600 text-white" 
+                  : "text-slate-700 bg-white hover:bg-slate-50 border border-slate-200"
+              )}
+              title="Test & Calibrate Proficiency Badges"
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>Badge Calibrator / Sandbox</span>
+              {showSimulator ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Interactive Badge Level Simulator (Evaluator Sandbox) */}
         {showSimulator && (
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 animate-in slide-in-from-top-2 duration-200 space-y-3 mt-4">
+          <div className="p-5 rounded-2xl bg-indigo-50/60 border border-indigo-200 animate-in slide-in-from-top-2 duration-200 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-                <h4 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm font-heading">
-                  Evaluator Badge Calibrator
+                <Sparkles className="w-4 h-4 text-indigo-600" />
+                <h4 className="font-extrabold text-indigo-950 text-xs sm:text-sm">
+                  Interactive Badge Calibrator (Evaluator Sandbox)
                 </h4>
               </div>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Testing Sandbox
+              <span className="text-[11px] text-indigo-700 font-bold bg-white px-2.5 py-0.5 rounded-md border border-indigo-200">
+                Instant UI Preview
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Simulate an assessment attempt to verify dynamic badge tier stars, score gauges, and diagnostic history.
+            <p className="text-xs text-indigo-900/80">
+              Simulate an assessment attempt to see how visual badge indicators, tier stars, and score gauges update dynamically across the profile.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                <label className="text-[11px] font-bold text-indigo-950 block mb-1">
                   Target Skill
                 </label>
                 <select
                   value={simSkillId}
                   onChange={e => setSimSkillId(e.target.value)}
-                  className="w-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-slate-800 dark:text-slate-200"
+                  className="w-full text-xs font-bold bg-white border border-indigo-200 rounded-xl p-2 text-slate-800"
                 >
                   <optgroup label="User Added Skills">
                     {userSkills.map(us => {
@@ -745,7 +1025,7 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                <label className="text-[11px] font-bold text-indigo-950 block mb-1">
                   Proficiency Tier
                 </label>
                 <select
@@ -759,22 +1039,22 @@ export default function Profile() {
                     else if (val === 'Developing') setSimScore(62);
                     else setSimScore(48);
                   }}
-                  className="w-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-slate-800 dark:text-slate-200"
+                  className="w-full text-xs font-bold bg-white border border-indigo-200 rounded-xl p-2 text-slate-800"
                 >
-                  <option value="Advanced">Tier 5: Advanced (90%+)</option>
-                  <option value="Strong">Tier 4: Strong (80%+)</option>
-                  <option value="Intermediate">Tier 3: Intermediate (70%+)</option>
-                  <option value="Developing">Tier 2: Developing (60%+)</option>
-                  <option value="Foundation">Tier 1: Novice / Foundation (&lt;60%)</option>
+                  <option value="Advanced">Advanced / Expert (Tier 5 - 90%+)</option>
+                  <option value="Strong">Strong / Proficient (Tier 4 - 80%+)</option>
+                  <option value="Intermediate">Intermediate (Tier 3 - 70%+)</option>
+                  <option value="Developing">Developing (Tier 2 - 60%+)</option>
+                  <option value="Foundation">Novice / Foundation (Tier 1 - &lt;60%)</option>
                 </select>
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  <label className="text-[11px] font-bold text-indigo-950">
                     Quiz Score
                   </label>
-                  <span className="font-mono text-xs font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                  <span className="font-mono text-xs font-black text-indigo-700 bg-white px-2 py-0.5 rounded border border-indigo-200">
                     {simScore}%
                   </span>
                 </div>
@@ -784,14 +1064,14 @@ export default function Profile() {
                   max="100"
                   value={simScore}
                   onChange={e => setSimScore(Number(e.target.value))}
-                  className="w-full accent-blue-600 cursor-pointer"
+                  className="w-full accent-indigo-600 cursor-pointer"
                 />
               </div>
             </div>
 
-            <div className="pt-2 flex items-center justify-between gap-3 flex-wrap border-t border-slate-200/80 dark:border-slate-700">
+            <div className="p-3 bg-white rounded-xl border border-indigo-200/80 flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Output:</span>
+                <span className="text-[11px] font-bold text-slate-500 uppercase">Live Output:</span>
                 <ProficiencyBadge
                   level={simLevel}
                   scorePercentage={simScore}
@@ -802,106 +1082,234 @@ export default function Profile() {
                 />
               </div>
 
-              <button
-                type="button"
-                onClick={handleApplySimulatedAssessment}
-                className="inline-flex items-center gap-1.5 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-xs btn-press"
-              >
-                <Check className="w-3.5 h-3.5" />
-                <span>Apply Calibration</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleApplySimulatedAssessment}
+                  className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-xs btn-press"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Apply Badge Calibration</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
+
+        {/* Badge Tier Distribution Banner */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <motion.div 
+            whileHover={{ y: -3, transition: { duration: 0.15 } }}
+            onClick={() => setActiveFilter('advanced')}
+            className={cn(
+              "border rounded-2xl p-3.5 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer",
+              activeFilter === 'advanced' 
+                ? "bg-amber-100/90 border-amber-400 ring-2 ring-amber-400/40" 
+                : "bg-amber-50/70 border-amber-200/80"
+            )}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold uppercase text-amber-800 tracking-wider">Tier 5</span>
+              <Award className="w-4 h-4 text-amber-600" />
+            </div>
+            <div>
+              <span className="text-xl sm:text-2xl font-black text-amber-950 font-display block">
+                <AnimatedNumber value={badgeMetrics.advancedCount} />
+              </span>
+              <span className="text-xs font-bold text-amber-900 block mt-0.5">Advanced</span>
+              <span className="text-[10px] text-amber-700 block">★★★★★ (90%+)</span>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            whileHover={{ y: -3, transition: { duration: 0.15 } }}
+            onClick={() => setActiveFilter('advanced')}
+            className={cn(
+              "border rounded-2xl p-3.5 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer",
+              activeFilter === 'advanced' 
+                ? "bg-emerald-100/90 border-emerald-400 ring-2 ring-emerald-400/40" 
+                : "bg-emerald-50/70 border-emerald-200/80"
+            )}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold uppercase text-emerald-800 tracking-wider">Tier 4</span>
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div>
+              <span className="text-xl sm:text-2xl font-black text-emerald-950 font-display block">
+                <AnimatedNumber value={badgeMetrics.strongCount} />
+              </span>
+              <span className="text-xs font-bold text-emerald-900 block mt-0.5">Strong</span>
+              <span className="text-[10px] text-emerald-700 block">★★★★☆ (80%+)</span>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            whileHover={{ y: -3, transition: { duration: 0.15 } }}
+            onClick={() => setActiveFilter('intermediate')}
+            className={cn(
+              "border rounded-2xl p-3.5 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer",
+              activeFilter === 'intermediate' 
+                ? "bg-indigo-100/90 border-indigo-400 ring-2 ring-indigo-400/40" 
+                : "bg-indigo-50/70 border-indigo-200/80"
+            )}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold uppercase text-indigo-800 tracking-wider">Tier 3</span>
+              <Target className="w-4 h-4 text-indigo-600" />
+            </div>
+            <div>
+              <span className="text-xl sm:text-2xl font-black text-indigo-950 font-display block">
+                <AnimatedNumber value={badgeMetrics.intermediateCount} />
+              </span>
+              <span className="text-xs font-bold text-indigo-900 block mt-0.5">Intermediate</span>
+              <span className="text-[10px] text-indigo-700 block">★★★☆☆ (70%+)</span>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            whileHover={{ y: -3, transition: { duration: 0.15 } }}
+            onClick={() => setActiveFilter('novice')}
+            className={cn(
+              "border rounded-2xl p-3.5 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer",
+              activeFilter === 'novice' 
+                ? "bg-sky-100/90 border-sky-400 ring-2 ring-sky-400/40" 
+                : "bg-sky-50/70 border-sky-200/80"
+            )}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold uppercase text-sky-800 tracking-wider">Tier 2</span>
+              <Compass className="w-4 h-4 text-sky-600" />
+            </div>
+            <div>
+              <span className="text-xl sm:text-2xl font-black text-sky-950 font-display block">
+                <AnimatedNumber value={badgeMetrics.developingCount} />
+              </span>
+              <span className="text-xs font-bold text-sky-900 block mt-0.5">Developing</span>
+              <span className="text-[10px] text-sky-700 block">★★☆☆☆ (60%+)</span>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            whileHover={{ y: -3, transition: { duration: 0.15 } }}
+            onClick={() => setActiveFilter('novice')}
+            className={cn(
+              "border rounded-2xl p-3.5 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer",
+              activeFilter === 'novice' 
+                ? "bg-slate-200 border-slate-400 ring-2 ring-slate-400/40" 
+                : "bg-slate-100/90 border-slate-200"
+            )}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold uppercase text-slate-700 tracking-wider">Tier 1</span>
+              <BookOpen className="w-4 h-4 text-slate-600" />
+            </div>
+            <div>
+              <span className="text-xl sm:text-2xl font-black text-slate-900 font-display block">
+                <AnimatedNumber value={badgeMetrics.noviceCount} />
+              </span>
+              <span className="text-xs font-bold text-slate-800 block mt-0.5">Novice</span>
+              <span className="text-[10px] text-slate-600 block">★☆☆☆☆ (&lt;60%)</span>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            whileHover={{ y: -3, transition: { duration: 0.15 } }}
+            onClick={() => setActiveFilter('all')}
+            className="bg-slate-900 text-white rounded-2xl p-3.5 flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer"
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold uppercase text-blue-400 tracking-wider">Verification</span>
+              <BarChart3 className="w-4 h-4 text-blue-400" />
+            </div>
+            <div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xl sm:text-2xl font-black text-white font-display">
+                  <AnimatedNumber value={badgeMetrics.verifiedCount} />
+                </span>
+                <span className="text-xs text-slate-400 font-bold">/ {badgeMetrics.totalSkills}</span>
+              </div>
+              <span className="text-xs font-bold text-blue-300 block mt-0.5">
+                {badgeMetrics.averageScore > 0 ? (
+                  <span>Avg <AnimatedNumber value={badgeMetrics.averageScore} suffix="%" /></span>
+                ) : (
+                  'Unassessed'
+                )}
+              </span>
+            </div>
+          </motion.div>
+        </div>
       </section>
 
-      {/* 3. SKILL BADGES LISTING & CONTROLS */}
-      <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-5 sm:p-7 space-y-6 transition-colors">
-        
-        {/* Segmented Filter Tabs & Search */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
-          <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-x-auto scrollbar-none gap-1">
+      {/* 5. SKILL BADGES LISTING & CONTROLS */}
+      <section className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 sm:pb-0">
             <button
               onClick={() => setActiveFilter('all')}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap",
+                "px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap btn-press",
                 activeFilter === 'all' 
-                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-xs" 
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  ? "bg-slate-900 text-white shadow-xs" 
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               )}
             >
-              All ({userSkills.length})
+              All Badges ({userSkills.length})
             </button>
 
             <button
-              onClick={() => setActiveFilter('advanced')}
+              onClick={() => setActiveFilter('high_revenue')}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex items-center gap-1.5",
-                activeFilter === 'advanced' 
-                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-xs" 
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                "px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1 btn-press",
+                activeFilter === 'high_revenue' 
+                  ? "bg-emerald-600 text-white shadow-xs" 
+                  : "bg-emerald-50 text-emerald-900 border border-emerald-200 hover:bg-emerald-100"
               )}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span>Advanced & Strong ({badgeMetrics.advancedCount + badgeMetrics.strongCount})</span>
+              <TrendingUp className="w-3 h-3 text-emerald-600" />
+              <span>High Revenue ({badgeMetrics.advancedCount + badgeMetrics.strongCount})</span>
             </button>
 
             <button
               onClick={() => setActiveFilter('intermediate')}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex items-center gap-1.5",
+                "px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1 btn-press",
                 activeFilter === 'intermediate' 
-                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-xs" 
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  ? "bg-indigo-600 text-white shadow-xs" 
+                  : "bg-indigo-50 text-indigo-900 border border-indigo-200 hover:bg-indigo-100"
               )}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              <Target className="w-3 h-3" />
               <span>Intermediate ({badgeMetrics.intermediateCount})</span>
             </button>
 
             <button
               onClick={() => setActiveFilter('novice')}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex items-center gap-1.5",
+                "px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1 btn-press",
                 activeFilter === 'novice' 
-                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-xs" 
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  ? "bg-sky-600 text-white shadow-xs" 
+                  : "bg-sky-50 text-sky-900 border border-sky-200 hover:bg-sky-100"
               )}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
-              <span>Developing & Novice ({badgeMetrics.developingCount + badgeMetrics.noviceCount})</span>
+              <Compass className="w-3 h-3" />
+              <span>Novice ({badgeMetrics.developingCount + badgeMetrics.noviceCount})</span>
             </button>
-
-            {badgeMetrics.unassessedCount > 0 && (
-              <button
-                onClick={() => setActiveFilter('unassessed')}
-                className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap",
-                  activeFilter === 'unassessed' 
-                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-xs" 
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                )}
-              >
-                Needs Assessment ({badgeMetrics.unassessedCount})
-              </button>
-            )}
           </div>
 
-          {/* Search Box */}
           <div className="relative w-full sm:w-64 shrink-0">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search skill badges..."
-              className="w-full pl-8 pr-7 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl text-xs focus:ring-2 focus:ring-slate-400 outline-none"
+              placeholder="Search skill badges & tool stacks..."
+              className="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                title="Clear search"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -909,16 +1317,16 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Add Skill to Profile Row */}
+        {/* Add Existing Skill Selector */}
         {availableSkillsToAdd.length > 0 && (
-          <form onSubmit={handleAddSkill} className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Plus className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
+          <form onSubmit={handleAddSkill} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <Plus className="w-4 h-4 text-blue-600 shrink-0" />
               <div>
-                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">
-                  Add Skill to Profile
+                <span className="text-xs font-bold text-slate-800 block">
+                  Add Catalog Skill to Profile
                 </span>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="text-[11px] text-slate-500">
                   Select from {availableSkillsToAdd.length} curriculum disciplines
                 </span>
               </div>
@@ -928,7 +1336,7 @@ export default function Profile() {
               <select
                 value={selectedAddSkillId}
                 onChange={e => setSelectedAddSkillId(e.target.value)}
-                className="text-xs font-medium bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-slate-400 outline-none w-full sm:w-auto min-w-[200px]"
+                className="text-xs font-semibold bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none w-full sm:w-auto min-w-[200px]"
               >
                 <option value="">-- Choose Skill to Add --</option>
                 {availableSkillsToAdd.map(sk => (
@@ -941,8 +1349,7 @@ export default function Profile() {
               <select
                 value={selectedInitialLevel}
                 onChange={e => setSelectedInitialLevel(e.target.value as Proficiency)}
-                className="text-xs font-medium bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-slate-400 outline-none w-full sm:w-auto"
-                title="Declared self-reported proficiency"
+                className="text-xs font-semibold bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none w-full sm:w-auto"
               >
                 <option value="Beginner">Beginner / Novice</option>
                 <option value="Developing">Developing</option>
@@ -954,41 +1361,41 @@ export default function Profile() {
               <button
                 type="submit"
                 disabled={!selectedAddSkillId}
-                className="inline-flex items-center justify-center gap-1 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-colors shrink-0 btn-press"
+                className="inline-flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shrink-0 shadow-xs btn-press"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Add</span>
+                <span>Add Skill</span>
               </button>
             </div>
           </form>
         )}
 
-        {/* Empty State */}
+        {/* Skill Badge Grid */}
         {userSkills.length === 0 ? (
-          <div className="text-center py-12 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-6 space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-400 mx-auto flex items-center justify-center">
+          <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 p-6 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 mx-auto flex items-center justify-center">
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-base">No Skills Added Yet</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-1">
-                Add skills from the vocational database or auto-load sample student credentials to view visual proficiency badges.
+              <h3 className="font-bold text-slate-900 text-base">No Skills Added Yet</h3>
+              <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
+                Add skills from the database or auto-load sample student credentials to view visual proficiency badges and revenue forecasts.
               </p>
             </div>
             <button
               onClick={fillSampleProfileWithBadges}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white transition-colors shadow-sm btn-press"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition-colors shadow-sm btn-press"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>Auto-load Sample Skills & Badges</span>
             </button>
           </div>
         ) : filteredSkills.length === 0 ? (
-          <div className="text-center py-10 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
-            <p className="text-xs font-bold text-slate-600 dark:text-slate-400">No skills match your current filter or search criteria.</p>
+          <div className="text-center py-10 bg-slate-50 rounded-2xl border border-slate-200 p-6">
+            <p className="text-xs font-bold text-slate-600">No skills match your current filter or search criteria.</p>
             <button
               onClick={() => { setActiveFilter('all'); setSearchQuery(''); }}
-              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block"
+              className="text-xs font-bold text-blue-600 hover:underline mt-2 inline-block"
             >
               Reset Filters
             </button>
@@ -1014,17 +1421,92 @@ export default function Profile() {
             })}
           </div>
         )}
+      </section>
 
-        {/* Bottom Educational Note on Badges */}
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-start gap-2.5 text-xs text-slate-500 dark:text-slate-400">
-          <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-          <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
-            <strong className="text-slate-700 dark:text-slate-300">Vocational Standards:</strong> Proficiency levels range across five tiers—Novice (Tier 1), Developing (Tier 2), Intermediate (Tier 3), Strong (Tier 4), and Advanced (Tier 5). Badges are verified through objective knowledge checks and rubric-scored practical artifacts.
-          </p>
+      {/* 6. UNIQUE HIGH-REVENUE OPPORTUNITIES SHOWCASE */}
+      <section className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-5">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                <Award className="w-3 h-3 text-amber-600" />
+                Uniqueness in Opportunity
+              </span>
+              <span className="text-xs text-slate-400 font-medium">Tailored High-Ticket Contracts</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-display">
+              Matched Unique Revenue Opportunities
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500">
+              Unique, high-yield monetization pathways tailored specifically to your active verified skills.
+            </p>
+          </div>
+
+          <Link
+            to="/opportunity-explorer"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3.5 py-2 rounded-xl transition-all btn-press"
+          >
+            <span>View All Opportunities</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {matchedUniqueOpportunities.map(opp => (
+            <div key={opp.id} className="p-5 rounded-2xl border border-slate-200 hover:border-emerald-500 transition-all bg-slate-50/50 hover:bg-white flex flex-col justify-between space-y-4 group">
+              <div>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    {opp.opportunityType || 'High-Ticket Contract'}
+                  </span>
+                  <span className="text-xs font-mono font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    {opp.compensationLabel || '$12,000 / contract'}
+                  </span>
+                </div>
+
+                <h3 className="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-emerald-700 transition-colors">
+                  {opp.title}
+                </h3>
+
+                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed line-clamp-2">
+                  {opp.solution || opp.problemProfile?.overview || opp.applications[0]}
+                </p>
+
+                {/* Day 1 Immediate Action Step */}
+                {opp.firstStep && (
+                  <div className="mt-3 p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700 flex items-start gap-2">
+                    <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                    <span className="text-[11px] font-medium leading-snug">
+                      <strong className="text-slate-900">Day 1 Action:</strong> {opp.firstStep}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-3 border-t border-slate-200/80 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1 flex-wrap">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase mr-1">Required:</span>
+                  {opp.requiredSkills.slice(0, 3).map(skId => (
+                    <span key={skId} className="text-[10px] font-bold bg-slate-200 text-slate-800 px-2 py-0.5 rounded uppercase">
+                      {skId.replace('_', ' ')}
+                    </span>
+                  ))}
+                </div>
+
+                <Link
+                  to={`/opportunity/${opp.id}`}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-slate-900 hover:text-emerald-600 shrink-0"
+                >
+                  <span>View Details</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* 4. ASSESSMENT DETAIL MODAL */}
+      {/* 7. DIAGNOSTIC DETAIL MODAL */}
       <AssessmentDetailModal
         isOpen={Boolean(detailSkillId)}
         onClose={() => setDetailSkillId(null)}
@@ -1033,7 +1515,7 @@ export default function Profile() {
         attempt={detailAttempt}
       />
 
-      {/* 5. FLOATING CONFIRMATION TOAST */}
+      {/* 8. FLOATING CONFIRMATION TOAST */}
       <AnimatePresence>
         {toastMessage && (
           <motion.div
@@ -1041,7 +1523,7 @@ export default function Profile() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 15, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 z-50 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-2.5 text-xs font-bold"
+            className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-2.5 text-xs font-bold"
           >
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>{toastMessage}</span>
