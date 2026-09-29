@@ -35,6 +35,7 @@ export interface QuestionItem {
   explanation: string;
   codeSnippet?: string;
   scenarioContext?: string;
+  hint?: string;
   validationStatus: 'Validated' | 'PendingReview' | 'Draft';
   version: number;
 }

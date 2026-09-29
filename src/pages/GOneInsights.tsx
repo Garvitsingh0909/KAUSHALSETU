@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Sparkles, 
@@ -21,13 +21,21 @@ import {
   AlertCircle,
   Database,
   ShieldCheck,
-  DollarSign
+  DollarSign,
+  ArrowDown,
+  RefreshCw,
+  Cpu,
+  Layers3
 } from 'lucide-react';
 import { useProfile } from '../context/ProfileContext';
 import { useBusiness } from '../context/BusinessContext';
 import { useRoadmap } from '../context/RoadmapContext';
 import { useGOne } from '../context/GOneContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { KaushalPathwayBanner } from '../components/common/KaushalPathwayBanner';
+import { cn } from '../lib/utils';
+
+type GOnePipelineStage = 'Analyzing' | 'Connecting' | 'Matching' | 'Generating';
 
 export const GOneInsights: React.FC = () => {
   const navigate = useNavigate();
@@ -45,7 +53,19 @@ export const GOneInsights: React.FC = () => {
   } = useGOne();
 
   const [queryInput, setQueryInput] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'recommendations' | 'ask_gone'>('overview');
+  const [activeTab, setActiveTab] = useState<'pipeline' | 'recommendations' | 'ask_gone'>('pipeline');
+  const [pipelineState, setPipelineState] = useState<GOnePipelineStage>('Matching');
+
+  useEffect(() => {
+    const states: GOnePipelineStage[] = ['Analyzing', 'Connecting', 'Matching', 'Generating'];
+    const timer = setInterval(() => {
+      setPipelineState(prev => {
+        const nextIdx = (states.indexOf(prev) + 1) % states.length;
+        return states[nextIdx];
+      });
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleAsk = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,229 +80,325 @@ export const GOneInsights: React.FC = () => {
     setActiveTab('ask_gone');
   };
 
+  const userSkillNames = userSkills.length > 0 
+    ? userSkills.map(us => {
+        const s = allSkills.find(k => k.id === us.skillId);
+        return s ? s.name : us.skillId;
+      })
+    : ['Coding & Web Development', 'Graphic Design & Branding', 'Interpersonal Communication'];
+
+  const reasoningPipeline = [
+    {
+      step: '01',
+      title: 'YOUR SKILLS',
+      badge: 'Portfolio Inputs',
+      content: userSkillNames.join(' · '),
+      detail: `${userSkills.length || 3} verified competency records anchored in secondary vocational curriculum.`
+    },
+    {
+      step: '02',
+      title: 'SKILL INTERSECTION',
+      badge: 'Synergy Computation',
+      content: `${userSkillNames.slice(0, 2).join(' + ')} Multidisciplinary Core`,
+      detail: 'Connecting technical implementation with communicative presentation to eliminate external dependencies.'
+    },
+    {
+      step: '03',
+      title: 'POSSIBLE APPLICATIONS',
+      badge: 'Real-World Translation',
+      content: 'Digital storefront setup, micro-agency identity design, hyperlocal automation',
+      detail: 'Translating knowledge into practical services viable for neighborhood commercial clients.'
+    },
+    {
+      step: '04',
+      title: 'OPPORTUNITY AREAS',
+      badge: 'Curriculum & Market Matching',
+      content: 'Local Business Digitization · Freelance Media Delivery · Vocational Tools',
+      detail: 'Filtered for high educational safety, low capital overhead, and verified demand.'
+    },
+    {
+      step: '05',
+      title: 'WHAT YOU COULD BUILD',
+      badge: 'Deliverable Output',
+      content: 'WhatsApp Retail Catalog & UPI Ordering Kit for neighborhood bakers & merchants',
+      detail: 'Zero-debt, high-tangibility starter project completed within a 3-week sprint.'
+    },
+    {
+      step: '06',
+      title: 'WHAT TO LEARN NEXT',
+      badge: 'Continuous Growth Pathway',
+      content: 'Pricing & Unit Economics · Client Requirement Negotiation · Deployment Ops',
+      detail: 'Closing identified skill gaps to transition from foundational learner to self-sufficient builder.'
+    }
+  ];
+
   return (
-    <div className="space-y-8 pb-16 max-w-7xl mx-auto">
-      {/* Top Banner Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-              <Database className="w-3.5 h-3.5 mr-1 text-emerald-600" />
-              Data First. AI Second.
-            </span>
-            <span className="text-xs text-slate-500 font-medium">CBSE Skill Expo 2026</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-            G-ONE Insights & Navigation Hub
-          </h1>
-          <p className="text-sm md:text-base text-slate-600 mt-1 max-w-2xl">
-            Synthesizing your verified skills, market opportunities, financial models, and project deliverables into transparent educational guidance.
-          </p>
-        </div>
+    <div className="space-y-7 pb-16 max-w-6xl mx-auto animate-in fade-in duration-300">
+      
+      {/* 1. Signature Pathway */}
+      <KaushalPathwayBanner 
+        currentStep="VALUE"
+        subtitle="G-ONE synthesizes your verified competencies into viable solutions, value creation, and market opportunities."
+      />
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            id="btn-load-judge-ecosystem"
-            onClick={loadFullCbseJudgeEcosystem}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-semibold rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 transition-colors shadow-sm"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>Load Complete CBSE Judge Tour</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 1. SPOTLIGHT: YOUR NEXT STEP */}
-      <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 text-white rounded-3xl p-6 md:p-8 shadow-lg border border-indigo-700 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 space-y-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider">
-              <Compass className="w-4 h-4" /> Recommended Next Action
-            </div>
-            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-indigo-700/80 border border-indigo-500/50 text-indigo-100">
-              Stage: {oneNextStep.stage.toUpperCase()}
-            </span>
-          </div>
-
+      {/* 2. Top Banner Header */}
+      <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 md:p-8 shadow-xs transition-colors">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h2 className="text-xl md:text-2xl font-extrabold text-white tracking-tight">
-              {oneNextStep.title}
-            </h2>
-            <p className="text-sm md:text-base text-indigo-100 mt-1 max-w-3xl leading-relaxed">
-              {oneNextStep.action}
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase">
+                INTELLIGENT REASONING ENGINE
+              </span>
+              <span className="font-hand text-slate-500 dark:text-slate-400 text-sm italic ml-1">
+                “Grounded in your work, not guesswork.”
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-slate-950 dark:text-white tracking-tight mt-1">
+              G-ONE Insights & Reasoning Hub
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              Transparent, deterministic educational intelligence synthesizing your verified skills into viable vocational opportunities.
             </p>
           </div>
 
-          <div className="p-3.5 bg-indigo-950/60 rounded-2xl border border-indigo-800/80 text-xs text-indigo-200 flex items-start gap-2.5">
-            <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-            <div>
-              <strong className="text-white">Why G-ONE recommends this:</strong> {oneNextStep.reason}
-            </div>
-          </div>
-
-          <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => navigate(oneNextStep.targetPath)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 text-slate-950 font-bold text-xs md:text-sm hover:bg-amber-300 transition-all shadow-md shadow-amber-950/20"
+              onClick={loadFullCbseJudgeEcosystem}
+              className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-900 dark:bg-blue-600 text-white hover:bg-slate-800 dark:hover:bg-blue-700 transition-colors shadow-2xs flex items-center gap-1.5 btn-press"
             >
-              <span>Take This Action Now</span>
-              <ArrowRight className="w-4 h-4" />
+              <Sparkles className="w-3.5 h-3.5 text-blue-400 dark:text-white" />
+              <span>Load Full Demo Ecosystem</span>
             </button>
-
-            <span className="text-[11px] text-indigo-300 italic">
-              *Grounded strictly in Knowledge Base records and your verified activity.
-            </span>
           </div>
         </div>
-      </div>
 
-      {/* TABS NAVIGATION */}
-      <div className="flex border-b border-slate-200">
-        <button
-          onClick={() => setActiveTab('overview')}
-          className={`px-4 py-2.5 text-xs md:text-sm font-semibold border-b-2 flex items-center gap-2 transition-colors ${
-            activeTab === 'overview'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          <Compass className="w-4 h-4" />
-          Student Journey Overview
-        </button>
-
-        <button
-          onClick={() => setActiveTab('recommendations')}
-          className={`px-4 py-2.5 text-xs md:text-sm font-semibold border-b-2 flex items-center gap-2 transition-colors ${
-            activeTab === 'recommendations'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          <Target className="w-4 h-4" />
-          Smart Recommendations ({smartRecommendations.length})
-        </button>
-
-        <button
-          onClick={() => setActiveTab('ask_gone')}
-          className={`px-4 py-2.5 text-xs md:text-sm font-semibold border-b-2 flex items-center gap-2 transition-colors ${
-            activeTab === 'ask_gone'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          <Sparkles className="w-4 h-4" />
-          Ask G-ONE ({structuredAnswers.length})
-        </button>
-      </div>
-
-      {/* VIEW 1: OVERVIEW */}
-      {activeTab === 'overview' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Profile Skills</span>
-              <p className="text-2xl font-bold text-slate-900 mt-1">{userSkills.length}</p>
-              <p className="text-xs text-slate-500 mt-1">Verified Foundation</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Target Opportunity</span>
-              <p className="text-lg font-bold text-indigo-600 mt-1 truncate">{targetOpportunity?.title || 'None pinned'}</p>
-              <p className="text-xs text-slate-500 mt-1">Curated Pathway</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Projects & Deliverables</span>
-              <p className="text-2xl font-bold text-slate-900 mt-1">{projects.length}</p>
-              <p className="text-xs text-slate-500 mt-1">{progressMetrics.completedActions} Actions Done</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Business Scenarios</span>
-              <p className="text-2xl font-bold text-emerald-600 mt-1">{scenarios.length}</p>
-              <p className="text-xs text-slate-500 mt-1">{activeScenario ? `₹${activeScenario.pricePerUnit} Unit Price` : 'Not calibrated'}</p>
-            </div>
-          </div>
+        {/* Navigation Tabs */}
+        <div className="flex items-center gap-2 pt-4 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('pipeline')}
+            className={cn(
+              "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors border cursor-pointer shrink-0",
+              activeTab === 'pipeline'
+                ? "bg-slate-900 dark:bg-blue-600 border-slate-900 dark:border-blue-600 text-white shadow-2xs"
+                : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+            )}
+          >
+            Transparent AI Workspace
+          </button>
+          <button
+            onClick={() => setActiveTab('recommendations')}
+            className={cn(
+              "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors border cursor-pointer shrink-0",
+              activeTab === 'recommendations'
+                ? "bg-slate-900 dark:bg-blue-600 border-slate-900 dark:border-blue-600 text-white shadow-2xs"
+                : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+            )}
+          >
+            Next Action & Milestones ({smartRecommendations.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('ask_gone')}
+            className={cn(
+              "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors border cursor-pointer shrink-0",
+              activeTab === 'ask_gone'
+                ? "bg-slate-900 dark:bg-blue-600 border-slate-900 dark:border-blue-600 text-white shadow-2xs"
+                : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+            )}
+          >
+            Inquiry Console ({structuredAnswers.length})
+          </button>
         </div>
-      )}
+      </section>
 
-      {/* VIEW 2: SMART RECOMMENDATIONS */}
-      {activeTab === 'recommendations' && (
-        <div className="space-y-4">
-          {smartRecommendations.map(rec => (
-            <div
-              key={rec.id}
-              className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
-                    rec.priority === 'NOW'
-                      ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                      : rec.priority === 'NEXT'
-                      ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                      : 'bg-blue-100 text-blue-800 border border-blue-200'
-                  }`}>
-                    {rec.priority}
-                  </span>
-
-                  <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700">
-                    {rec.confidence}
-                  </span>
-
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    {rec.origin || 'Knowledge Base (Curated)'}
-                  </span>
-                </div>
-
-                {rec.targetPath && (
-                  <button
-                    onClick={() => navigate(rec.targetPath!)}
-                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 inline-flex items-center gap-1"
-                  >
-                    <span>Go to action</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-
-              <h3 className="text-base font-bold text-slate-900">
-                {rec.title}
-              </h3>
-
-              <p className="text-xs md:text-sm text-slate-600 leading-relaxed">
-                {rec.description}
-              </p>
-
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1">
-                <div className="flex items-center gap-1.5 font-bold text-slate-800">
-                  <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>WHY AM I SEEING THIS?</span>
-                </div>
-                <p className="text-slate-600 italic">
-                  "{rec.whyAmISeeingThis}"
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* VIEW 3: NATURAL-LANGUAGE INPUT ("ASK G-ONE") */}
-      {activeTab === 'ask_gone' && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+      {/* 3. TRANSPARENT REASONING WORKSPACE */}
+      {activeTab === 'pipeline' && (
+        <section className="bg-slate-900 dark:bg-slate-950 text-white rounded-2xl border border-slate-800 p-6 sm:p-8 shadow-xs relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-800 mb-6 relative z-10">
             <div>
-              <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">
-                <Sparkles className="w-4 h-4" /> Ask G-ONE
+              <div className="flex items-center gap-2 mb-1">
+                <BrainCircuit className="w-4 h-4 text-blue-400" />
+                <span className="text-[10px] font-mono font-bold tracking-widest text-slate-400 uppercase">
+                  REASONING WORKSPACE
+                </span>
               </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Ask About Your Skills, Pathways, or Commercial Steps
+              <h2 className="text-xl sm:text-2xl font-heading font-bold text-white tracking-tight">
+                6-Stage Transparent Pathway Pipeline
               </h2>
-              <p className="text-xs text-slate-500">
-                G-ONE reasons strictly over structured Knowledge Base records.
+              <p className="text-xs text-slate-400 mt-0.5">
+                Every deduction is inspectable, deterministic, and grounded in verified data.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-xl text-xs font-mono text-slate-300">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              <span className="text-slate-400">State:</span>
+              <strong className="text-blue-400 font-semibold">{pipelineState}...</strong>
+            </div>
+          </div>
+
+          {/* 6-Stage Reasoning Vertical Flow */}
+          <div className="space-y-3.5 max-w-3xl mx-auto relative z-10">
+            {reasoningPipeline.map((node, index) => {
+              const isLast = index === reasoningPipeline.length - 1;
+              return (
+                <div key={node.step} className="relative">
+                  <div className="p-4 sm:p-5 rounded-xl bg-slate-800/60 border border-slate-700/70 hover:border-slate-600 transition-all space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono font-bold text-blue-400">
+                          {node.step}
+                        </span>
+                        <h3 className="text-xs font-mono font-bold tracking-wider text-slate-200 uppercase">
+                          {node.title}
+                        </h3>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-700/80 text-slate-300">
+                        {node.badge}
+                      </span>
+                    </div>
+
+                    <p className="text-sm sm:text-base font-heading font-bold text-white leading-snug">
+                      {node.content}
+                    </p>
+
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      {node.detail}
+                    </p>
+                  </div>
+
+                  {!isLast && (
+                    <div className="flex items-center justify-center py-1.5 text-slate-600">
+                      <ArrowDown className="w-3.5 h-3.5 text-slate-500" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="pt-6 border-t border-slate-800 mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs relative z-10">
+            <span className="text-slate-500 font-mono">
+              G-ONE Architecture · Zero generic chatbot hallucinations
+            </span>
+            <button
+              onClick={() => navigate('/opportunities')}
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-xl transition-colors shadow-2xs self-start sm:self-auto"
+            >
+              <span>View Mapped Opportunities</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* 4. NEXT ACTION & SMART RECOMMENDATIONS */}
+      {activeTab === 'recommendations' && (
+        <div className="space-y-5">
+          {/* Spotlight Next Step */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-3.5 transition-colors">
+            <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <span className="text-[10px] font-mono font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase">
+                RECOMMENDED NEXT STEP
+              </span>
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950 text-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                STAGE: {oneNextStep.stage.toUpperCase()}
+              </span>
+            </div>
+
+            <div>
+              <h2 className="text-lg sm:text-xl font-heading font-bold text-slate-950 dark:text-white">
+                {oneNextStep.title}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                {oneNextStep.action}
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 space-y-1">
+              <span className="font-bold text-slate-800 dark:text-slate-200 font-mono text-[10px] uppercase block">
+                Why G-ONE recommends this:
+              </span>
+              <p className="italic text-slate-500 dark:text-slate-400">
+                "{oneNextStep.reason}"
+              </p>
+            </div>
+
+            <div className="pt-2 flex items-center justify-between">
+              <button
+                onClick={() => navigate(oneNextStep.targetPath)}
+                className="inline-flex items-center gap-2 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-xs btn-press"
+              >
+                <span>Execute Next Step</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+              <span className="text-[11px] text-slate-400 font-mono">
+                Data-grounded priority
+              </span>
+            </div>
+          </div>
+
+          {/* Recommendations List */}
+          <div className="space-y-3">
+            {smartRecommendations.map(rec => (
+              <div
+                key={rec.id}
+                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-xs space-y-2.5 transition-colors"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className={cn(
+                      "px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase",
+                      rec.priority === 'NOW'
+                        ? "bg-rose-50 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
+                        : rec.priority === 'NEXT'
+                        ? "bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+                    )}>
+                      {rec.priority}
+                    </span>
+
+                    <span className="text-xs font-bold text-slate-900 dark:text-white font-heading">
+                      {rec.title}
+                    </span>
+                  </div>
+
+                  {rec.targetPath && (
+                    <button
+                      onClick={() => navigate(rec.targetPath!)}
+                      className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                    >
+                      <span>Take action</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  {rec.description}
+                </p>
+
+                <div className="text-[11px] text-slate-400 dark:text-slate-500 italic">
+                  Rationale: "{rec.whyAmISeeingThis}"
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 5. INQUIRY CONSOLE */}
+      {activeTab === 'ask_gone' && (
+        <div className="space-y-5">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-4 transition-colors">
+            <div>
+              <span className="text-[10px] font-mono font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase">
+                CURRICULUM INQUIRY CONSOLE
+              </span>
+              <h2 className="text-base sm:text-lg font-heading font-bold text-slate-900 dark:text-white mt-0.5">
+                Query Educational & Commercial Pathways
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                G-ONE evaluates queries strictly against structured knowledge base records and vocational guidelines.
               </p>
             </div>
 
@@ -291,34 +407,34 @@ export const GOneInsights: React.FC = () => {
                 type="text"
                 value={queryInput}
                 onChange={(e) => setQueryInput(e.target.value)}
-                placeholder="e.g. 'I like photography and marketing, what can I build?'"
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                placeholder="e.g. 'I know photography and web design, what can I build?'"
+                className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-slate-900"
               />
               <button
                 type="submit"
-                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs md:text-sm font-semibold transition-colors flex items-center gap-2 shadow-sm shrink-0"
+                className="px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-2xs shrink-0 btn-press"
               >
-                <span>Ask</span>
-                <Send className="w-4 h-4" />
+                <span>Inquire</span>
+                <Send className="w-3.5 h-3.5" />
               </button>
             </form>
 
-            <div className="space-y-1.5 pt-2">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-                Suggested Prompt Inquiries:
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                Sample Questions:
               </span>
               <div className="flex flex-wrap gap-2">
                 {[
                   'I like photography and marketing, what can I build?',
-                  'How do I test my photography business break-even?',
+                  'How do I calculate my photography venture break-even?',
                   'I like electronics and agriculture, what is the pathway?',
-                  'I like coding and cooking, what can I build?'
+                  'I like coding and food logistics, what can I build?'
                 ].map(prompt => (
                   <button
                     key={prompt}
                     type="button"
                     onClick={() => handleQuickPrompt(prompt)}
-                    className="text-left text-[11px] px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 transition-colors"
+                    className="text-left text-[11px] px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
                   >
                     "{prompt}"
                   </button>
@@ -328,16 +444,16 @@ export const GOneInsights: React.FC = () => {
           </div>
 
           {/* Structured Answers Stream */}
-          <div className="space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-              <h3 className="font-bold text-slate-900 text-sm">
-                G-ONE Insights History ({structuredAnswers.length})
-              </h3>
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+              <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                Inquiry History ({structuredAnswers.length})
+              </span>
               {structuredAnswers.length > 0 && (
                 <button
                   type="button"
                   onClick={clearGOneHistory}
-                  className="text-xs text-slate-400 hover:text-rose-600 flex items-center gap-1 transition-colors"
+                  className="text-xs text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-1 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Clear History</span>
@@ -348,102 +464,52 @@ export const GOneInsights: React.FC = () => {
             {structuredAnswers.map((ans, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4"
+                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-xs space-y-3 transition-colors"
               >
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-bold text-slate-800">
-                      Query: "{ans.query}"
-                    </span>
-                    {ans.isKnowledgeGap ? (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        Knowledge Gap Protocol (Auto-Filled)
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                        <ShieldCheck className="w-3 h-3" />
-                        Knowledge Base Grounded ({ans.groundingSource || 'Validated'})
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[11px] text-slate-400">{ans.timestamp}</span>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white font-heading">
+                    Query: "{ans.query}"
+                  </span>
+                  <span className="text-[11px] font-mono text-slate-400">{ans.timestamp}</span>
                 </div>
 
-                {ans.retrievalSummary && (
-                  <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 text-[11px] text-slate-600 flex items-center gap-2">
-                    <Database className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>{ans.retrievalSummary}</span>
-                  </div>
-                )}
-
-                {/* Mandated 5-Part Structured Answer Format */}
-                <div className="space-y-3 text-xs">
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span className="font-bold text-slate-700 block mb-1">
-                      Based on your profile:
+                <div className="space-y-2.5 text-xs">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase block">
+                      Based on profile:
                     </span>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {ans.basedOnProfile.map(b => (
-                        <span key={b.skill} className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-semibold border border-indigo-100 text-[11px]">
-                          {b.skill} — {b.proficiency}
+                        <span key={b.skill} className="px-2 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-semibold border border-slate-200 dark:border-slate-700 text-[11px] font-mono">
+                          {b.skill} ({b.proficiency})
                         </span>
                       ))}
                     </div>
                   </div>
 
-                  <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
-                    <span className="font-bold text-blue-900 block mb-1">
-                      You could explore:
+                  <div className="p-3 bg-blue-50/50 dark:bg-blue-950/40 rounded-lg border border-blue-100 dark:border-blue-900 space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-blue-900 dark:text-blue-300 uppercase block">
+                      Viable direction:
                     </span>
-                    <span className="text-slate-800 font-medium text-sm">
+                    <p className="text-slate-800 dark:text-slate-200 font-medium text-xs">
                       {ans.youCouldExplore}
-                    </span>
+                    </p>
                   </div>
 
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span className="font-bold text-slate-700 block mb-1">
-                      Why (Structured Knowledge):
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase block">
+                      Why this fits:
                     </span>
-                    <p className="text-slate-600 leading-relaxed">
+                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-xs">
                       {ans.why}
                     </p>
                   </div>
 
-                  {/* Financial Grounding Tag */}
-                  {ans.financialInsight && (
-                    <div className="p-3 bg-amber-50/40 rounded-xl border border-amber-200/80 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4 text-amber-600" />
-                        <div>
-                          <span className="font-semibold text-slate-800">
-                            Recommended Unit Price: ₹{ans.financialInsight.suggestedPrice}
-                          </span>
-                          <span className="text-slate-500 text-[11px] block">
-                            Break-Even Target: {ans.financialInsight.breakEvenUnits} {ans.financialInsight.unitDefinition}
-                          </span>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">
-                        {ans.financialInsight.modelType}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-100">
-                    <span className="font-bold text-amber-900 block mb-1">
-                      Consider developing:
-                    </span>
-                    <span className="text-slate-800 font-medium">
-                      {ans.considerDeveloping}
-                    </span>
-                  </div>
-
-                  <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200">
-                    <span className="font-bold text-emerald-900 block mb-1">
+                  <div className="p-3 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-lg border border-emerald-100 dark:border-emerald-900 space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-emerald-900 dark:text-emerald-300 uppercase block">
                       Suggested next step:
                     </span>
-                    <p className="text-emerald-950 font-semibold text-sm">
+                    <p className="text-emerald-950 dark:text-emerald-300 font-semibold text-xs">
                       {ans.suggestedNextStep}
                     </p>
                   </div>
@@ -453,6 +519,7 @@ export const GOneInsights: React.FC = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };

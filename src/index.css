@@ -1,10 +1,14 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-  --font-heading: 'Bricolage Grotesque', 'Outfit', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-brand: 'Syne', sans-serif;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-hand: 'Caveat', cursive;
+  --font-kalam: 'Kalam', cursive;
 
   --animate-float: float 4s ease-in-out infinite;
   --animate-pulse-glow: pulseGlow 2.5s ease-in-out infinite;
@@ -80,16 +84,28 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    transition: background-color 200ms ease, color 200ms ease;
   }
 
-  h1, h2, h3, .font-display {
-    font-family: var(--font-display);
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-[#0B0F17] dark:text-slate-100;
+  }
+
+  h1, h2, h3, .font-heading {
+    font-family: var(--font-heading);
     letter-spacing: -0.02em;
   }
 
-  h4, h5, h6 {
-    font-family: var(--font-display);
+  .font-brand {
+    font-family: var(--font-brand);
+  }
+
+  .font-hand {
+    font-family: var(--font-hand);
+  }
+
+  .font-kalam {
+    font-family: var(--font-kalam);
   }
 
   code, pre, .font-mono {
@@ -103,16 +119,90 @@
 }
 
 .card-hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.07), 0 8px 12px -6px rgba(0, 0, 0, 0.04);
+}
+
+.card-interactive {
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-interactive:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.06);
 }
 
 .btn-press {
-  transition: transform 0.15s ease, filter 0.15s ease;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease, box-shadow 0.15s ease;
 }
 
 .btn-press:active {
-  transform: scale(0.97);
+  transform: scale(0.975);
+}
+
+/* Subtle Shimmer Sweep on Important Badges */
+.badge-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: badgeShimmer 4s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@keyframes badgeShimmer {
+  0% {
+    left: -100%;
+  }
+  30% {
+    left: 200%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+/* Organic gentle float */
+.float-subtle {
+  animation: floatSubtle 5s ease-in-out infinite;
+}
+
+@keyframes floatSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Satisfying bounce pop for completed tasks, stars, and checkboxes */
+.pop-in {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Custom subtle scrollbar */

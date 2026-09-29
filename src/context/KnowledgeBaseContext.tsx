@@ -76,6 +76,8 @@ interface KnowledgeBaseContextType {
   roadmaps: RoadmapTemplate[];
   getRoadmapTemplateById: (id: string) => RoadmapTemplate | undefined;
   getRoadmapTemplateForOpportunity: (opportunityId: string) => RoadmapTemplate | undefined;
+  addRoadmapTemplate: (roadmap: RoadmapTemplate) => void;
+  updateRoadmapTemplate: (roadmap: RoadmapTemplate) => void;
 
   // Coverage & Metrics
   coverageReport: KnowledgeCoverageReport;
@@ -581,6 +583,14 @@ export function KnowledgeBaseProvider({ children }: { children: React.ReactNode 
     return roadmaps.find(r => r.connectedOpportunityId === opportunityId);
   }, [roadmaps]);
 
+  const addRoadmapTemplate = useCallback((roadmap: RoadmapTemplate) => {
+    setRoadmaps(prev => [roadmap, ...prev]);
+  }, []);
+
+  const updateRoadmapTemplate = useCallback((roadmap: RoadmapTemplate) => {
+    setRoadmaps(prev => prev.map(r => r.id === roadmap.id ? roadmap : r));
+  }, []);
+
   const getCombinationForSkills = useCallback((skillIds: string[]): CombinationRecord | null => {
     if (!skillIds || skillIds.length === 0) return null;
     const sorted = [...skillIds].sort();
@@ -1026,6 +1036,8 @@ export function KnowledgeBaseProvider({ children }: { children: React.ReactNode 
       roadmaps,
       getRoadmapTemplateById,
       getRoadmapTemplateForOpportunity,
+      addRoadmapTemplate,
+      updateRoadmapTemplate,
 
       // Coverage & Metrics
       coverageReport,

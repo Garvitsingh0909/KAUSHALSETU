@@ -23,6 +23,12 @@ export interface Skill {
   problemsSolved: string[];
   opportunities: string[];
   nextSkills: string[];
+  projectIdeas?: string[];
+  estimatedRevenue?: {
+    perProject: string;
+    monthlyPotential: string;
+    pricingModel?: string;
+  };
 }
 
 export const SKILLS_DB: Skill[] = COMPREHENSIVE_SKILLS_DB.map(s => ({
@@ -33,7 +39,13 @@ export const SKILLS_DB: Skill[] = COMPREHENSIVE_SKILLS_DB.map(s => ({
   applications: s.applications || [],
   problemsSolved: s.problemsSolved || [],
   opportunities: s.opportunities || [],
-  nextSkills: s.nextSkills || []
+  nextSkills: s.nextSkills || [],
+  projectIdeas: s.projectIdeas || [],
+  estimatedRevenue: s.estimatedRevenue || {
+    perProject: '₹2,500 – ₹6,000',
+    monthlyPotential: '₹15,000 – ₹35,000',
+    pricingModel: 'Project-based / Retainer'
+  }
 }));
 
 export interface CombinedOpportunity {

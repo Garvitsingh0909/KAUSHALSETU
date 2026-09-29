@@ -68,6 +68,7 @@ export function AdminAssessmentBuilder({
   const [qOptions, setQOptions] = useState<string[]>(['Option A', 'Option B', 'Option C', 'Option D']);
   const [qCorrectAnswer, setQCorrectAnswer] = useState<string>('Option A');
   const [qExplanation, setQExplanation] = useState('');
+  const [qHint, setQHint] = useState('');
   const [qScenario, setQScenario] = useState('');
   const [qCode, setQCode] = useState('');
 
@@ -103,6 +104,7 @@ export function AdminAssessmentBuilder({
     setQOptions(['', '', '', '']);
     setQCorrectAnswer('');
     setQExplanation('');
+    setQHint('');
     setQScenario('');
     setQCode('');
   };
@@ -121,6 +123,7 @@ export function AdminAssessmentBuilder({
       options: qType === 'true_false' ? ['True', 'False'] : qOptions.filter(o => o.trim() !== ''),
       correctAnswer: qType === 'true_false' ? qCorrectAnswer : qCorrectAnswer || qOptions[0],
       explanation: qExplanation.trim() || 'Verified pedagogical rule.',
+      hint: qHint.trim() || undefined,
       scenarioContext: qScenario.trim() || undefined,
       codeSnippet: qCode.trim() || undefined,
       validationStatus: 'Validated',
@@ -397,15 +400,30 @@ export function AdminAssessmentBuilder({
               </div>
             )}
 
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Explanation & Pedagogical Rule:</label>
-              <textarea
-                rows={2}
-                value={qExplanation}
-                onChange={(e) => setQExplanation(e.target.value)}
-                placeholder="Explain why this answer is correct and what principle applies..."
-                className="w-full p-2.5 rounded-lg border border-slate-300 text-xs bg-white"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Explanation & Pedagogical Rule:</label>
+                <textarea
+                  rows={2}
+                  value={qExplanation}
+                  onChange={(e) => setQExplanation(e.target.value)}
+                  placeholder="Explain why this answer is correct and what principle applies..."
+                  className="w-full p-2.5 rounded-lg border border-slate-300 text-xs bg-white"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  Custom G-ONE Hint / Tip (Optional):
+                </label>
+                <textarea
+                  rows={2}
+                  value={qHint}
+                  onChange={(e) => setQHint(e.target.value)}
+                  placeholder="Custom clue or prompt to assist students without giving away the answer..."
+                  className="w-full p-2.5 rounded-lg border border-slate-300 text-xs bg-white"
+                />
+              </div>
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
@@ -470,6 +488,7 @@ export function AdminAssessmentBuilder({
                     setQOptions(q.options || ['', '', '', '']);
                     setQCorrectAnswer(String(q.correctAnswer));
                     setQExplanation(q.explanation);
+                    setQHint(q.hint || '');
                     setQScenario(q.scenarioContext || '');
                     setQCode(q.codeSnippet || '');
                     setIsAddingQuestion(true);

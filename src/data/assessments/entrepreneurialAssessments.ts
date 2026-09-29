@@ -723,7 +723,7 @@ Prospect: Mr. Gupta (Owner of Neighborhood Provision Store)
       }
     ],
     recommendedNextSkills: ['leadership', 'problem_solving', 'financial_literacy'],
-    recommendedProjects: ['6-Week CBSE Skill Expo Milestone Gantt', 'Kanban Board for 3-Person Team', 'Risk Mitigation Matrix for Live Exhibition Demo'],
+    recommendedProjects: ['6-Week Project Milestone Gantt', 'Kanban Board for 3-Person Team', 'Risk Mitigation Matrix for Live Exhibition Demo'],
     practicalTask: {
       id: 'task_pm_gantt_risk_plan',
       skillId: 'project_management',

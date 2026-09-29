@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { SKILLS_DB } from '../data/skills';
 import { OPPORTUNITIES_DB } from '../data/opportunities';
+import { MatchScoreBadge } from '../components/opportunities/MatchScoreBadge';
 import { ArrowRight, Target, Users, Zap, LayoutDashboard } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -203,11 +204,24 @@ export default function WhatCanIBuild() {
                 {finalOpps.map(opp => (
                   <div key={opp.id} className="bg-slate-900 text-white rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6 justify-between border border-slate-800 shadow-xl">
                     <div className="flex-1">
-                      <span className="text-blue-400 text-xs font-bold uppercase tracking-wider mb-2 block">
-                        {opp.opportunityType}
-                      </span>
-                      <h3 className="text-2xl font-bold mb-3">{opp.title}</h3>
-                      <p className="text-slate-300 mb-4">{opp.solution}</p>
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
+                        <span className="text-blue-400 text-xs font-bold uppercase tracking-wider">
+                          {opp.opportunityType}
+                        </span>
+                        <MatchScoreBadge opportunity={opp} variant="compact" />
+                        {opp.compensationLabel && (
+                          <span className="text-xs font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800">
+                            {opp.compensationLabel}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-2xl font-bold mb-2">{opp.title}</h3>
+                      <p className="text-slate-300 mb-2 leading-relaxed">{opp.solution}</p>
+                      {opp.solutionProfile?.economicValue && (
+                        <p className="text-xs text-emerald-300/90 font-medium">
+                          <strong>Economic Model:</strong> {opp.solutionProfile.economicValue}
+                        </p>
+                      )}
                     </div>
                     
                     <div className="shrink-0 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">

@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { SKILLS_DB, Proficiency, SkillCategory, Skill } from '../data/skills';
-import { Plus, X, Search, CheckCircle2, Sparkles, Loader2, AlertCircle, ShieldCheck, Award, ArrowRight, Zap } from 'lucide-react';
+import { Plus, X, Search, CheckCircle2, Sparkles, Loader2, AlertCircle, ShieldCheck, Award, ArrowRight, Zap, TrendingUp, IndianRupee, Layers } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { enhanceSkillProfile } from '../utils/skillEnhancer';
 
 const PROFICIENCY_LEVELS: Proficiency[] = ['Beginner', 'Developing', 'Intermediate', 'Strong', 'Advanced'];
 const CATEGORIES: SkillCategory[] = ['Technical', 'Creative', 'Communication', 'Practical', 'Entrepreneurial'];
@@ -22,7 +23,9 @@ export default function Skills() {
     skill && skill.name &&
     !userSkills.find(us => us && us.skillId === skill.id) &&
     (activeCategory === 'All' || skill.category === activeCategory) &&
-    skill.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (skill.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+     skill.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     skill.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleGenerateSkill = async () => {
@@ -31,15 +34,26 @@ export default function Skills() {
     setGenerationError(null);
     setGenerationSuccess(null);
     try {
-      const res = await fetch('/api/generate-skill', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ skillName: customSkillName.trim() })
-      });
-      if (!res.ok) throw new Error('Failed to generate skill');
-      const data: Skill = await res.json();
-      addCustomSkill(data);
-      setGenerationSuccess(`Generated profile for "${data.name}"!`);
+      // First try AI endpoint
+      let enhancedSkill: Skill;
+      try {
+        const res = await fetch('/api/generate-skill', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ skillName: customSkillName.trim() })
+        });
+        if (res.ok) {
+          const rawData = await res.json();
+          enhancedSkill = enhanceSkillProfile(rawData);
+        } else {
+          enhancedSkill = enhanceSkillProfile({ name: customSkillName.trim() });
+        }
+      } catch {
+        enhancedSkill = enhanceSkillProfile({ name: customSkillName.trim() });
+      }
+
+      addCustomSkill(enhancedSkill);
+      setGenerationSuccess(`Generated and enhanced profile for "${enhancedSkill.name}"!`);
       setCustomSkillName('');
       setTimeout(() => setGenerationSuccess(null), 4000);
     } catch (error) {
@@ -93,7 +107,7 @@ export default function Skills() {
               onClick={triggerDemoMode}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Load Demo Skills (CBSE)
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Load Demo Skills
             </button>
           </div>
         ) : (
@@ -113,9 +127,17 @@ export default function Skills() {
                           </span>
                         )}
                       </div>
-                      <span className="text-xs font-semibold text-slate-500 px-2 py-0.5 bg-slate-100 rounded-full inline-block mt-1">
-                        {skill.category}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                        <span className="text-xs font-semibold text-slate-500 px-2 py-0.5 bg-slate-100 rounded-full inline-block">
+                          {skill.category}
+                        </span>
+                        {skill.estimatedRevenue && (
+                          <span className="text-[11px] font-bold text-emerald-700 px-2 py-0.5 bg-emerald-50 border border-emerald-200 rounded-full inline-flex items-center gap-1">
+                            <TrendingUp className="w-3 h-3" />
+                            {skill.estimatedRevenue.perProject} • {skill.estimatedRevenue.monthlyPotential}/mo
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <button 
                       onClick={() => removeSkill(skill.id)}
@@ -125,6 +147,12 @@ export default function Skills() {
                       <X className="w-4 h-4" />
                     </button>
                   </div>
+
+                  {skill.description && (
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {skill.description}
+                    </p>
+                  )}
 
                   {/* Dual Proficiency: Self-Reported vs Assessment-Supported */}
                   <div className="space-y-3 pt-2 border-t border-slate-100">
@@ -333,9 +361,17 @@ export default function Skills() {
                     <Plus className="w-4 h-4" />
                   </div>
                 </div>
-                <span className="text-xs font-medium text-slate-400 px-2 py-0.5 bg-slate-800 rounded-full inline-block w-fit mb-3">
-                  {skill.category}
-                </span>
+                <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                  <span className="text-xs font-medium text-slate-400 px-2 py-0.5 bg-slate-800 rounded-full inline-block w-fit">
+                    {skill.category}
+                  </span>
+                  {skill.estimatedRevenue && (
+                    <span className="text-[10px] font-semibold text-emerald-400 px-2 py-0.5 bg-emerald-950/60 border border-emerald-800/60 rounded-full inline-flex items-center gap-1">
+                      <TrendingUp className="w-3 h-3" />
+                      {skill.estimatedRevenue.perProject}
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-slate-400 line-clamp-2 mt-auto leading-relaxed">
                   {skill.description}
                 </p>

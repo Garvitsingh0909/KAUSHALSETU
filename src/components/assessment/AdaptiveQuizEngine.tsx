@@ -30,6 +30,7 @@ import {
 import { cn } from '../../lib/utils';
 import { useViewMode } from '../../context/ViewModeContext';
 import { AssessmentProgressBar } from './AssessmentProgressBar';
+import { GOneQuestionHint } from './GOneQuestionHint';
 
 interface AdaptiveQuizEngineProps {
   questions: QuestionItem[];
@@ -104,6 +105,7 @@ export function AdaptiveQuizEngine({
   const [showImmediateExplanation, setShowImmediateExplanation] = useState(false);
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
   const [questionTimer, setQuestionTimer] = useState(0);
+  const [showWhy, setShowWhy] = useState(false);
 
   // Difficulty progression ladder
   const difficultyLadder: QuestionDifficulty[] = ['Foundation', 'Developing', 'Intermediate', 'Strong', 'Advanced'];
@@ -304,13 +306,25 @@ export function AdaptiveQuizEngine({
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         {/* Main Question Body */}
         <div className="p-6 md:p-8 space-y-6">
-        {/* Competency Tested Badge */}
-        {!isMinimal && currentQuestion.competency && (
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">
-            <Layers className="w-3.5 h-3.5 text-slate-500" />
-            <span>Competency: {currentQuestion.competency}</span>
+        {/* Top Header: Competency Tested Badge & G-ONE Get Hint Button */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {!isMinimal && currentQuestion.competency ? (
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium self-start">
+              <Layers className="w-3.5 h-3.5 text-slate-500" />
+              <span>Competency: {currentQuestion.competency}</span>
+            </div>
+          ) : <div />}
+
+          {/* G-ONE Dynamic Context-Aware Hint Control */}
+          <div className="self-start sm:self-auto">
+            <GOneQuestionHint
+              question={currentQuestion}
+              skillName={skillName}
+              category={category}
+              isAnswerSubmitted={isAnswerSubmitted}
+            />
           </div>
-        )}
+        </div>
 
         {/* Scenario Context (if applicable) */}
         {currentQuestion.scenarioContext && (
@@ -333,9 +347,28 @@ export function AdaptiveQuizEngine({
         )}
 
         {/* Question Prompt */}
-        <h3 className="text-base md:text-lg font-bold text-slate-900 leading-snug">
-          {currentQuestion.question}
-        </h3>
+        <div className="space-y-2">
+          <h3 className="text-base md:text-lg font-heading font-bold text-slate-900 leading-snug">
+            {currentQuestion.question}
+          </h3>
+
+          {/* Subtle "Why are we asking this?" Drawer */}
+          <div className="pt-0.5">
+            <button
+              type="button"
+              onClick={() => setShowWhy(!showWhy)}
+              className="text-xs text-slate-400 hover:text-slate-700 inline-flex items-center gap-1.5 transition-colors"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
+              <span>Why are we asking this?</span>
+            </button>
+            {showWhy && (
+              <div className="mt-2 p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 leading-relaxed animate-in fade-in duration-200">
+                This question evaluates practical comprehension in <strong>{currentQuestion.competency || skillName}</strong> to benchmark capability against industry vocational standards and verify genuine project readiness.
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* ==================================================================== */}
         {/* QUESTION INPUT TYPES */}

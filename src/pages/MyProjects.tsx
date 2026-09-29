@@ -13,6 +13,7 @@ import {
   MessageSquare, 
   Check, 
   ChevronRight, 
+  ArrowRight,
   X, 
   Layers, 
   BookOpen, 
@@ -31,6 +32,7 @@ import {
   StudentReflection 
 } from '../data/roadmap';
 import { Link } from 'react-router-dom';
+import { KaushalPathwayBanner } from '../components/common/KaushalPathwayBanner';
 
 export const MyProjects: React.FC = () => {
   const { userSkills, allSkills } = useProfile();
@@ -56,6 +58,7 @@ export const MyProjects: React.FC = () => {
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [showNewExperienceModal, setShowNewExperienceModal] = useState(false);
   const [reflectionProjectId, setReflectionProjectId] = useState<string | null>(null);
+  const [viewProjectModal, setViewProjectModal] = useState<StudentProject | null>(null);
 
   // New Project Form State
   const [projName, setProjName] = useState('');
@@ -167,20 +170,26 @@ export const MyProjects: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 pb-16 max-w-7xl mx-auto">
+    <div className="space-y-8 pb-16 max-w-7xl mx-auto animate-in fade-in duration-300">
+      {/* Signature Pathway */}
+      <KaushalPathwayBanner 
+        currentStep="APPLICATION"
+        subtitle="Connect your verified skills directly to real deliverables, practical project evidence, and documented problem-solving experiences."
+      />
+
       {/* Top Banner & Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
               Practical Evidence & Portfolio
             </span>
-            <span className="text-xs text-slate-500 font-medium">CBSE Skill Expo</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Project Portfolio</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight font-heading">
             My Projects & Portfolio
           </h1>
-          <p className="text-sm md:text-base text-slate-600 mt-1 max-w-2xl">
+          <p className="text-sm md:text-base text-slate-600 dark:text-slate-400 mt-1 max-w-2xl">
             Document real deliverables, record practical learning experiences, and reflect on your problem-solving journey.
           </p>
         </div>
@@ -189,9 +198,9 @@ export const MyProjects: React.FC = () => {
           <button
             id="btn-expo-demo-projects"
             onClick={loadDemoRoadmap}
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm font-medium rounded-xl bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm font-medium rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors shadow-sm cursor-pointer"
           >
-            <Sparkles className="w-4 h-4 text-amber-600" />
+            <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             <span>Load Demo Projects</span>
           </button>
 
@@ -199,7 +208,7 @@ export const MyProjects: React.FC = () => {
             <button
               id="btn-new-experience"
               onClick={() => setShowNewExperienceModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-semibold rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-semibold rounded-xl bg-indigo-600 dark:bg-blue-600 text-white hover:bg-indigo-700 dark:hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Log Experience</span>
@@ -208,7 +217,7 @@ export const MyProjects: React.FC = () => {
             <button
               id="btn-new-project"
               onClick={() => setShowNewProjectModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-semibold rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-semibold rounded-xl bg-indigo-600 dark:bg-blue-600 text-white hover:bg-indigo-700 dark:hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>New Project</span>
@@ -316,24 +325,20 @@ export const MyProjects: React.FC = () => {
                 return (
                   <div
                     key={proj.id}
-                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4 flex flex-col justify-between"
+                    className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all"
                   >
-                    <div className="space-y-3">
+                    <div className="space-y-4">
+                      {/* Top Row: Status + Date + Delete */}
                       <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
-                              isComplete ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                            }`}>
-                              {proj.status.replace('_', ' ')}
-                            </span>
-                            <span className="text-xs text-slate-400 font-medium">
-                              {proj.date}
-                            </span>
-                          </div>
-                          <h3 className="text-base font-bold text-slate-900 mt-1">
-                            {proj.name}
-                          </h3>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider ${
+                            isComplete ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-blue-50 text-blue-800 border border-blue-200'
+                          }`}>
+                            {proj.status.replace('_', ' ')}
+                          </span>
+                          <span className="text-xs text-slate-400 font-mono">
+                            {proj.date}
+                          </span>
                         </div>
 
                         <button
@@ -346,94 +351,85 @@ export const MyProjects: React.FC = () => {
                         </button>
                       </div>
 
-                      <div className="text-xs text-slate-600 space-y-1">
-                        <div>
-                          <strong className="text-slate-700">Target Opportunity:</strong> {proj.targetOpportunityTitle}
-                        </div>
-                        <div>
-                          <strong className="text-slate-700">Problem Addressed:</strong> {proj.problemSolved}
-                        </div>
-                        <div>
-                          <strong className="text-slate-700">What Was Created:</strong> {proj.whatICreated}
+                      {/* 1. PROJECT TITLE */}
+                      <div>
+                        <h3 className="text-lg font-bold text-navy-950 font-space tracking-tight">
+                          {proj.name}
+                        </h3>
+                        <span className="text-xs text-slate-500 font-medium block mt-0.5">
+                          Opportunity: {proj.targetOpportunityTitle}
+                        </span>
+                      </div>
+
+                      {/* 2. VALUE CREATED */}
+                      <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 text-xs space-y-1">
+                        <span className="text-[10px] font-mono uppercase font-bold text-blue-700 tracking-wider block">
+                          VALUE CREATED
+                        </span>
+                        <p className="text-slate-800 leading-relaxed font-medium">
+                          {proj.whatICreated || proj.problemSolved}
+                        </p>
+                      </div>
+
+                      {/* 3. SKILLS USED */}
+                      <div>
+                        <span className="text-[10px] font-mono uppercase text-slate-400 tracking-wider block mb-1.5">
+                          SKILLS USED
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {proj.skillsUsed.map(sid => {
+                            const skill = allSkills.find(s => s.id === sid);
+                            return (
+                              <span
+                                key={sid}
+                                className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-100 text-navy-950 border border-slate-200/80"
+                              >
+                                {skill ? skill.name : sid}
+                              </span>
+                            );
+                          })}
                         </div>
                       </div>
 
-                      {/* Skills tags */}
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {proj.skillsUsed.map(sid => {
-                          const skill = allSkills.find(s => s.id === sid);
-                          return (
-                            <span
-                              key={sid}
-                              className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100"
-                            >
-                              {skill ? skill.name : sid}
-                            </span>
-                          );
-                        })}
-                      </div>
-
-                      {/* Deliverables Checklist */}
-                      <div className="border-t border-slate-100 pt-3 space-y-2">
-                        <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
-                          <span>Deliverables Checklist</span>
-                          <span className="text-[11px] text-slate-500">
-                            {completedDeliverables}/{proj.deliverables.length} Done
+                      {/* Deliverables Checklist Progress */}
+                      <div className="pt-2 border-t border-slate-100">
+                        <div className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-2">
+                          <span className="text-[11px] font-mono text-slate-500 uppercase">Deliverables</span>
+                          <span className="text-xs font-mono font-bold text-navy-950">
+                            {completedDeliverables}/{proj.deliverables.length} Completed
                           </span>
                         </div>
-                        <div className="space-y-1.5">
-                          {proj.deliverables.map(d => (
-                            <button
-                              key={d.id}
-                              type="button"
-                              onClick={() => toggleDeliverable(proj.id, d.id)}
-                              className="w-full text-left flex items-center gap-2 p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-xs text-slate-800 transition-colors"
-                            >
-                              {d.completed ? (
-                                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                              ) : (
-                                <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0" />
-                              )}
-                              <span className={d.completed ? 'line-through text-slate-400' : 'font-medium'}>
-                                {d.title}
-                              </span>
-                            </button>
-                          ))}
+                        <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                          <div 
+                            className="bg-navy-950 h-full rounded-full transition-all duration-300"
+                            style={{ width: `${proj.deliverables.length > 0 ? (completedDeliverables / proj.deliverables.length) * 100 : 0}%` }}
+                          />
                         </div>
                       </div>
                     </div>
 
-                    {/* Reflection Card or CTA */}
-                    <div className="border-t border-slate-100 pt-3">
-                      {proj.reflection ? (
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                              <MessageSquare className="w-3.5 h-3.5 text-indigo-600" />
-                              Reflection Recorded
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleOpenReflection(proj)}
-                              className="text-[10px] text-indigo-600 font-semibold hover:underline"
-                            >
-                              Edit Reflection
-                            </button>
-                          </div>
-                          <p className="text-slate-600 italic line-clamp-2">
-                            "{proj.reflection.whatDidYouLearn}"
-                          </p>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenReflection(proj)}
-                          className="w-full py-2 px-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold hover:bg-indigo-100 transition-colors flex items-center justify-center gap-1.5"
-                        >
-                          <MessageSquare className="w-3.5 h-3.5" />
-                          <span>Add Structured Reflection</span>
-                        </button>
-                      )}
+                    {/* Bottom Action Row: View Project -> and Reflection indicator */}
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                      <div className="text-xs">
+                        {proj.reflection ? (
+                          <span className="text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Reflection Done
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 text-[11px]">
+                            No reflection yet
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setViewProjectModal(proj)}
+                        className="px-4 py-2 rounded-xl bg-navy-950 hover:bg-navy-900 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors"
+                      >
+                        <span>View Project</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 );
@@ -940,6 +936,140 @@ export const MyProjects: React.FC = () => {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+
+        {/* View Project Dossier Modal */}
+        {viewProjectModal && (
+          <div className="fixed inset-0 z-50 bg-navy-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-2xl border border-slate-200 max-w-xl w-full p-6 space-y-5 shadow-xl max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                      viewProjectModal.status === 'completed'
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                        : 'bg-blue-50 text-blue-800 border border-blue-200'
+                    }`}>
+                      {viewProjectModal.status.replace('_', ' ')}
+                    </span>
+                    <span className="text-xs font-mono text-slate-400">
+                      {viewProjectModal.date}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-bold text-navy-950 font-space">
+                    {viewProjectModal.name}
+                  </h3>
+                  <span className="text-xs text-slate-500 font-medium">
+                    Opportunity: {viewProjectModal.targetOpportunityTitle}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setViewProjectModal(null)}
+                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Value Created Section */}
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/90 text-xs space-y-1.5">
+                <span className="text-[10px] font-mono uppercase font-bold text-blue-700 tracking-wider block">
+                  VALUE CREATED & PROBLEM ADDRESSED
+                </span>
+                <p className="text-slate-900 font-medium">
+                  {viewProjectModal.whatICreated}
+                </p>
+                <p className="text-slate-600 text-[11px] pt-1 border-t border-slate-200">
+                  <span className="font-semibold text-slate-700">Problem Solved:</span> {viewProjectModal.problemSolved}
+                </p>
+              </div>
+
+              {/* Skills Used */}
+              <div>
+                <span className="text-[10px] font-mono uppercase text-slate-400 tracking-wider block mb-1.5">
+                  SKILLS DEMONSTRATED
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {viewProjectModal.skillsUsed.map(sid => {
+                    const skill = allSkills.find(s => s.id === sid);
+                    return (
+                      <span
+                        key={sid}
+                        className="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-100 text-navy-950 border border-slate-200/80"
+                      >
+                        {skill ? skill.name : sid}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Deliverables Checklist */}
+              <div>
+                <span className="text-[10px] font-mono uppercase text-slate-400 tracking-wider block mb-1.5">
+                  DELIVERABLES CHECKLIST
+                </span>
+                <div className="space-y-1.5">
+                  {viewProjectModal.deliverables.map(d => (
+                    <div
+                      key={d.id}
+                      className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-navy-950"
+                    >
+                      {d.completed ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0" />
+                      )}
+                      <span className={d.completed ? 'line-through text-slate-400' : 'font-medium'}>
+                        {d.title}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reflection */}
+              {viewProjectModal.reflection && (
+                <div className="p-4 bg-blue-50/40 rounded-xl border border-blue-100 text-xs space-y-1.5">
+                  <span className="text-[10px] font-mono uppercase font-bold text-blue-900 tracking-wider block">
+                    STUDENT REFLECTION & LEARNING
+                  </span>
+                  <p className="text-slate-800 leading-relaxed italic">
+                    "{viewProjectModal.reflection.whatDidYouLearn}"
+                  </p>
+                </div>
+              )}
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const proj = viewProjectModal;
+                    setViewProjectModal(null);
+                    handleOpenReflection(proj);
+                  }}
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+                >
+                  {viewProjectModal.reflection ? 'Edit Reflection' : 'Add Reflection'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setViewProjectModal(null)}
+                  className="px-4 py-2 text-xs font-semibold rounded-xl bg-navy-950 text-white hover:bg-navy-900 transition-colors"
+                >
+                  Done
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

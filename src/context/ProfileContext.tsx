@@ -2,11 +2,20 @@ import React, { createContext, useContext, useState, useEffect, useMemo, useCall
 import { Proficiency, Skill, SKILLS_DB } from '../data/skills';
 import { Opportunity } from '../data/opportunities';
 import { IndicativeProficiency, EvidenceLevel } from '../data/assessmentTypes';
+import { UserSystemRole, AccountStatus } from '../data/adminTypes';
+import { enhanceSkillProfile } from '../utils/skillEnhancer';
 
 export interface UserProfile {
   name: string;
-  role: 'Student' | 'Parent' | 'Teacher' | 'Judge' | 'Other' | '';
+  email?: string;
+  role: 'Student' | 'Parent' | 'Teacher' | 'Judge' | 'Admin' | 'Other' | '';
+  systemRole?: UserSystemRole; // 'student' | 'admin'
+  accountStatus?: AccountStatus;
+  createdDate?: string;
+  lastLogin?: string;
+  permissions?: string[];
   schoolOrOrg: string;
+  academicGrade?: string;
   interests: string;
 }
 
@@ -28,6 +37,7 @@ interface ProfileContextType {
   customSkills: Skill[];
   allSkills: Skill[];
   customOpportunities: Opportunity[];
+  isAdministrator: boolean;
   addSkill: (skillId: string) => void;
   addCustomSkill: (skill: Skill) => void;
   addCustomOpportunity: (opp: Opportunity) => void;
@@ -44,12 +54,20 @@ interface ProfileContextType {
   isProfileComplete: boolean;
   clearData: () => void;
   triggerDemoMode: () => void;
+  setSystemRole: (role: UserSystemRole) => void;
 }
 
 const defaultProfile: UserProfile = {
   name: '',
+  email: '',
   role: '',
+  systemRole: 'student',
+  accountStatus: 'active',
+  createdDate: '2026-02-01',
+  lastLogin: '2026-03-13 09:00:00',
+  permissions: [],
   schoolOrOrg: '',
+  academicGrade: 'Class 10',
   interests: ''
 };
 
@@ -92,7 +110,11 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          return parsed.filter(item => item && item.id && item.name);
+          return parsed
+            .filter(item => item && item.id && item.name)
+            // Filter out old basic art skill if it exists so it defaults to the official curated fine arts visual skill
+            .filter(item => !['art', 'art_skill', 'drawing_art'].includes(item.id.toLowerCase()))
+            .map(item => enhanceSkillProfile(item));
         }
       }
     } catch (e) {
@@ -145,16 +167,17 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   }, []);
   
   const addCustomSkill = useCallback((skill: Skill) => {
-    if (!skill || !skill.id || !skill.name) return;
+    if (!skill || !skill.name) return;
+    const enhanced = enhanceSkillProfile(skill);
     setCustomSkills(prev => {
-      if (prev.some(s => s && s.id === skill.id) || SKILLS_DB.some(s => s && s.id === skill.id)) {
+      if (prev.some(s => s && s.id === enhanced.id) || SKILLS_DB.some(s => s && s.id === enhanced.id)) {
         return prev;
       }
-      return [...prev, skill];
+      return [...prev, enhanced];
     });
     setUserSkills(prev => {
-      if (prev.some(s => s && s.skillId === skill.id)) return prev;
-      return [...prev, { skillId: skill.id, proficiency: 'Beginner' }];
+      if (prev.some(s => s && s.skillId === enhanced.id)) return prev;
+      return [...prev, { skillId: enhanced.id, proficiency: 'Beginner' }];
     });
   }, []);
   
@@ -222,7 +245,15 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   
   const getSkillDetails = useCallback((skillId: string): Skill | undefined => {
     if (!skillId) return undefined;
-    return allSkills.find(s => s && s.id === skillId);
+    const cleanId = skillId.trim().toLowerCase();
+    const aliasMap: Record<string, string> = {
+      'design': 'graphic_design',
+      'tech': 'coding',
+      'finance': 'financial_literacy',
+      'media': 'photography'
+    };
+    const targetId = aliasMap[cleanId] || cleanId;
+    return allSkills.find(s => s && (s.id.toLowerCase() === targetId || s.id.toLowerCase() === cleanId));
   }, [allSkills]);
 
   const clearData = useCallback(() => {
@@ -237,50 +268,96 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const triggerDemoMode = useCallback(() => {
-    setProfile({ name: 'Aarav Sharma', role: 'Student', schoolOrOrg: 'Delhi Public School (CBSE)', interests: 'Design, Micro-Enterprise & Technology' });
+    setProfile(prev => ({
+      ...defaultProfile,
+      ...prev,
+      name: 'Aarav Patel',
+      email: 'aarav.patel@student.edu.in',
+      role: 'Student',
+      schoolOrOrg: 'Delhi Public School, R.K. Puram (Vocational Wing)',
+      academicGrade: 'Class 10 (Secondary Vocational)',
+      interests: 'Robotics & IoT, Sustainable Energy, Digital Arts & Media, Financial Tech'
+    }));
     setUserSkills([
       { 
-        skillId: 'design', 
+        skillId: 'graphic_design', 
+        proficiency: 'Advanced',
+        indicativeProficiency: 'Advanced',
+        evidenceLevel: 'High evidence',
+        lastAssessedDate: '2026-03-12',
+        attemptsCount: 3,
+        latestScorePercentage: 94,
+        latestRubricScore: 20
+      },
+      { 
+        skillId: 'coding', 
         proficiency: 'Strong',
         indicativeProficiency: 'Strong',
         evidenceLevel: 'High evidence',
-        lastAssessedDate: '2026-03-01',
+        lastAssessedDate: '2026-03-10',
         attemptsCount: 2,
-        latestScorePercentage: 88,
+        latestScorePercentage: 86,
         latestRubricScore: 18
       },
       { 
         skillId: 'communication', 
-        proficiency: 'Advanced',
+        proficiency: 'Strong',
         indicativeProficiency: 'Strong',
         evidenceLevel: 'Moderate evidence',
-        lastAssessedDate: '2026-02-28',
-        attemptsCount: 1,
+        lastAssessedDate: '2026-03-06',
+        attemptsCount: 2,
         latestScorePercentage: 82,
         latestRubricScore: 17
+      },
+      { 
+        skillId: 'financial_literacy', 
+        proficiency: 'Intermediate',
+        indicativeProficiency: 'Intermediate',
+        evidenceLevel: 'Moderate evidence',
+        lastAssessedDate: '2026-03-02',
+        attemptsCount: 1,
+        latestScorePercentage: 74,
+        latestRubricScore: 15
       },
       { 
         skillId: 'marketing', 
         proficiency: 'Developing',
         indicativeProficiency: 'Developing',
         evidenceLevel: 'Moderate evidence',
-        lastAssessedDate: '2026-02-20',
+        lastAssessedDate: '2026-02-24',
         attemptsCount: 1,
-        latestScorePercentage: 55,
-        latestRubricScore: 12
+        latestScorePercentage: 64,
+        latestRubricScore: 13
       },
       { 
-        skillId: 'photography', 
-        proficiency: 'Intermediate',
-        indicativeProficiency: 'Strong',
-        evidenceLevel: 'High evidence',
-        lastAssessedDate: '2026-03-02',
-        attemptsCount: 2,
-        latestScorePercentage: 90,
-        latestRubricScore: 19
+        skillId: 'electronics', 
+        proficiency: 'Beginner',
+        indicativeProficiency: 'Foundation',
+        evidenceLevel: 'Limited evidence',
+        lastAssessedDate: '2026-02-18',
+        attemptsCount: 1,
+        latestScorePercentage: 52,
+        latestRubricScore: 10
+      },
+      { 
+        skillId: 'robotics', 
+        proficiency: 'Intermediate'
+        // Unassessed / needs assessment
       }
     ]);
   }, []);
+
+  const setSystemRole = useCallback((systemRole: UserSystemRole) => {
+    setProfile(prev => ({
+      ...prev,
+      systemRole,
+      role: systemRole === 'admin' ? 'Admin' : (prev.role === 'Admin' ? 'Student' : prev.role)
+    }));
+  }, []);
+
+  const isAdministrator = useMemo(() => {
+    return profile?.systemRole === 'admin' || profile?.role === 'Admin';
+  }, [profile?.systemRole, profile?.role]);
 
   const isProfileComplete = Boolean(
     profile?.name && 
@@ -298,6 +375,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       customSkills,
       allSkills,
       customOpportunities,
+      isAdministrator,
       addSkill,
       addCustomSkill,
       addCustomOpportunity,
@@ -307,7 +385,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       getSkillDetails,
       isProfileComplete,
       clearData,
-      triggerDemoMode
+      triggerDemoMode,
+      setSystemRole
     }}>
       {children}
     </ProfileContext.Provider>

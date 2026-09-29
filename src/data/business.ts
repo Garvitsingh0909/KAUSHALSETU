@@ -176,7 +176,7 @@ export const CBSE_DEMO_SCENARIO: BusinessScenario = {
   surplus: 2500,
   breakEvenCustomers: 4, // 1500 / (500 - 100) = 3.75 -> 4
   timestamp: new Date().toISOString(),
-  notes: 'Preloaded demonstration model for CBSE Skill Expo judges.'
+  notes: 'Preloaded demonstration model for evaluators and students.'
 };
 
 export const CBSE_PRESET_SCENARIOS: BusinessScenario[] = [

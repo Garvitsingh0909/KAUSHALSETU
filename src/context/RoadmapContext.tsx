@@ -446,7 +446,7 @@ export const RoadmapProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setProfile({
       name: 'Aarav Patel',
       role: 'Student (Class 10)',
-      schoolOrOrg: 'Delhi Public School (CBSE Skill Expo)',
+      schoolOrOrg: 'Delhi Public School (Class 10 Vocational)',
       interests: 'Visual Media, Micro-Entrepreneurship & Community Design'
     });
 

@@ -2,13 +2,13 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  * 
- * KAUSHAL SETU — MODULE 2: SKILL ASSESSMENT & PROFICIENCY ENGINE (PHASE 5B)
+ * KAUSHAL SETU — MODULE 2: SKILL ASSESSMENT & PROFICIENCY ENGINE
  * Master orchestrator for evidence-based skill assessment, adaptive knowledge quizzes,
  * hands-on practical tasks, G-ONE synthesis, longitudinal history, and administrative builders.
  */
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAssessment } from '../context/AssessmentContext';
 import { useProfile } from '../context/ProfileContext';
 import { useViewMode } from '../context/ViewModeContext';
@@ -25,6 +25,7 @@ import { AssessmentResultsSummary } from '../components/assessment/AssessmentRes
 import { AssessmentHistoryModal } from '../components/assessment/AssessmentHistoryModal';
 import { AssessmentCoverageDashboard } from '../components/assessment/AssessmentCoverageDashboard';
 import { AdminAssessmentBuilder } from '../components/assessment/AdminAssessmentBuilder';
+import { KaushalPathwayBanner } from '../components/common/KaushalPathwayBanner';
 import { 
   Sparkles, 
   CheckCircle2, 
@@ -47,6 +48,10 @@ import { cn } from '../lib/utils';
 
 export function SkillAssessment() {
   const { skillId: routeSkillId } = useParams<{ skillId?: string }>();
+  const [searchParams] = useSearchParams();
+  const querySkillId = searchParams.get('skillId') || undefined;
+  const effectiveSkillId = routeSkillId || querySkillId;
+
   const navigate = useNavigate();
   const { isMinimal } = useViewMode();
   
@@ -65,7 +70,7 @@ export function SkillAssessment() {
 
   // Selected skill & mode state
   const [selectedSkillId, setSelectedSkillId] = useState<string>(() => {
-    if (routeSkillId) return routeSkillId;
+    if (effectiveSkillId) return effectiveSkillId;
     if (userSkills.length > 0) return userSkills[0].skillId;
     return 'coding';
   });
@@ -86,14 +91,14 @@ export function SkillAssessment() {
   // Finished attempt state
   const [latestAttempt, setLatestAttempt] = useState<AssessmentAttempt | null>(null);
 
-  // Sync route param if it changes
+  // Sync route param or search param if it changes
   useEffect(() => {
-    if (routeSkillId) {
-      setSelectedSkillId(routeSkillId);
+    if (effectiveSkillId) {
+      setSelectedSkillId(effectiveSkillId);
       setActiveTab('assess');
       setAssessmentStep('select');
     }
-  }, [routeSkillId]);
+  }, [effectiveSkillId]);
 
   const selectedSkill = allSkills.find(s => s.id === selectedSkillId) || 
     SKILLS_DB.find(s => s.id === selectedSkillId) || 
@@ -105,7 +110,6 @@ export function SkillAssessment() {
   // Handle Quiz Completion
   const handleQuizComplete = (answers: typeof quizAnswersState) => {
     setQuizAnswersState(answers);
-    // If lengthMode is quick and user has no practical task configured or wants to synthesize directly:
     if (lengthMode === 'quick') {
       finishAssessmentWithoutTask(answers);
     } else {
@@ -173,7 +177,6 @@ export function SkillAssessment() {
     saveAssessmentAttempt(newAttempt);
     setLatestAttempt(newAttempt);
 
-    // Update Profile Context with new indicative proficiency & evidence level
     updateAssessedProficiency(
       selectedSkill.id,
       analysis.indicativeProficiency,
@@ -185,7 +188,6 @@ export function SkillAssessment() {
     setAssessmentStep('results');
   };
 
-  // Skip task / quick finish
   const finishAssessmentWithoutTask = (answers: typeof quizAnswersState) => {
     const existingSkill = userSkills.find(s => s.skillId === selectedSkill.id);
     const selfReportedProf = existingSkill?.proficiency;
@@ -252,98 +254,100 @@ export function SkillAssessment() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-      {/* Page Title & Navigation Tabs */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+    <div className="max-w-6xl mx-auto space-y-7 pb-16 animate-in fade-in duration-300">
+      
+      {/* 1. Signature Pathway Banner */}
+      <KaushalPathwayBanner 
+        currentStep="CAPABILITY"
+        subtitle="Validate your practical capability through objective knowledge checks and artifact rubrics."
+      />
+
+      {/* 2. Header & Mode Switcher */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-blue-100 text-blue-900 border border-blue-200">
-              Module 2
-            </span>
-            <span className="text-xs text-slate-500 font-semibold">
-              G-ONE Skill Assessment & Proficiency Engine
+            <span className="text-[10px] font-mono font-bold tracking-widest text-slate-400 dark:text-slate-400 uppercase">
+              COMPETENCY VERIFICATION
             </span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-heading font-bold text-slate-900 dark:text-white tracking-tight">
             Skill Proficiency Assessment
           </h1>
-          <p className="text-xs md:text-sm text-slate-500 mt-1 max-w-2xl">
-            Indicative proficiency derived from knowledge checks, practical tasks, and demonstration evidence — not absolute judgement.
+          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
+            Indicative proficiency derived from knowledge checks, practical tasks, and demonstration evidence.
           </p>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 overflow-x-auto">
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/90 dark:border-slate-700 overflow-x-auto">
           <button
             onClick={() => { setActiveTab('assess'); setAssessmentStep('select'); }}
             className={cn(
-              "px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0",
+              "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer",
               activeTab === 'assess' 
-                ? "bg-white text-blue-700 shadow-xs" 
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs font-bold" 
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             )}
           >
-            <Zap className="w-3.5 h-3.5" />
-            Take Assessment
+            <Zap className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <span>Take Assessment</span>
           </button>
 
           <button
             onClick={() => setActiveTab('history')}
             className={cn(
-              "px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0",
+              "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer",
               activeTab === 'history' 
-                ? "bg-white text-blue-700 shadow-xs" 
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs font-bold" 
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             )}
           >
-            <History className="w-3.5 h-3.5" />
-            My History ({attempts.length})
+            <History className="w-3.5 h-3.5 text-slate-500" />
+            <span>My History ({attempts.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('coverage')}
             className={cn(
-              "px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0",
+              "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer",
               activeTab === 'coverage' 
-                ? "bg-white text-blue-700 shadow-xs" 
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs font-bold" 
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             )}
           >
-            <BarChart3 className="w-3.5 h-3.5" />
-            Coverage Audit
+            <BarChart3 className="w-3.5 h-3.5 text-slate-500" />
+            <span>Coverage Audit</span>
           </button>
 
           <button
             onClick={() => setActiveTab('builder')}
             className={cn(
-              "px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0",
+              "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer",
               activeTab === 'builder' 
-                ? "bg-white text-purple-700 shadow-xs" 
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs font-bold" 
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             )}
           >
-            <Sliders className="w-3.5 h-3.5" />
-            Admin Builder
+            <Sliders className="w-3.5 h-3.5 text-slate-500" />
+            <span>Admin Builder</span>
           </button>
         </div>
       </div>
 
-      {/* ==================================================================== */}
-      {/* TAB 1: ACTIVE ASSESSMENT WORKFLOW */}
-      {/* ==================================================================== */}
+      {/* ACTIVE ASSESSMENT WORKFLOW */}
       {activeTab === 'assess' && (
         <div className="space-y-6">
           {/* STEP 0: SKILL & MODE SELECTION */}
           {assessmentStep === 'select' && (
-            <div className="space-y-8 animate-fadeIn">
+            <div className="space-y-6 animate-in fade-in duration-200">
               {/* Select Skill Box */}
-              <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
+              <section className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xs space-y-5 transition-colors">
                 <div>
-                  <h2 className="text-lg md:text-xl font-extrabold text-slate-900">
+                  <h2 className="text-base md:text-lg font-heading font-bold text-slate-900 dark:text-white">
                     1. Select Skill for Assessment
                   </h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Choose from your added profile skills or explore any skill across the national curriculum.
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Choose from your added profile skills or explore any vocational curriculum skill.
                   </p>
                 </div>
 
@@ -359,14 +363,14 @@ export function SkillAssessment() {
                         key={skill.id}
                         onClick={() => setSelectedSkillId(skill.id)}
                         className={cn(
-                          "p-4 rounded-2xl border text-left transition-all space-y-2 relative overflow-hidden",
+                          "p-3.5 rounded-xl border text-left transition-all space-y-1.5 relative overflow-hidden cursor-pointer",
                           isSelected 
-                            ? "border-blue-600 bg-blue-50/70 shadow-sm ring-2 ring-blue-600/30" 
-                            : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                            ? "border-blue-600 bg-blue-50/70 dark:bg-blue-950/40 dark:border-blue-500 shadow-xs ring-2 ring-blue-600/20" 
+                            : "border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
                         )}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          <span className="text-[10px] font-mono font-semibold text-slate-400 dark:text-slate-400 uppercase">
                             {skill.category}
                           </span>
                           {hasAssessed && (
@@ -374,14 +378,14 @@ export function SkillAssessment() {
                           )}
                         </div>
 
-                        <div className="font-extrabold text-xs md:text-sm text-slate-900 leading-tight">
+                        <div className="font-heading font-bold text-xs md:text-sm text-slate-900 dark:text-white leading-tight">
                           {skill.name}
                         </div>
 
-                        <div className="text-[11px] text-slate-500 font-medium">
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
                           {hasAssessed ? (
-                            <span className="text-blue-700 font-bold">
-                              Assessed: {existingUserSkill?.indicativeProficiency}
+                            <span className="text-blue-700 dark:text-blue-400 font-bold font-mono">
+                              Verified: {existingUserSkill?.indicativeProficiency}
                             </span>
                           ) : (
                             <span>Self-Reported: {existingUserSkill?.proficiency || 'Not Added'}</span>
@@ -391,16 +395,16 @@ export function SkillAssessment() {
                     );
                   })}
                 </div>
-              </div>
+              </section>
 
               {/* Assessment Length & Depth Selector */}
-              <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
+              <section className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xs space-y-5 transition-colors">
                 <div>
-                  <h2 className="text-lg md:text-xl font-extrabold text-slate-900">
+                  <h2 className="text-base md:text-lg font-heading font-bold text-slate-900 dark:text-white">
                     2. Choose Assessment Depth
                   </h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Select how deeply you would like to test your conceptual knowledge and practical skills.
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Select how deeply you would like to test conceptual knowledge and practical execution.
                   </p>
                 </div>
 
@@ -409,27 +413,27 @@ export function SkillAssessment() {
                   <button
                     onClick={() => setLengthMode('quick')}
                     className={cn(
-                      "p-5 rounded-2xl border text-left transition-all space-y-3",
+                      "p-4 rounded-xl border text-left transition-all space-y-2.5 cursor-pointer",
                       lengthMode === 'quick' 
-                        ? "border-blue-600 bg-blue-50/60 shadow-xs ring-1 ring-blue-600" 
-                        : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                        ? "border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 dark:border-blue-500 shadow-xs ring-2 ring-blue-500/20" 
+                        : "border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-800">
-                        Quick Check
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">
+                        QUICK CHECK
                       </span>
-                      <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                      <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1">
                         <Clock className="w-3 h-3" /> ~4 mins
                       </span>
                     </div>
 
-                    <div className="font-extrabold text-sm text-slate-900">
+                    <div className="font-heading font-bold text-sm text-slate-900 dark:text-white">
                       Adaptive Knowledge Quiz
                     </div>
 
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      5 quick adaptive questions to test conceptual understanding and provide rapid calibration.
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      5 quick adaptive questions to test core understanding and provide rapid calibration.
                     </p>
                   </button>
 
@@ -437,26 +441,26 @@ export function SkillAssessment() {
                   <button
                     onClick={() => setLengthMode('standard')}
                     className={cn(
-                      "p-5 rounded-2xl border text-left transition-all space-y-3 relative",
+                      "p-4 rounded-xl border text-left transition-all space-y-2.5 cursor-pointer relative",
                       lengthMode === 'standard' 
-                        ? "border-purple-600 bg-purple-50/60 shadow-xs ring-1 ring-purple-600" 
-                        : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                        ? "border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 dark:border-blue-500 shadow-xs ring-2 ring-blue-500/20" 
+                        : "border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-100 text-purple-900">
-                        Standard Assessment (Recommended)
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
+                        STANDARD (RECOMMENDED)
                       </span>
-                      <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                      <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1">
                         <Clock className="w-3 h-3" /> ~15 mins
                       </span>
                     </div>
 
-                    <div className="font-extrabold text-sm text-slate-900">
+                    <div className="font-heading font-bold text-sm text-slate-900 dark:text-white">
                       Quiz + Practical Task + Rubric
                     </div>
 
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                       8 adaptive questions + hands-on challenge with 4 rubric criteria and demonstration workspace.
                     </p>
                   </button>
@@ -465,46 +469,46 @@ export function SkillAssessment() {
                   <button
                     onClick={() => setLengthMode('deep')}
                     className={cn(
-                      "p-5 rounded-2xl border text-left transition-all space-y-3",
+                      "p-4 rounded-xl border text-left transition-all space-y-2.5 cursor-pointer",
                       lengthMode === 'deep' 
-                        ? "border-amber-600 bg-amber-50/60 shadow-xs ring-1 ring-amber-600" 
-                        : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                        ? "border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 dark:border-blue-500 shadow-xs ring-2 ring-blue-500/20" 
+                        : "border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900">
-                        Deep Diagnostic
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">
+                        FULL DIAGNOSTIC
                       </span>
-                      <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                      <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1">
                         <Clock className="w-3 h-3" /> ~25 mins
                       </span>
                     </div>
 
-                    <div className="font-extrabold text-sm text-slate-900">
+                    <div className="font-heading font-bold text-sm text-slate-900 dark:text-white">
                       Full Diagnostic + Multi-Item Task
                     </div>
 
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      12-15 questions covering all competency facets + project artifact upload & reflection.
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      12-15 questions covering all competency facets + project artifact reflection.
                     </p>
                   </button>
                 </div>
 
                 {/* Launch Button */}
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <div className="text-xs text-slate-500">
-                    Selected Skill: <strong className="text-slate-800">{selectedSkill.name}</strong> • Mode: <strong className="text-slate-800 uppercase">{lengthMode}</strong>
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    Selected Skill: <strong className="text-slate-800 dark:text-slate-200">{selectedSkill.name}</strong> • Mode: <strong className="text-slate-800 dark:text-slate-200 uppercase font-mono">{lengthMode}</strong>
                   </div>
 
                   <button
                     onClick={() => setAssessmentStep('quiz')}
-                    className="px-8 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm transition-all flex items-center gap-2 shadow-sm"
+                    className="px-6 py-2.5 rounded-xl bg-slate-950 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white font-semibold text-xs transition-all flex items-center gap-2 shadow-xs btn-press"
                   >
                     <span>Begin Assessment</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              </div>
+              </section>
             </div>
           )}
 
@@ -547,9 +551,7 @@ export function SkillAssessment() {
         </div>
       )}
 
-      {/* ==================================================================== */}
       {/* TAB 2: MY ASSESSMENT HISTORY */}
-      {/* ==================================================================== */}
       {activeTab === 'history' && (
         <AssessmentHistoryModal
           attempts={attempts}
@@ -561,9 +563,7 @@ export function SkillAssessment() {
         />
       )}
 
-      {/* ==================================================================== */}
       {/* TAB 3: ASSESSMENT COVERAGE DASHBOARD */}
-      {/* ==================================================================== */}
       {activeTab === 'coverage' && (
         <AssessmentCoverageDashboard
           onSelectSkillForAssessment={(skillId) => {
@@ -578,9 +578,7 @@ export function SkillAssessment() {
         />
       )}
 
-      {/* ==================================================================== */}
       {/* TAB 4: ADMIN BUILDER */}
-      {/* ==================================================================== */}
       {activeTab === 'builder' && (
         <AdminAssessmentBuilder
           initialSkillId={selectedSkillId}

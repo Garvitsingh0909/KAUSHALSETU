@@ -53,6 +53,23 @@ export interface FirstStepProfile {
   riskMitigation: string;
 }
 
+export interface WebSource {
+  title: string;
+  url: string;
+  snippet?: string;
+}
+
+export interface WebResearch {
+  searchQueries?: string[];
+  verifiedSources?: WebSource[];
+  marketDemandScore?: number; // 1-100
+  averageMarketRateINR?: string;
+  competitorBenchmark?: string;
+  trendingSignals?: string[];
+  groundedAt?: string;
+  isWebGrounded?: boolean;
+}
+
 export interface Opportunity {
   id: string;
   title: string;
@@ -73,19 +90,159 @@ export interface Opportunity {
   usersProfile?: UsersProfile;
   solutionProfile?: SolutionProfile;
   firstStepProfile?: FirstStepProfile;
+  webResearch?: WebResearch;
+  createdAt?: string; // ISO date string e.g. "2026-09-15"
+  compensationValueINR?: number; // Numeric compensation value for sorting (e.g. 10000)
+  compensationLabel?: string; // Display label (e.g. "₹3,000 – ₹10,000 / project")
+}
+
+export type MatchTier = 'perfect' | 'strong' | 'good' | 'developing' | 'exploratory' | 'none';
+
+export interface MatchBreakdown {
+  coreScore: number;
+  coreWeight: number;
+  preferredScore: number;
+  preferredWeight: number;
+  proficiencyBonus: number;
+  maxProficiencyBonus: number;
+  verificationBonus: number;
+  maxVerificationBonus: number;
+  totalRequired: number;
+  matchedRequiredCount: number;
+  totalPreferred: number;
+  matchedPreferredCount: number;
+  verifiedCount: number;
 }
 
 export interface MatchResult {
   score: number;
-  label: 'Strong Match' | 'Good Match' | 'Developing Match';
+  label: 'Top Match' | 'Strong Match' | 'Good Match' | 'Developing Match' | 'Exploratory Match' | 'Skill Gap' | 'No Skills Added';
+  tier: MatchTier;
   matchedRequired: string[];
   matchedPreferred: string[];
   missingRequired: string[];
   missingPreferred: string[];
   explanation: string;
+  breakdown: MatchBreakdown;
+  actionTip: string;
 }
 
 export const OPPORTUNITIES_DB: Opportunity[] = [
+  {
+    id: 'custom_canvas_mural_studio',
+    title: 'Fine Arts & Custom Canvas Mural Studio',
+    category: 'Entrepreneurship',
+    requiredSkills: ['fine_arts_visual', 'client_handling'],
+    preferredSkills: ['pricing', 'marketing', 'photography'],
+    applications: ['Hand-Painted Cafe Murals', 'Custom Framed Canvas Portraits', 'Limited-Edition Art Print Suites', 'Festive Greeting & Keepsake Packs'],
+    problems: [
+      'Commercial retail cafes and modern apartments feel sterile and lack authentic human artistry',
+      'Large interior design agencies quote ₹40,000+ for basic feature wall painting',
+      'Families and art lovers struggle to find accessible, high-craft portrait artists for personal milestones'
+    ],
+    targetUsers: ['Neighborhood cafes, bakeries & boutique stores', 'Homeowners seeking custom commemorative portraits', 'Artisan gift buyers'],
+    solution: 'Deliver bespoke hand-painted canvas artworks, feature wall murals, and high-end commissioned portraits with transparent unit economics.',
+    nextSkills: ['Graphic Design', 'Pricing Strategy', 'Exhibition Presentation', 'Client Discovery'],
+    firstStep: 'Create a 3-piece portfolio sample of botanical or architectural acrylic works on canvas, photograph them in natural light, and present a demo concept to a neighborhood cafe.',
+    opportunityType: 'Creative Studio / Micro-Enterprise',
+    difficulty: 'Intermediate',
+    createdAt: '2026-09-15',
+    compensationValueINR: 12000,
+    compensationLabel: '₹3,500 – ₹12,000 / commission',
+    problemProfile: {
+      overview: 'Hyperlocal cafes, bookstores, and boutique hospitality spaces in India increasingly rely on Instagrammable visual decor to drive organic customer footfall. Meanwhile, generic stock wall art lacks local charm, while commercial agencies charge enterprise prices.',
+      keyChallenges: [
+        'High cost of commercial decor: Agencies demand huge retainers out of reach for independent shop owners.',
+        'Impersonal mass-produced factory prints: Cheap vinyl decals look cheap and peel within months.',
+        'Lack of trusted local student artists who understand professional client boundaries and deadline delivery.'
+      ],
+      urgency: 'Visual ambiance directly dictates consumer dwell time and social media sharing for new businesses.',
+      marketGap: 'Student fine artists with client discovery skills can deliver gorgeous custom feature walls at 1/4th agency fees while earning high margins.'
+    },
+    usersProfile: {
+      primaryAudience: 'Independent cafe owners, boutique retail store managers, and family milestone portrait seekers',
+      audienceSegments: [
+        {
+          segment: 'Independent Cafes & Bakeries',
+          description: 'Local culinary entrepreneurs who need distinctive, photo-worthy interiors.',
+          painPoint: 'Blank walls that look empty and uninviting on social media.',
+          whyTheyCare: 'A stunning mural increases customer photos and foot traffic by 40%.'
+        },
+        {
+          segment: 'Homeowners & Gift Buyers',
+          description: 'Individuals wanting commemorative portraits of pets, family, or ancestral homes.',
+          painPoint: 'Digital phone photos lack the permanence and emotional depth of real hand-painted art.',
+          whyTheyCare: 'Unique heirloom keepsake for birthdays, weddings, or anniversaries.'
+        }
+      ],
+      realWorldContext: 'Local commercial high streets, school exhibitions, community artisan markets.',
+      outreachStrategy: 'Visit 3 local cafes with a curated physical sketchbook portfolio and offer a miniature concept mockup.'
+    },
+    solutionProfile: {
+      summary: 'A turnkey commissioned art micro-service offering site-specific wall murals, framed acrylic canvases, and batch fine-art prints.',
+      coreDeliverables: [
+        { name: 'Custom Wall Mural', description: 'Hand-painted interior mural (up to 3x2m) with sealed acrylics.' },
+        { name: 'Commemorative Canvas', description: '16x20 inch framed acrylic portrait or botanical study.' },
+        { name: 'Limited Art Print Suite', description: 'Batch of 15 archival signed art prints on eco-friendly paper.' }
+      ],
+      howItWorks: '1. Discovery consultation & photo reference -> 2. Digital thumbnail sketch approval -> 3. Material prep -> 4. On-site execution or studio delivery.',
+      economicValue: '₹3,500 – ₹12,000 per project. Typical materials cost ₹600 – ₹1,800, generating 75%+ contribution margins.',
+      skillIntegration: 'Fine Arts provides tactile mastery; Client Handling ensures prompt approvals and zero unpaid revisions.'
+    },
+    firstStepProfile: {
+      immediateAction: 'Photograph 2 existing original artworks in natural lighting, crop into clean square tiles, and draft a 1-page commission rate card.',
+      roadmap: [
+        { phase: 'Phase 1', title: 'Portfolio Curation', action: 'Mount 3 physical sample canvases and draft rate card.', duration: 'Days 1-3' },
+        { phase: 'Phase 2', title: 'Client Discovery', action: 'Present pitch to 2 local cafes for mural or canvas decor.', duration: 'Days 4-7' },
+        { phase: 'Phase 3', title: 'Pilot Commission', action: 'Execute first commissioned artwork at introductory fee.', duration: 'Week 2' },
+        { phase: 'Phase 4', title: 'Showcase & Referral', action: 'Photograph finished piece on-site and request client testimonial.', duration: 'Weeks 3-4' }
+      ],
+      requiredResources: ['Canvas boards, acrylic paints, brushes, protective varnish, sketchbook'],
+      validationMilestone: 'Securing first paying commission with a 50% advance deposit.',
+      riskMitigation: 'Always collect 50% material deposit before starting work and limit design revisions to 2 rounds.'
+    },
+    webResearch: {
+      marketDemandScore: 96,
+      averageMarketRateINR: '₹3,500 – ₹12,000 per artwork / mural',
+      competitorBenchmark: 'Design agencies charge ₹35,000+; student artists provide agile turnaround for ₹4,000 – ₹10,000.',
+      trendingSignals: ['Artisanal cafes prioritizing authentic hand-painted aesthetic over digital wallpapers.', 'Growing appetite for custom pet and family canvas portraits in urban India.'],
+      isWebGrounded: true
+    }
+  },
+  {
+    id: 'ai_productivity_hub',
+    title: 'AI-Powered Business Workflow Automation',
+    category: 'Technology',
+    requiredSkills: ['ai_prompt_engineering', 'automation_tools'],
+    preferredSkills: ['coding', 'pricing'],
+    applications: ['Automated WhatsApp Lead Capture', 'Product Catalog AI Copy Generation', 'Customer Support Auto-Drafting', 'Daily Spreadsheet Data Sync'],
+    problems: [
+      'Small shopkeepers and clinics waste 3 hours every day on repetitive manual message typing',
+      'Expensive enterprise automation software charges monthly dollar subscriptions',
+      'Small business owners lack technical know-how to integrate free AI tools effectively'
+    ],
+    targetUsers: ['Local medical clinics', 'Neighborhood retail boutiques', 'Tuition academies', 'Independent freelancers'],
+    solution: 'Build zero-code automated workflows integrating WhatsApp Business, Google Sheets, and prompt pipelines to automate lead handling and customer FAQs.',
+    nextSkills: ['Python Scripting', 'API Integration', 'Sales Discovery', 'Unit Economics'],
+    firstStep: 'Build a free Google Sheets + Google Forms automated WhatsApp invoice receipt generator and demo it to a local coaching tutor.',
+    opportunityType: 'Automation Consultancy / Micro-Service',
+    difficulty: 'Intermediate',
+    createdAt: '2026-09-15',
+    compensationValueINR: 10000,
+    compensationLabel: '₹4,000 – ₹12,000 / setup',
+    problemProfile: {
+      overview: 'Micro-enterprises in India are overwhelmed by daily customer chats, repetitive payment confirmation queries, and manual spreadsheet logging.',
+      keyChallenges: ['Manual copy-paste error rates', 'Late replies to incoming customer inquiries', 'High cost of enterprise SaaS tools'],
+      urgency: 'Instant response times determine whether a prospective buyer completes a purchase or goes to a competitor.',
+      marketGap: 'Large IT firms will not take on sub-₹50,000 contracts; a student builder can deliver a working workflow in 2 days for ₹4,000.'
+    },
+    webResearch: {
+      marketDemandScore: 97,
+      averageMarketRateINR: '₹4,000 – ₹12,000 per automation setup',
+      competitorBenchmark: 'SaaS tools charge ₹3,000/mo ongoing; custom micro-services charge one-time setup + maintenance.',
+      isWebGrounded: true
+    }
+  },
   {
     id: 'coding_and_design_experience_studio',
     title: 'Digital UI/UX & Web Experience Studio',
@@ -104,6 +261,9 @@ export const OPPORTUNITIES_DB: Opportunity[] = [
     firstStep: 'Identify a local business or school club with an unresponsive website and build a high-fidelity 1-page mobile-friendly prototype using Figma and code.',
     opportunityType: 'Digital Agency / Freelance',
     difficulty: 'Intermediate',
+    createdAt: '2026-09-10',
+    compensationValueINR: 10000,
+    compensationLabel: '₹3,000 – ₹10,000 / project',
     problemProfile: {
       overview: 'In modern markets, a business without an intuitive digital presence loses 70% of potential young customers. Most small enterprises are trapped between hiring expensive digital agencies or using generic templates that look identical to competitors.',
       keyChallenges: [
@@ -181,6 +341,9 @@ export const OPPORTUNITIES_DB: Opportunity[] = [
     firstStep: 'Calculate the Bill of Materials (BOM) cost for a basic ESP32 automated temperature/relay switch and price it with a 40% gross profit margin.',
     opportunityType: 'Hardware Micro-Enterprise',
     difficulty: 'Advanced',
+    createdAt: '2026-09-08',
+    compensationValueINR: 12000,
+    compensationLabel: '₹6,000 – ₹12,000 / batch',
     problemProfile: {
       overview: 'While consumer smart-home gadgets exist, small workshops, suburban greenhouses, and educational labs find commercial industrial IoT sensors out of reach. Simultaneously, young makers build circuits that remain on breadboards because they lack the business and financial models to commercialize them.',
       keyChallenges: [
@@ -258,6 +421,9 @@ export const OPPORTUNITIES_DB: Opportunity[] = [
     firstStep: 'Identify 3 local businesses with outdated menus or social media, and redesign one asset for them as a free portfolio piece.',
     opportunityType: 'Freelance Service',
     difficulty: 'Beginner',
+    createdAt: '2026-09-12',
+    compensationValueINR: 6000,
+    compensationLabel: '₹1,500 – ₹3,000 / retainer',
     problemProfile: {
       overview: 'Local brick-and-mortar stores face heavy competition from national chains. While chains have dedicated creative agencies, neighborhood businesses use blurry smartphone photos and inconsistent fonts, eroding consumer trust.',
       keyChallenges: [
@@ -335,6 +501,9 @@ export const OPPORTUNITIES_DB: Opportunity[] = [
     firstStep: 'Create a 1-page beginner cheat-sheet on Python variables and loops using a gaming analogy, and test it with a friend.',
     opportunityType: 'Service / Mentorship',
     difficulty: 'Intermediate',
+    createdAt: '2026-09-05',
+    compensationValueINR: 4000,
+    compensationLabel: '₹2,000 – ₹4,000 / month',
     problemProfile: {
       overview: 'With the National Education Policy (NEP 2020) mandating coding from Grade 6, millions of students are suddenly exposed to programming. However, traditional classrooms often teach coding through rote syntax memorization on paper, turning students away from STEM.',
       keyChallenges: [
@@ -406,6 +575,9 @@ export const OPPORTUNITIES_DB: Opportunity[] = [
     firstStep: 'Build a single Arduino or ESP32 soil moisture sensor circuit and test it on a potted houseplant.',
     opportunityType: 'Product Prototyping',
     difficulty: 'Advanced',
+    createdAt: '2026-09-11',
+    compensationValueINR: 7500,
+    compensationLabel: '₹1,500 / unit (₹7,500 / batch)',
     problemProfile: {
       overview: 'Urban agriculture and terrace gardening are booming across Indian cities. However, terrace plants suffer high mortality rates during summer heatwaves when homeowners travel or forget daily watering routines.',
       keyChallenges: [
@@ -477,6 +649,9 @@ export const OPPORTUNITIES_DB: Opportunity[] = [
     firstStep: 'Draft a 1-page event prospectus for a 3-hour weekend "Student Project Showcase" including a simple sponsor proposal.',
     opportunityType: 'Community Enterprise',
     difficulty: 'Intermediate',
+    createdAt: '2026-09-02',
+    compensationValueINR: 10000,
+    compensationLabel: '₹6,000 – ₹10,000 / event',
     problemProfile: {
       overview: 'Curiosity and innovation thrive on recognition. While large metropolitan centers host well-funded hackathons, tier-2 cities and suburban neighborhoods have almost zero grassroots platforms for school students to exhibit inventions.',
       keyChallenges: [
@@ -548,6 +723,9 @@ export const OPPORTUNITIES_DB: Opportunity[] = [
     firstStep: 'Design a clean "Student Allowance & Savings Tracker" spreadsheet and write a 500-word explanatory guide on the 50/30/20 rule.',
     opportunityType: 'Digital Product / Content',
     difficulty: 'Beginner',
+    createdAt: '2026-09-14',
+    compensationValueINR: 5000,
+    compensationLabel: '₹4,950 / digital release',
     problemProfile: {
       overview: 'Schools teach calculus and trigonometry but rarely teach how to calculate simple vs compound interest, how credit cards trap users, or how to budget a monthly allowance. This creates young adults who make costly financial errors within their first year of independence.',
       keyChallenges: [
@@ -619,6 +797,9 @@ export const OPPORTUNITIES_DB: Opportunity[] = [
     firstStep: 'Create a 5-photo specimen portfolio featuring everyday household objects or a local shop product using natural window lighting and white poster-board backdrop.',
     opportunityType: 'Freelance Service',
     difficulty: 'Intermediate',
+    createdAt: '2026-09-15',
+    compensationValueINR: 6000,
+    compensationLabel: '₹1,500 / session (₹6,000 / mo)',
     problemProfile: {
       overview: 'Local artisan businesses and neighborhood retail stores in India are rapidly joining digital marketplaces like ONDC, Instagram, and WhatsApp Business. However, over 80% struggle with low sales because their product photographs look blurry, unappetizing, or poorly lit.',
       keyChallenges: [
@@ -683,71 +864,299 @@ export const OPPORTUNITIES_DB: Opportunity[] = [
 ];
 
 export function calculateMatch(userSkills: UserSkill[], opp: Opportunity, allSkillsDB: Skill[]): MatchResult {
+  const reqNames = opp.requiredSkills.map(id => allSkillsDB.find(s => s.id === id)?.name || id);
+  const prefNames = opp.preferredSkills.map(id => allSkillsDB.find(s => s.id === id)?.name || id);
+
+  // Empty skill profile case
+  if (!userSkills || userSkills.length === 0) {
+    return {
+      score: 0,
+      label: 'No Skills Added',
+      tier: 'none',
+      matchedRequired: [],
+      matchedPreferred: [],
+      missingRequired: opp.requiredSkills,
+      missingPreferred: opp.preferredSkills,
+      explanation: `Add skills to your profile to calculate your compatibility with this pathway. It requires ${reqNames.join(' and ')}.`,
+      breakdown: {
+        coreScore: 0,
+        coreWeight: opp.preferredSkills.length > 0 ? 65 : 85,
+        preferredScore: 0,
+        preferredWeight: opp.preferredSkills.length > 0 ? 20 : 0,
+        proficiencyBonus: 0,
+        maxProficiencyBonus: 10,
+        verificationBonus: 0,
+        maxVerificationBonus: 5,
+        totalRequired: opp.requiredSkills.length,
+        matchedRequiredCount: 0,
+        totalPreferred: opp.preferredSkills.length,
+        matchedPreferredCount: 0,
+        verifiedCount: 0
+      },
+      actionTip: `Add ${reqNames[0] || 'core skills'} to your profile to start calculating compatibility.`
+    };
+  }
+
   const userSkillIds = userSkills.map(us => us.skillId);
-  
   const matchedRequired = opp.requiredSkills.filter(id => userSkillIds.includes(id));
   const missingRequired = opp.requiredSkills.filter(id => !userSkillIds.includes(id));
-  
   const matchedPreferred = opp.preferredSkills.filter(id => userSkillIds.includes(id));
   const missingPreferred = opp.preferredSkills.filter(id => !userSkillIds.includes(id));
-  
-  let score = 0;
-  
-  // Base score from required skills
-  const requiredWeight = 70;
-  const preferredWeight = 30;
-  
-  const requiredScore = opp.requiredSkills.length > 0 
-    ? (matchedRequired.length / opp.requiredSkills.length) * requiredWeight 
-    : requiredWeight;
-    
-  const preferredScore = opp.preferredSkills.length > 0
-    ? (matchedPreferred.length / opp.preferredSkills.length) * preferredWeight
-    : preferredWeight;
-    
-  score = requiredScore + preferredScore;
-  
-  // Proficiency Boost (Add up to 15 bonus points for high proficiency in matched required skills)
-  let proficiencyBonus = 0;
-  const weightMap: Record<string, number> = { 'Advanced': 1.0, 'Strong': 0.8, 'Intermediate': 0.5, 'Developing': 0.2, 'Beginner': 0 };
-  
+
+  // If user has skills, but none match this opportunity
+  if (matchedRequired.length === 0 && matchedPreferred.length === 0) {
+    const missingReqNames = missingRequired.map(id => allSkillsDB.find(s => s.id === id)?.name || id);
+    return {
+      score: 0,
+      label: 'Skill Gap',
+      tier: 'none',
+      matchedRequired: [],
+      matchedPreferred: [],
+      missingRequired: opp.requiredSkills,
+      missingPreferred: opp.preferredSkills,
+      explanation: `This opportunity requires foundational skills like ${missingReqNames.join(' and ')} that are not currently in your active skills portfolio.`,
+      breakdown: {
+        coreScore: 0,
+        coreWeight: opp.preferredSkills.length > 0 ? 65 : 85,
+        preferredScore: 0,
+        preferredWeight: opp.preferredSkills.length > 0 ? 20 : 0,
+        proficiencyBonus: 0,
+        maxProficiencyBonus: 10,
+        verificationBonus: 0,
+        maxVerificationBonus: 5,
+        totalRequired: opp.requiredSkills.length,
+        matchedRequiredCount: 0,
+        totalPreferred: opp.preferredSkills.length,
+        matchedPreferredCount: 0,
+        verifiedCount: 0
+      },
+      actionTip: `Learn or add ${missingReqNames[0] || 'core skills'} to unlock this project pathway.`
+    };
+  }
+
+  // Calculate dynamic core score
+  const coreWeight = opp.preferredSkills.length > 0 ? 65 : 85;
+  const preferredWeight = opp.preferredSkills.length > 0 ? 20 : 0;
+
+  const coreRatio = opp.requiredSkills.length > 0 
+    ? (matchedRequired.length / opp.requiredSkills.length) 
+    : 1;
+  const coreScore = Math.round(coreRatio * coreWeight);
+
+  const preferredRatio = opp.preferredSkills.length > 0 
+    ? (matchedPreferred.length / opp.preferredSkills.length) 
+    : 0;
+  const preferredScore = Math.round(preferredRatio * preferredWeight);
+
+  // Proficiency depth bonus (up to 10 points)
+  // Maps proficiency levels across self-reported and assessed
+  const proficiencyWeights: Record<string, number> = {
+    'Advanced': 1.0,
+    'Strong': 0.85,
+    'Intermediate': 0.6,
+    'Developing': 0.35,
+    'Novice': 0.2,
+    'Beginner': 0.15
+  };
+
+  let totalProficiencyWeight = 0;
+  let verifiedCount = 0;
+
   matchedRequired.forEach(skillId => {
     const us = userSkills.find(s => s.skillId === skillId);
     if (us) {
-      proficiencyBonus += weightMap[us.proficiency] * (15 / opp.requiredSkills.length);
+      // Check indicative (assessed) proficiency first, then self-reported
+      const assessedVal = us.indicativeProficiency ? proficiencyWeights[us.indicativeProficiency] || 0.5 : 0;
+      const selfVal = us.proficiency ? proficiencyWeights[us.proficiency] || 0.4 : 0;
+      totalProficiencyWeight += Math.max(assessedVal, selfVal);
+
+      // Check verification status
+      const isVerified = Boolean(
+        us.indicativeProficiency || 
+        us.evidenceLevel === 'High evidence' || 
+        us.evidenceLevel === 'Moderate evidence' ||
+        (us.latestScorePercentage && us.latestScorePercentage >= 60)
+      );
+      if (isVerified) {
+        verifiedCount++;
+      }
     }
   });
-  
-  score = Math.min(100, Math.round(score + proficiencyBonus));
-  
-  let label: 'Strong Match' | 'Good Match' | 'Developing Match' = 'Developing Match';
-  if (score >= 80) label = 'Strong Match';
-  else if (score >= 50) label = 'Good Match';
-  
-  const reqNames = matchedRequired.map(id => allSkillsDB.find(s => s.id === id)?.name || id);
-  const prefNames = matchedPreferred.map(id => allSkillsDB.find(s => s.id === id)?.name || id);
+
+  const avgProficiency = matchedRequired.length > 0 ? (totalProficiencyWeight / matchedRequired.length) : 0;
+  // Proficiency bonus scales with required skills coverage
+  const proficiencyBonus = Math.round(avgProficiency * 10 * coreRatio);
+
+  // Verification credibility bonus (up to 5 points)
+  const maxVerificationBonus = 5;
+  const verificationRatio = opp.requiredSkills.length > 0 ? (verifiedCount / opp.requiredSkills.length) : 0;
+  const verificationBonus = Math.round(verificationRatio * maxVerificationBonus);
+
+  // Aggregate final composite score
+  let score = coreScore + preferredScore + proficiencyBonus + verificationBonus;
+  score = Math.max(0, Math.min(100, score));
+
+  // Determine classification tier & label
+  let tier: MatchTier = 'exploratory';
+  let label: 'Top Match' | 'Strong Match' | 'Good Match' | 'Developing Match' | 'Exploratory Match' | 'Skill Gap' | 'No Skills Added' = 'Exploratory Match';
+
+  if (score >= 90) {
+    tier = 'perfect';
+    label = 'Top Match';
+  } else if (score >= 75) {
+    tier = 'strong';
+    label = 'Strong Match';
+  } else if (score >= 50) {
+    tier = 'good';
+    label = 'Good Match';
+  } else if (score >= 25) {
+    tier = 'developing';
+    label = 'Developing Match';
+  } else {
+    tier = 'exploratory';
+    label = 'Exploratory Match';
+  }
+
+  const matchedReqNames = matchedRequired.map(id => allSkillsDB.find(s => s.id === id)?.name || id);
+  const matchedPrefNames = matchedPreferred.map(id => allSkillsDB.find(s => s.id === id)?.name || id);
   const missingReqNames = missingRequired.map(id => allSkillsDB.find(s => s.id === id)?.name || id);
-  
+  const missingPrefNames = missingPreferred.map(id => allSkillsDB.find(s => s.id === id)?.name || id);
+
+  // Formulate explanation
   let explanation = '';
   if (matchedRequired.length === 0) {
-    explanation = `This opportunity requires foundational skills like ${missingReqNames.join(' and ')} that you are currently developing.`;
+    explanation = `This opportunity requires foundational skills (${missingReqNames.join(' and ')}). You match preferred skills (${matchedPrefNames.join(', ')}), but core skills are still needed.`;
   } else if (missingRequired.length > 0) {
-    explanation = `You have a great start with ${reqNames.join(', ')}. To fully unlock this pathway, focus on developing ${missingReqNames.join(', ')}.`;
+    explanation = `You have strong momentum with ${matchedReqNames.join(', ')} (${matchedRequired.length}/${opp.requiredSkills.length} core). Developing ${missingReqNames.join(', ')} will bring you to full readiness.`;
   } else {
-    explanation = `Excellent match! You possess the core requirements (${reqNames.join(', ')}). `;
+    explanation = `Outstanding match! You possess all core requirements (${matchedReqNames.join(', ')}).`;
     if (matchedPreferred.length > 0) {
-      explanation += `Your additional skills in ${prefNames.join(', ')} give you a unique competitive advantage.`;
+      explanation += ` Your additional skills in ${matchedPrefNames.join(', ')} provide a distinct competitive advantage.`;
     }
+  }
+
+  // Formulate actionable next tip
+  let actionTip = '';
+  if (missingRequired.length > 0) {
+    const potentialGain = Math.round(coreWeight / opp.requiredSkills.length);
+    actionTip = `Add or develop "${missingReqNames[0]}" to boost compatibility by +${potentialGain}%.`;
+  } else if (verifiedCount < matchedRequired.length) {
+    const unverifiedId = matchedRequired.find(id => {
+      const us = userSkills.find(s => s.skillId === id);
+      return !us?.indicativeProficiency && us?.evidenceLevel !== 'High evidence' && us?.evidenceLevel !== 'Moderate evidence';
+    });
+    const unverifiedName = unverifiedId ? (allSkillsDB.find(s => s.id === unverifiedId)?.name || unverifiedId) : 'your skills';
+    actionTip = `Take a practical assessment for "${unverifiedName}" to earn verified bonus points.`;
+  } else if (missingPreferred.length > 0) {
+    actionTip = `Optional: Add "${missingPrefNames[0]}" to reach 100% mastery compatibility.`;
+  } else {
+    actionTip = `100% skill alignment verified! You are fully qualified to launch this pathway.`;
   }
 
   return {
     score,
     label,
+    tier,
     matchedRequired,
     matchedPreferred,
     missingRequired,
     missingPreferred,
-    explanation
+    explanation,
+    breakdown: {
+      coreScore,
+      coreWeight,
+      preferredScore,
+      preferredWeight,
+      proficiencyBonus,
+      maxProficiencyBonus: 10,
+      verificationBonus,
+      maxVerificationBonus,
+      totalRequired: opp.requiredSkills.length,
+      matchedRequiredCount: matchedRequired.length,
+      totalPreferred: opp.preferredSkills.length,
+      matchedPreferredCount: matchedPreferred.length,
+      verifiedCount
+    },
+    actionTip
+  };
+}
+
+export interface OpportunityCompensation {
+  estimatedINR: number;
+  label: string;
+}
+
+export function getOpportunityCompensation(opp: Opportunity): OpportunityCompensation {
+  if (opp.compensationValueINR && opp.compensationLabel) {
+    return {
+      estimatedINR: opp.compensationValueINR,
+      label: opp.compensationLabel
+    };
+  }
+
+  // Check webResearch or economicValue string
+  const text = `${opp.webResearch?.averageMarketRateINR || ''} ${opp.solutionProfile?.economicValue || ''}`;
+  
+  // Extract all numbers after ₹ or Rs
+  const inrMatches = text.match(/₹\s*([0-9,]+)/g) || [];
+  let maxINR = 0;
+  for (const m of inrMatches) {
+    const cleanNum = parseInt(m.replace(/[^0-9]/g, ''), 10);
+    if (!isNaN(cleanNum) && cleanNum > maxINR && cleanNum < 1000000) {
+      maxINR = cleanNum;
+    }
+  }
+
+  if (maxINR > 0) {
+    return {
+      estimatedINR: maxINR,
+      label: opp.webResearch?.averageMarketRateINR || `Up to ₹${maxINR.toLocaleString('en-IN')}`
+    };
+  }
+
+  // Fallback defaults calibrated by difficulty
+  const fallbackValues: Record<DifficultyLevel, number> = {
+    Beginner: 3000,
+    Intermediate: 6500,
+    Advanced: 12000
+  };
+  const est = fallbackValues[opp.difficulty] || 5000;
+  return {
+    estimatedINR: est,
+    label: `Est. ₹${est.toLocaleString('en-IN')}`
+  };
+}
+
+export function getOpportunityDate(opp: Opportunity): { timestamp: number; displayDate: string; isNew: boolean } {
+  if (opp.createdAt) {
+    const time = new Date(opp.createdAt).getTime();
+    if (!isNaN(time)) {
+      const isNew = opp.createdAt >= '2026-09-12';
+      return {
+        timestamp: time,
+        displayDate: opp.createdAt,
+        isNew
+      };
+    }
+  }
+
+  if (opp.webResearch?.groundedAt) {
+    const time = new Date(opp.webResearch.groundedAt).getTime();
+    if (!isNaN(time)) {
+      return {
+        timestamp: time,
+        displayDate: opp.webResearch.groundedAt,
+        isNew: true
+      };
+    }
+  }
+
+  const dateStr = opp.id.startsWith('gen_') || opp.id.startsWith('custom_') ? '2026-09-16' : '2026-09-05';
+  const timestamp = new Date(dateStr).getTime();
+  return {
+    timestamp,
+    displayDate: dateStr,
+    isNew: dateStr >= '2026-09-12'
   };
 }
 

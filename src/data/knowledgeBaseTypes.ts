@@ -35,6 +35,11 @@ export interface SkillNode extends BaseRecordMetadata {
   projectIdeas: string[];
   roadmapTemplateId?: string;
   cbseCurriculumRef?: string;
+  estimatedRevenue?: {
+    perProject: string;
+    monthlyPotential: string;
+    pricingModel?: string;
+  };
 }
 
 export interface FinancialAssumptionTemplate {

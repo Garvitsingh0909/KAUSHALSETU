@@ -27,6 +27,7 @@ import { useBusiness } from '../context/BusinessContext';
 import { useProfile } from '../context/ProfileContext';
 import { OPPORTUNITIES } from '../data/opportunities';
 import { CostItem, calculateFinancials, BusinessScenario, CBSE_DEMO_SCENARIO, CBSE_PRESET_SCENARIOS } from '../data/business';
+import { KaushalPathwayBanner } from '../components/common/KaushalPathwayBanner';
 
 export const BusinessBuilder: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -51,6 +52,10 @@ export const BusinessBuilder: React.FC = () => {
 
   // Selected Tab in the builder
   const [activeTab, setActiveTab] = useState<'model' | 'simulator' | 'comparison' | 'summary'>('model');
+
+  // Guided Venture Building 8-step index:
+  // IDEA -> PROBLEM -> CUSTOMER -> SOLUTION -> VALUE -> COST -> PRICE -> REVENUE
+  const [ventureStepIndex, setVentureStepIndex] = useState<number>(0);
 
   // Working state for active scenario editing
   const [opportunityId, setOpportunityId] = useState<string>('');
@@ -191,19 +196,37 @@ export const BusinessBuilder: React.FC = () => {
   const PRESET_PRICES = [300, 500, 700, 1000];
   const PRESET_CUSTOMERS = [5, 10, 20, 30];
 
+  const VENTURE_STEPS = [
+    { id: 'idea', label: 'IDEA', desc: 'Concept & Opportunity' },
+    { id: 'problem', label: 'PROBLEM', desc: 'Customer Struggle' },
+    { id: 'customer', label: 'CUSTOMER', desc: 'Target Segment' },
+    { id: 'solution', label: 'SOLUTION', desc: 'Skill Deliverable' },
+    { id: 'value', label: 'VALUE', desc: 'Value Created' },
+    { id: 'cost', label: 'COST', desc: 'Fixed & Unit Costs' },
+    { id: 'price', label: 'PRICE', desc: 'Pricing & Customers' },
+    { id: 'revenue', label: 'REVENUE', desc: 'Surplus & Break-Even' },
+  ] as const;
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-16">
-      {/* Top Banner & Progress Header */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 lg:p-8 relative overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-emerald-600/10 via-blue-600/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+      {/* Signature Pathway */}
+      <KaushalPathwayBanner 
+        currentStep="CAREER / BUSINESS"
+        subtitle="Translate your skill-based capabilities into viable micro-enterprises with structured unit economics and break-even analysis."
+      />
 
-        <div className="relative z-10">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+      {/* 1. TOP EDITORIAL BANNER (CLEAN WHITE SURFACE) */}
+      <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 lg:p-8 shadow-xs relative overflow-hidden transition-colors">
+        <div className="relative z-10 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                Entrepreneurship & Financial Simulator
+              <span className="text-xs font-mono font-bold tracking-widest uppercase text-slate-900 dark:text-blue-300 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-md border border-slate-200 dark:border-slate-700">
+                VENTURE WORKFLOW
               </span>
-              <span className="text-xs text-slate-400">CBSE Skill Expo 2026</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Skill-to-Enterprise Model</span>
+              <span className="font-hand text-xl text-blue-700 dark:text-blue-400 font-semibold ml-2">
+                “Start with a problem.”
+              </span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -213,17 +236,17 @@ export const BusinessBuilder: React.FC = () => {
                   const demo = loadDemoScenario();
                   loadScenarioIntoState(demo);
                 }}
-                className="px-3.5 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 text-xs font-semibold transition-colors flex items-center gap-2"
-                title="Loads standard Graphic Design Service model for judges"
+                className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer shadow-2xs"
+                title="Loads standard Graphic Design Service model"
               >
-                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                Load CBSE Demo Mode
+                <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                Load Demo Scenario
               </button>
 
               <button
                 id="save-scenario-btn"
                 onClick={handleSaveCurrentScenario}
-                className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-all shadow-lg shadow-emerald-900/30 flex items-center gap-2"
+                className="px-4 py-1.5 rounded-xl bg-slate-950 dark:bg-blue-600 hover:bg-slate-900 dark:hover:bg-blue-700 text-white text-xs font-semibold transition-all shadow-xs flex items-center gap-2 cursor-pointer"
               >
                 <Save className="w-3.5 h-3.5" />
                 {saveSuccessMsg ? 'Scenario Saved!' : 'Save Model'}
@@ -231,87 +254,68 @@ export const BusinessBuilder: React.FC = () => {
             </div>
           </div>
 
-          <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight mb-2">
-            Build My Business Model
-          </h1>
-          <p className="text-slate-400 text-sm max-w-3xl leading-relaxed">
-            Translate your skill-based opportunities into concrete, sustainable economic activities. 
-            Experiment with pricing, customer volumes, and real cost structures to discover your break-even point.
-          </p>
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-slate-950 dark:text-white tracking-tight font-heading">
+              BUILD MY BUSINESS
+            </h1>
+            <p className="text-slate-600 dark:text-slate-400 text-sm max-w-3xl leading-relaxed mt-1">
+              Translate your skill-based capabilities into a viable micro-enterprise through a guided step-by-step framework.
+              Structure real costs, validate customer willingness to pay, and discover your break-even threshold.
+            </p>
+          </div>
 
-          {/* Connected Continuum Path & Quick Scenario Presets */}
-          <div className="mt-6 pt-5 border-t border-slate-800/80 space-y-4">
-            <div>
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
-                <span>Preloaded Vocational Domain Models (1-Click Switch)</span>
-                <span className="text-[10px] text-emerald-400 font-normal">Real Unit Economics & Overheads</span>
-              </div>
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-                {CBSE_PRESET_SCENARIOS.map((preset) => (
-                  <button
-                    key={preset.id}
-                    onClick={() => {
-                      loadScenarioIntoState(preset);
-                      setActiveScenario(preset);
-                    }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 border ${
-                      activeScenario?.id === preset.id || scenarioName === preset.scenarioName
-                        ? 'bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-900/30 font-semibold'
-                        : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700/60'
-                    }`}
-                  >
-                    <span>{preset.skillName}:</span>
-                    <span className="text-slate-200">{preset.scenarioName}</span>
-                    <span className="text-[10px] opacity-75 font-mono">(₹{preset.pricePerUnit}/unit)</span>
-                  </button>
-                ))}
-              </div>
+          {/* Quick Domain Presets */}
+          <div className="pt-4 border-t border-slate-100">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+              <span>PRELOADED VOCATIONAL MODELS (1-CLICK SWITCH)</span>
+              <span className="text-emerald-700 font-mono text-[10px]">Real unit economics</span>
             </div>
-
-            <div>
-              <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2.5">
-                Integrated Kaushal Setu Continuum
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-slate-300 overflow-x-auto pb-2 scrollbar-none">
-                <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-blue-400 font-medium whitespace-nowrap">1. My Skills</span>
-                <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
-                <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-indigo-400 font-medium whitespace-nowrap">2. Opportunity</span>
-                <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
-                <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-amber-400 font-medium whitespace-nowrap">3. Problem & Customer</span>
-                <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
-                <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-purple-400 font-medium whitespace-nowrap">4. Solution</span>
-                <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
-                <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 whitespace-nowrap">
-                  5. Financial Model & Break-Even
-                </span>
-              </div>
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+              {CBSE_PRESET_SCENARIOS.map((preset) => (
+                <button
+                  key={preset.id}
+                  onClick={() => {
+                    loadScenarioIntoState(preset);
+                    setActiveScenario(preset);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 border ${
+                    activeScenario?.id === preset.id || scenarioName === preset.scenarioName
+                      ? 'bg-navy-950 text-white border-navy-950 shadow-xs font-semibold'
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                  }`}
+                >
+                  <span className="font-semibold">{preset.skillName}:</span>
+                  <span>{preset.scenarioName}</span>
+                  <span className="text-[11px] opacity-80 font-mono">(₹{preset.pricePerUnit}/unit)</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Primary Module Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-800 pb-2">
+      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-2">
         <button
           id="tab-business-model"
           onClick={() => setActiveTab('model')}
-          className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-xl font-semibold text-xs md:text-sm transition-all flex items-center gap-2 ${
             activeTab === 'model'
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40'
-              : 'bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+              ? 'bg-navy-950 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
           }`}
         >
           <Layers className="w-4 h-4" />
-          1. Business Model Builder
+          1. Guided Venture Process (8 Steps)
         </button>
 
         <button
           id="tab-financial-simulator"
           onClick={() => setActiveTab('simulator')}
-          className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-xl font-semibold text-xs md:text-sm transition-all flex items-center gap-2 ${
             activeTab === 'simulator'
-              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40'
-              : 'bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+              ? 'bg-navy-950 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
           }`}
         >
           <Calculator className="w-4 h-4" />
@@ -321,10 +325,10 @@ export const BusinessBuilder: React.FC = () => {
         <button
           id="tab-comparison-matrix"
           onClick={() => setActiveTab('comparison')}
-          className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-xl font-semibold text-xs md:text-sm transition-all flex items-center gap-2 ${
             activeTab === 'comparison'
-              ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/40'
-              : 'bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+              ? 'bg-navy-950 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
           }`}
         >
           <TrendingUp className="w-4 h-4" />
@@ -334,262 +338,687 @@ export const BusinessBuilder: React.FC = () => {
         <button
           id="tab-summary-card"
           onClick={() => setActiveTab('summary')}
-          className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-xl font-semibold text-xs md:text-sm transition-all flex items-center gap-2 ${
             activeTab === 'summary'
-              ? 'bg-amber-600 text-white shadow-lg shadow-amber-900/40'
-              : 'bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+              ? 'bg-navy-950 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
           }`}
         >
           <FileText className="w-4 h-4" />
-          4. Exportable Model Summary
+          4. Exportable Summary
         </button>
       </div>
 
-      {/* TAB 1: BUSINESS MODEL BUILDER */}
+      {/* TAB 1: GUIDED 8-STEP VENTURE-BUILDING PROCESS */}
       {activeTab === 'model' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            {/* Step 0: Opportunity Context */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">Opportunity Foundation</span>
-                <button
-                  onClick={() => navigate('/opportunities')}
-                  className="text-xs text-slate-400 hover:text-blue-400 flex items-center gap-1"
-                >
-                  Browse other opportunities <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1.5">Selected Opportunity</label>
-                  <select
-                    id="select-opportunity-dropdown"
-                    value={opportunityId}
-                    onChange={(e) => {
-                      const selected = availableOpportunities.find(o => o.id === e.target.value);
-                      if (selected) {
-                        setOpportunityId(selected.id);
-                        const skillFound = (allSkills || []).find(s => s && selected.requiredSkills?.includes(s.id));
-                        setSkillName(skillFound?.name || selected.requiredSkills?.[0] || 'Technical Skill');
-                        setProblem(selected.problemProfile?.overview || selected.problems?.[0] || `Demand exists for ${selected.title}.`);
-                        setCustomerSegment(selected.usersProfile?.primaryAudience || selected.targetUsers?.[0] || 'Small businesses and organizations');
-                        setSolution(selected.solutionProfile?.summary || selected.solution);
-                      }
-                    }}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
-                  >
-                    {availableOpportunities.map(opp => (
-                      <option key={opp.id} value={opp.id}>
-                        {opp.title} ({opp.requiredSkills?.slice(0, 2).join(', ')})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1.5">Scenario Label</label>
-                  <input
-                    id="input-scenario-name"
-                    type="text"
-                    value={scenarioName}
-                    onChange={(e) => setScenarioName(e.target.value)}
-                    placeholder="e.g. Basic, Growth, or Premium"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
+        <div className="space-y-6">
+          {/* 8-STEP GUIDED PIPELINE BAR (ONLY HIGHLIGHT CURRENT STEP) */}
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400">
+                VENTURE CREATION STAGES
+              </span>
+              <span className="text-xs font-mono font-semibold text-navy-950">
+                STEP {String(ventureStepIndex + 1).padStart(2, '0')} / 08 • {VENTURE_STEPS[ventureStepIndex].label}
+              </span>
             </div>
 
-            {/* Step 01: Problem */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold flex items-center justify-center border border-blue-500/40">
-                  01
-                </span>
-                <h2 className="text-base font-bold text-white">THE PROBLEM</h2>
-              </div>
-              <p className="text-xs text-slate-400 mb-3">
-                What friction, struggle, or unfulfilled need does the customer face in their daily routine or work?
-              </p>
-              <textarea
-                id="input-problem-textarea"
-                rows={3}
-                value={problem}
-                onChange={(e) => setProblem(e.target.value)}
-                placeholder="Describe the specific real-world problem..."
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-blue-500"
-              />
-            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+              {VENTURE_STEPS.map((step, idx) => {
+                const isCurrent = idx === ventureStepIndex;
+                const isCompleted = idx < ventureStepIndex;
 
-            {/* Step 02: Customer */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-xs font-bold flex items-center justify-center border border-indigo-500/40">
-                  02
-                </span>
-                <h2 className="text-base font-bold text-white">THE CUSTOMER SEGMENT</h2>
-              </div>
-              <p className="text-xs text-slate-400 mb-3">
-                Who experiences this problem most acutely and has both the authority and incentive to pay?
-              </p>
-              <input
-                id="input-customer-segment"
-                type="text"
-                value={customerSegment}
-                onChange={(e) => setCustomerSegment(e.target.value)}
-                placeholder="e.g. Local bakeries, independent tutors, residential housing societies"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 mb-3"
-              />
-              <div className="flex flex-wrap gap-2 text-xs">
-                <span className="text-slate-500 font-medium">Quick suggestions:</span>
-                {['Local neighborhood shops', 'Tutors & small academies', 'Restaurants & cafes', 'Residential societies', 'Handicraft artisans'].map((seg, idx) => (
+                return (
                   <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setCustomerSegment(seg)}
-                    className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors"
+                    key={step.id}
+                    onClick={() => setVentureStepIndex(idx)}
+                    className={`p-2.5 rounded-xl border text-left transition-all ${
+                      isCurrent
+                        ? 'bg-navy-950 text-white border-navy-950 shadow-xs'
+                        : isCompleted
+                        ? 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                        : 'bg-white text-slate-400 border-slate-200/60 hover:text-slate-600'
+                    }`}
                   >
-                    + {seg}
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-mono ${isCurrent ? 'text-blue-300' : 'text-slate-400'}`}>
+                        0{idx + 1}
+                      </span>
+                      {isCompleted && <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
+                    </div>
+                    <div className="font-bold text-xs mt-0.5 tracking-tight">
+                      {step.label}
+                    </div>
+                    <div className={`text-[10px] truncate ${isCurrent ? 'text-slate-300' : 'text-slate-400'}`}>
+                      {step.desc}
+                    </div>
                   </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Step 03: Solution */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold flex items-center justify-center border border-amber-500/40">
-                  03
-                </span>
-                <h2 className="text-base font-bold text-white">THE SOLUTION</h2>
-              </div>
-              <p className="text-xs text-slate-400 mb-3">
-                What concrete service or deliverable will you provide using your acquired skill set?
-              </p>
-              <textarea
-                id="input-solution-textarea"
-                rows={3}
-                value={solution}
-                onChange={(e) => setSolution(e.target.value)}
-                placeholder="Describe your service package or tangible deliverable..."
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-amber-500"
-              />
-            </div>
-
-            {/* Step 04: What Value Do You Create? */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center justify-center border border-emerald-500/40">
-                  04
-                </span>
-                <h2 className="text-base font-bold text-white">WHAT VALUE DO YOU CREATE?</h2>
-              </div>
-              <p className="text-xs text-slate-400 mb-4">
-                Economic viability requires creating distinct, measurable value that makes paying you worthwhile for the client.
-              </p>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    1. What specifically improves for the customer?
-                  </label>
-                  <input
-                    type="text"
-                    value={valueCreated.customerBenefit}
-                    onChange={(e) => setValueCreated({ ...valueCreated, customerBenefit: e.target.value })}
-                    placeholder="e.g. Saves them 8 hours weekly and boosts walk-in customer inquiries by 25%"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    2. Why would the customer pay for this rather than doing it themselves?
-                  </label>
-                  <input
-                    type="text"
-                    value={valueCreated.willingnessToPay}
-                    onChange={(e) => setValueCreated({ ...valueCreated, willingnessToPay: e.target.value })}
-                    placeholder="e.g. They lack specialized technical skills and commercial software subscriptions"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Advance to simulator action */}
-            <div className="flex justify-end gap-3 pt-2">
-              <button
-                onClick={() => {
-                  handleSaveCurrentScenario();
-                  setActiveTab('simulator');
-                }}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-bold text-sm shadow-xl flex items-center gap-2"
-              >
-                Continue to Pricing & Financial Simulator
-                <ArrowRight className="w-4 h-4" />
-              </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Right Sidebar: Live Preview Snapshot */}
-          <div className="space-y-6">
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sticky top-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <Calculator className="w-4 h-4 text-emerald-400" />
-                  Model Snapshot
-                </h3>
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                  financials.sustainabilityBadge === 'emerald' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                  financials.sustainabilityBadge === 'rose' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' :
-                  'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                }`}>
-                  {financials.sustainabilityStatus}
-                </span>
+          {/* MAIN FOCUSED STEP EDITOR + LIVE MODEL SNAPSHOT */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              
+              {/* STEP 0: IDEA */}
+              {ventureStepIndex === 0 && (
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-6 md:p-8 shadow-xs space-y-6">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                      <span className="text-[11px] font-mono text-blue-600 font-bold uppercase tracking-wider block">
+                        STEP 01 OF 08
+                      </span>
+                      <h2 className="text-xl font-bold text-navy-950 font-space mt-0.5">
+                        IDEA & OPPORTUNITY FOUNDATION
+                      </h2>
+                    </div>
+                    <button
+                      onClick={() => navigate('/opportunities')}
+                      className="text-xs text-blue-600 hover:underline flex items-center gap-1 font-medium"
+                    >
+                      Browse opportunities <ArrowUpRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Ground your venture in a real vocational opportunity. Pick an initiative from your opportunity matches or define a tailored scenario.
+                  </p>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Linked Vocational Opportunity
+                      </label>
+                      <select
+                        id="select-opportunity-dropdown"
+                        value={opportunityId}
+                        onChange={(e) => {
+                          const selected = availableOpportunities.find(o => o.id === e.target.value);
+                          if (selected) {
+                            setOpportunityId(selected.id);
+                            const skillFound = (allSkills || []).find(s => s && selected.requiredSkills?.includes(s.id));
+                            setSkillName(skillFound?.name || selected.requiredSkills?.[0] || 'Technical Skill');
+                            setProblem(selected.problemProfile?.overview || selected.problems?.[0] || `Demand exists for ${selected.title}.`);
+                            setCustomerSegment(selected.usersProfile?.primaryAudience || selected.targetUsers?.[0] || 'Small businesses and organizations');
+                            setSolution(selected.solutionProfile?.summary || selected.solution);
+                          }
+                        }}
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-navy-950 text-sm focus:outline-none focus:border-navy-950"
+                      >
+                        {availableOpportunities.map(opp => (
+                          <option key={opp.id} value={opp.id}>
+                            {opp.title} ({opp.requiredSkills?.slice(0, 2).join(', ')})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                          Scenario Label
+                        </label>
+                        <input
+                          id="input-scenario-name"
+                          type="text"
+                          value={scenarioName}
+                          onChange={(e) => setScenarioName(e.target.value)}
+                          placeholder="e.g. Starter Service, Growth Tier"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-navy-950 text-sm focus:outline-none focus:border-navy-950"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                          Core Skill Used
+                        </label>
+                        <input
+                          type="text"
+                          value={skillName}
+                          onChange={(e) => setSkillName(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-navy-950 text-sm focus:outline-none focus:border-navy-950"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 1: PROBLEM */}
+              {ventureStepIndex === 1 && (
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-6 md:p-8 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-4">
+                    <span className="text-[11px] font-mono text-blue-600 font-bold uppercase tracking-wider block">
+                      STEP 02 OF 08
+                    </span>
+                    <h2 className="text-xl font-bold text-navy-950 font-space mt-0.5">
+                      THE REAL-WORLD PROBLEM
+                    </h2>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    What specific struggle, bottleneck, or unfulfilled friction does your customer face in their everyday routine or operations?
+                  </p>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-2">
+                      Problem Statement
+                    </label>
+                    <textarea
+                      id="input-problem-textarea"
+                      rows={4}
+                      value={problem}
+                      onChange={(e) => setProblem(e.target.value)}
+                      placeholder="Describe the exact friction experienced by the client..."
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3.5 text-navy-950 text-sm focus:outline-none focus:border-navy-950 leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="p-3.5 bg-blue-50/50 rounded-xl border border-blue-100 text-xs text-blue-900">
+                    <strong className="block font-semibold mb-1">Guidance from G-ONE:</strong>
+                    A well-defined problem is specific and observable. Instead of "They need designs", articulate "Neighborhood cafes lose takeaway orders because their physical menus are illegible on mobile phones."
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 2: CUSTOMER */}
+              {ventureStepIndex === 2 && (
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-6 md:p-8 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-4">
+                    <span className="text-[11px] font-mono text-blue-600 font-bold uppercase tracking-wider block">
+                      STEP 03 OF 08
+                    </span>
+                    <h2 className="text-xl font-bold text-navy-950 font-space mt-0.5">
+                      THE CUSTOMER SEGMENT
+                    </h2>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Who experiences this friction most acutely and has both the incentive and means to pay for a student-delivered solution?
+                  </p>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-2">
+                      Target Audience / Client Group
+                    </label>
+                    <input
+                      id="input-customer-segment"
+                      type="text"
+                      value={customerSegment}
+                      onChange={(e) => setCustomerSegment(e.target.value)}
+                      placeholder="e.g. Local bakeries, neighborhood tutors, residential welfare associations"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-navy-950 text-sm focus:outline-none focus:border-navy-950 mb-3"
+                    />
+
+                    <div className="flex flex-wrap items-center gap-2 text-xs pt-1">
+                      <span className="text-slate-400 font-medium">Quick suggestions:</span>
+                      {['Local neighborhood shops', 'Tutors & academies', 'Restaurants & cafes', 'Residential societies', 'Handicraft artisans'].map((seg, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setCustomerSegment(seg)}
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+                        >
+                          + {seg}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: SOLUTION */}
+              {ventureStepIndex === 3 && (
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-6 md:p-8 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-4">
+                    <span className="text-[11px] font-mono text-blue-600 font-bold uppercase tracking-wider block">
+                      STEP 04 OF 08
+                    </span>
+                    <h2 className="text-xl font-bold text-navy-950 font-space mt-0.5">
+                      THE SOLUTION DELIVERABLE
+                    </h2>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    What tangible service package or concrete artifact will you deliver using your current competencies?
+                  </p>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-2">
+                      Service / Product Deliverable Description
+                    </label>
+                    <textarea
+                      id="input-solution-textarea"
+                      rows={4}
+                      value={solution}
+                      onChange={(e) => setSolution(e.target.value)}
+                      placeholder="Describe your concrete deliverable..."
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3.5 text-navy-950 text-sm focus:outline-none focus:border-navy-950 leading-relaxed"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 4: VALUE */}
+              {ventureStepIndex === 4 && (
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-6 md:p-8 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-4">
+                    <span className="text-[11px] font-mono text-blue-600 font-bold uppercase tracking-wider block">
+                      STEP 05 OF 08
+                    </span>
+                    <h2 className="text-xl font-bold text-navy-950 font-space mt-0.5">
+                      VALUE CREATED & WILLINGNESS TO PAY
+                    </h2>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Clients do not buy skills; they buy outcomes. Articulate the concrete benefit and why paying you makes financial sense.
+                  </p>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        1. What specifically improves for the customer?
+                      </label>
+                      <input
+                        type="text"
+                        value={valueCreated.customerBenefit}
+                        onChange={(e) => setValueCreated({ ...valueCreated, customerBenefit: e.target.value })}
+                        placeholder="e.g. Saves them 6 hours a week and increases customer inquiries"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-navy-950 text-sm focus:outline-none focus:border-navy-950"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        2. Why will they pay you instead of doing it themselves?
+                      </label>
+                      <input
+                        type="text"
+                        value={valueCreated.willingnessToPay}
+                        onChange={(e) => setValueCreated({ ...valueCreated, willingnessToPay: e.target.value })}
+                        placeholder="e.g. They lack specialized tools, design sense, and dedicated time"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-navy-950 text-sm focus:outline-none focus:border-navy-950"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 5: COST */}
+              {ventureStepIndex === 5 && (
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-6 md:p-8 shadow-xs space-y-6">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                      <span className="text-[11px] font-mono text-blue-600 font-bold uppercase tracking-wider block">
+                        STEP 06 OF 08
+                      </span>
+                      <h2 className="text-xl font-bold text-navy-950 font-space mt-0.5">
+                        COST & EXPENSE STRUCTURE
+                      </h2>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] font-mono text-slate-400 block uppercase">TOTAL MONTHLY COSTS</span>
+                      <span className="text-lg font-bold font-mono text-navy-950">₹{financials.totalCost.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Fixed Costs */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
+                          Fixed Monthly Overheads (Paid regardless of volume)
+                        </h3>
+                        <p className="text-[11px] text-slate-500">e.g. Tools subscription, cloud storage, workspace</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddFixedCost}
+                        className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1 transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Add Fixed Cost
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {fixedCosts.length === 0 ? (
+                        <div className="p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-500">
+                          ₹0 fixed overheads (zero-asset starting model)
+                        </div>
+                      ) : (
+                        fixedCosts.map(item => (
+                          <div key={item.id} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                            <input
+                              type="text"
+                              value={item.name}
+                              onChange={(e) => handleUpdateCost(fixedCosts, setFixedCosts, item.id, 'name', e.target.value)}
+                              className="flex-1 bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs text-navy-950"
+                            />
+                            <div className="flex items-center gap-1">
+                              <span className="text-xs text-slate-400 font-mono">₹</span>
+                              <input
+                                type="number"
+                                value={item.amount}
+                                onChange={(e) => handleUpdateCost(fixedCosts, setFixedCosts, item.id, 'amount', e.target.value)}
+                                className="w-24 bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs text-navy-950 font-mono font-semibold"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteCost(fixedCosts, setFixedCosts, item.id)}
+                              className="text-slate-400 hover:text-rose-600 p-1 rounded"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Variable Costs */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
+                          Variable Costs Per Customer (Rises with volume)
+                        </h3>
+                        <p className="text-[11px] text-slate-500">e.g. Transit, printing, client materials</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddVariableCost}
+                        className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1 transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Add Unit Cost
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {variableCosts.length === 0 ? (
+                        <div className="p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-500">
+                          ₹0 direct delivery cost
+                        </div>
+                      ) : (
+                        variableCosts.map(item => (
+                          <div key={item.id} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                            <input
+                              type="text"
+                              value={item.name}
+                              onChange={(e) => handleUpdateCost(variableCosts, setVariableCosts, item.id, 'name', e.target.value)}
+                              className="flex-1 bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs text-navy-950"
+                            />
+                            <div className="flex items-center gap-1">
+                              <span className="text-xs text-slate-400 font-mono">₹</span>
+                              <input
+                                type="number"
+                                value={item.amount}
+                                onChange={(e) => handleUpdateCost(variableCosts, setVariableCosts, item.id, 'amount', e.target.value)}
+                                className="w-24 bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs text-navy-950 font-mono font-semibold"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteCost(variableCosts, setVariableCosts, item.id)}
+                              className="text-slate-400 hover:text-rose-600 p-1 rounded"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 6: PRICE */}
+              {ventureStepIndex === 6 && (
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-6 md:p-8 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-4">
+                    <span className="text-[11px] font-mono text-blue-600 font-bold uppercase tracking-wider block">
+                      STEP 07 OF 08
+                    </span>
+                    <h2 className="text-xl font-bold text-navy-950 font-space mt-0.5">
+                      PRICING PER UNIT & CUSTOMER VOLUME
+                    </h2>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Proposed Price Per Unit / Client Session (₹)
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <div className="relative flex-1">
+                          <span className="absolute left-3.5 top-2.5 text-slate-400 font-mono">₹</span>
+                          <input
+                            type="number"
+                            min="50"
+                            step="50"
+                            value={pricePerUnit}
+                            onChange={(e) => setPricePerUnit(Math.max(0, parseInt(e.target.value) || 0))}
+                            className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-8 pr-3.5 py-2.5 text-navy-950 text-base font-mono font-bold focus:outline-none focus:border-navy-950"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {PRESET_PRICES.map(p => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => setPricePerUnit(p)}
+                              className={`px-3 py-2 rounded-xl text-xs font-mono font-semibold border transition-all ${
+                                pricePerUnit === p
+                                  ? 'bg-navy-950 text-white border-navy-950'
+                                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                              }`}
+                            >
+                              ₹{p}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="text-xs font-semibold text-slate-700">
+                          Estimated Monthly Customers Served
+                        </label>
+                        <span className="font-mono text-sm font-bold text-navy-950">{customerCount} clients</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="1"
+                        max="50"
+                        value={customerCount}
+                        onChange={(e) => setCustomerCount(parseInt(e.target.value) || 1)}
+                        className="w-full accent-blue-600 cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[11px] text-slate-400 font-mono mt-1">
+                        <span>1 client</span>
+                        <span>25 clients</span>
+                        <span>50 clients</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 7: REVENUE */}
+              {ventureStepIndex === 7 && (
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-6 md:p-8 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-4 flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] font-mono text-blue-600 font-bold uppercase tracking-wider block">
+                        STEP 08 OF 08
+                      </span>
+                      <h2 className="text-xl font-bold text-navy-950 font-space mt-0.5">
+                        REVENUE, SURPLUS & BREAK-EVEN
+                      </h2>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase font-mono ${
+                      financials.surplus >= 0 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
+                    }`}>
+                      {financials.sustainabilityStatus}
+                    </span>
+                  </div>
+
+                  {/* 3 Metric Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                      <span className="text-[11px] font-mono uppercase text-slate-500 block mb-1">PROJECTED REVENUE</span>
+                      <div className="text-2xl font-bold font-mono text-navy-950">
+                        ₹{financials.revenue.toLocaleString()}
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">₹{pricePerUnit} × {customerCount} clients</span>
+                    </div>
+
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                      <span className="text-[11px] font-mono uppercase text-slate-500 block mb-1">TOTAL EXPENSES</span>
+                      <div className="text-2xl font-bold font-mono text-slate-700">
+                        ₹{financials.totalCost.toLocaleString()}
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">Fixed + Variable</span>
+                    </div>
+
+                    <div className={`p-4 rounded-xl border ${
+                      financials.surplus >= 0 ? 'bg-emerald-50/60 border-emerald-200' : 'bg-rose-50/60 border-rose-200'
+                    }`}>
+                      <span className="text-[11px] font-mono uppercase text-slate-600 block mb-1">
+                        {financials.surplus >= 0 ? 'ESTIMATED SURPLUS' : 'ESTIMATED DEFICIT'}
+                      </span>
+                      <div className={`text-2xl font-bold font-mono ${financials.surplus >= 0 ? 'text-emerald-800' : 'text-rose-800'}`}>
+                        {financials.surplus >= 0 ? `+₹${financials.surplus.toLocaleString()}` : `-₹${Math.abs(financials.surplus).toLocaleString()}`}
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-mono">
+                        Break-even: {financials.breakEvenCustomers !== null ? `${financials.breakEvenCustomers} clients` : 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                    <span className="text-xs font-bold text-navy-950 uppercase tracking-wider block">
+                      G-ONE Educational Summary
+                    </span>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {financials.gOneInsight}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* NAVIGATION FOOTER */}
+              <div className="flex items-center justify-between pt-2">
+                {ventureStepIndex > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setVentureStepIndex(prev => Math.max(0, prev - 1))}
+                    className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors"
+                  >
+                    ← Previous Step
+                  </button>
+                ) : <div />}
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleSaveCurrentScenario}
+                    className="px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors"
+                  >
+                    Save Progress
+                  </button>
+
+                  {ventureStepIndex < 7 ? (
+                    <button
+                      type="button"
+                      onClick={() => setVentureStepIndex(prev => Math.min(7, prev + 1))}
+                      className="px-5 py-2 rounded-xl bg-navy-950 hover:bg-navy-900 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors"
+                    >
+                      <span>Next Step ({VENTURE_STEPS[ventureStepIndex + 1].label})</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSaveCurrentScenario();
+                        setActiveTab('simulator');
+                      }}
+                      className="px-5 py-2 rounded-xl bg-navy-950 hover:bg-navy-900 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors"
+                    >
+                      <span>Open Full What-If Simulator</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
 
-              <div className="space-y-3 text-xs mb-6">
-                <div className="flex justify-between py-2 border-b border-slate-800">
-                  <span className="text-slate-400">Hypothetical Price</span>
-                  <span className="font-bold text-white">₹{pricePerUnit.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-slate-800">
-                  <span className="text-slate-400">Customer Volume</span>
-                  <span className="font-bold text-white">{customerCount} / month</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-slate-800">
-                  <span className="text-slate-400">Projected Revenue</span>
-                  <span className="font-bold text-emerald-400">₹{financials.revenue.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-slate-800">
-                  <span className="text-slate-400">Total Costs</span>
-                  <span className="font-bold text-slate-300">₹{financials.totalCost.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-slate-800">
-                  <span className="text-slate-400">Surplus / (Deficit)</span>
-                  <span className={`font-bold ${financials.surplus >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {financials.surplus >= 0 ? `+₹${financials.surplus.toLocaleString()}` : `-₹${Math.abs(financials.surplus).toLocaleString()}`}
-                  </span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="text-slate-400">Break-Even Needed</span>
-                  <span className="font-bold text-blue-400">
-                    {financials.breakEvenCustomers !== null ? `${financials.breakEvenCustomers} customers` : 'N/A'}
-                  </span>
-                </div>
-              </div>
+            </div>
 
-              <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                <div className="flex items-center gap-2 mb-2 text-xs font-bold text-blue-400">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  G-ONE Financial Teacher
+            {/* RIGHT SIDEBAR: CLEAN LIVE MODEL SNAPSHOT */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs sticky top-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="text-xs font-mono font-bold text-navy-950 uppercase tracking-wider flex items-center gap-2">
+                    <Calculator className="w-4 h-4 text-blue-600" />
+                    Venture Snapshot
+                  </h3>
+                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase ${
+                    financials.sustainabilityBadge === 'emerald' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
+                    financials.sustainabilityBadge === 'rose' ? 'bg-rose-50 text-rose-800 border border-rose-200' :
+                    'bg-amber-50 text-amber-800 border border-amber-200'
+                  }`}>
+                    {financials.sustainabilityStatus}
+                  </span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  {financials.gOneInsight}
-                </p>
+
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex justify-between py-1.5 border-b border-slate-100">
+                    <span className="text-slate-500">Scenario</span>
+                    <span className="font-semibold text-navy-950">{scenarioName}</span>
+                  </div>
+                  <div className="flex justify-between py-1.5 border-b border-slate-100">
+                    <span className="text-slate-500">Unit Price</span>
+                    <span className="font-mono font-bold text-navy-950">₹{pricePerUnit.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between py-1.5 border-b border-slate-100">
+                    <span className="text-slate-500">Target Volume</span>
+                    <span className="font-mono font-bold text-navy-950">{customerCount} clients/mo</span>
+                  </div>
+                  <div className="flex justify-between py-1.5 border-b border-slate-100">
+                    <span className="text-slate-500">Gross Revenue</span>
+                    <span className="font-mono font-bold text-navy-950">₹{financials.revenue.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between py-1.5 border-b border-slate-100">
+                    <span className="text-slate-500">Operating Costs</span>
+                    <span className="font-mono font-bold text-slate-700">₹{financials.totalCost.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between py-1.5 border-b border-slate-100">
+                    <span className="text-slate-500">Net Surplus</span>
+                    <span className={`font-mono font-bold ${financials.surplus >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      {financials.surplus >= 0 ? `+₹${financials.surplus.toLocaleString()}` : `-₹${Math.abs(financials.surplus).toLocaleString()}`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1.5">
+                    <span className="text-slate-500">Break-Even Needed</span>
+                    <span className="font-mono font-bold text-navy-950">
+                      {financials.breakEvenCustomers !== null ? `${financials.breakEvenCustomers} clients` : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-blue-700 mb-1">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>G-ONE Guidance</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                    {financials.gOneInsight}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -1303,7 +1732,7 @@ export const BusinessBuilder: React.FC = () => {
             <div>
               <h2 className="text-lg font-bold text-white">My Business Model Summary Card</h2>
               <p className="text-xs text-slate-400">
-                Official CBSE Skill Expo exportable summary for portfolios, teacher evaluations, and project exhibitions.
+                Exportable business model summary for portfolios, educator evaluations, and project exhibitions.
               </p>
             </div>
 

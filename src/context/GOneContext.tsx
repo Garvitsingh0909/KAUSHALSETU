@@ -488,7 +488,7 @@ export const GOneProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile({
       name: 'Aarav Patel',
       role: 'Student (Class 10)',
-      schoolOrOrg: 'Delhi Public School (CBSE Skill Expo 2026)',
+      schoolOrOrg: 'Delhi Public School (Class 10 Vocational)',
       interests: 'Product Photography, Digital Micro-Enterprise & Visual Storytelling'
     });
 
