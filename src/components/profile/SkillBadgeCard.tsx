@@ -23,7 +23,8 @@ import {
   HelpCircle,
   Trash2,
   TrendingUp,
-  FileCheck2
+  FileCheck2,
+  Coins
 } from 'lucide-react';
 import { UserSkill } from '../../context/ProfileContext';
 import { Skill } from '../../data/skills';
@@ -70,6 +71,22 @@ export function SkillBadgeCard({
   const selfReportedLevel = userSkill.proficiency;
   const hasSelfReportComparison = isAssessed && selfReportedLevel && selfReportedLevel !== assessedLevel;
 
+  const getRevenueForCategory = (cat: string) => {
+    switch (cat) {
+      case 'Technical':
+        return '₹1,45,000 – ₹3,50,000 / mo';
+      case 'Creative':
+        return '₹85,000 – ₹2,20,000 / mo';
+      case 'Entrepreneurial':
+        return '₹1,20,000 – ₹3,10,000 / mo';
+      case 'Communication':
+        return '₹65,000 – ₹1,80,000 / mo';
+      default:
+        return '₹55,000 – ₹1,50,000 / mo';
+    }
+  };
+  const revenuePotential = getRevenueForCategory(category);
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 12 }}
@@ -105,6 +122,14 @@ export function SkillBadgeCard({
             <h3 className="font-extrabold text-slate-900 text-base sm:text-lg mt-1 group-hover:text-blue-600 transition-colors">
               {skillName}
             </h3>
+
+            {/* High Earning Potential Tag */}
+            <div className="mt-1.5 flex items-center gap-1.5">
+              <span className="text-[10.5px] font-bold text-amber-900 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md flex items-center gap-1">
+                <Coins className="w-3 h-3 text-amber-600 shrink-0" />
+                Revenue Potential: <span className="font-mono text-amber-800">{revenuePotential}</span>
+              </span>
+            </div>
           </div>
 
           {onRemoveSkill && (
@@ -165,38 +190,20 @@ export function SkillBadgeCard({
           </div>
         </div>
 
-        {/* Real Skill Definition & High Market Valuation Banner */}
-        <div className="p-3 rounded-xl bg-emerald-950 text-white space-y-2 mb-3 shadow-xs">
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="font-extrabold text-emerald-400 flex items-center gap-1 uppercase tracking-wider">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> Market Valuation
-            </span>
-            <span className="font-mono font-bold text-emerald-300">
-              {skillDetails?.averageHourlyRate || '$145/hr'}
-            </span>
-          </div>
-
-          <p className="text-[11px] text-slate-200 leading-snug line-clamp-2">
-            {skillDetails?.realWorldDefinition || skillDetails?.description || `Professional mastery in ${skillName} delivering high-value automated workflows and client solutions.`}
+        {/* Skill Overview & Tool Stack */}
+        <div className="my-3 space-y-2.5">
+          <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+            {skillDetails?.description || `Hands-on practical capability in ${skillName} for real-world project execution.`}
           </p>
 
           {/* Tool Stack Tags */}
           {skillDetails?.toolStack && skillDetails.toolStack.length > 0 && (
-            <div className="flex items-center gap-1 flex-wrap pt-1 border-t border-emerald-800/60">
-              <span className="text-[10px] text-emerald-300 font-bold uppercase mr-1">Stack:</span>
+            <div className="flex items-center gap-1.5 flex-wrap">
               {skillDetails.toolStack.slice(0, 4).map((tool, idx) => (
-                <span key={idx} className="text-[10px] font-medium bg-emerald-900/90 text-emerald-200 px-2 py-0.5 rounded border border-emerald-700/60 font-mono">
+                <span key={idx} className="text-[10px] font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200/80">
                   {tool}
                 </span>
               ))}
-            </div>
-          )}
-
-          {/* Unique Matched Opportunity Tag */}
-          {skillDetails?.opportunities && skillDetails.opportunities.length > 0 && (
-            <div className="pt-1 flex items-center gap-1 text-[10px] text-amber-300 font-bold truncate">
-              <Award className="w-3 h-3 text-amber-400 shrink-0" />
-              <span className="truncate">Matched: {skillDetails.opportunities[0]}</span>
             </div>
           )}
         </div>

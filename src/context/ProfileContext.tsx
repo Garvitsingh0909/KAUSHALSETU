@@ -29,24 +29,6 @@ export interface UserSkill {
   latestRubricScore?: number;
 }
 
-export interface EarningMilestone {
-  id: string;
-  title: string;
-  amount: number;
-  date: string;
-  skillId?: string;
-  category?: string;
-  notes?: string;
-}
-
-export interface FinancialGoal {
-  monthlyTargetINR: number;
-  savingsTargetINR: number;
-  targetMonth: string;
-  selectedSkillIds: string[];
-  milestones: EarningMilestone[];
-}
-
 interface ProfileContextType {
   profile: UserProfile;
   setProfile: (profile: UserProfile | ((prev: UserProfile) => UserProfile)) => void;
@@ -55,10 +37,6 @@ interface ProfileContextType {
   allSkills: Skill[];
   customOpportunities: Opportunity[];
   isAdministrator: boolean;
-  financialGoal: FinancialGoal;
-  updateFinancialGoal: (goal: Partial<FinancialGoal>) => void;
-  addEarningMilestone: (milestone: Omit<EarningMilestone, 'id'>) => void;
-  removeEarningMilestone: (id: string) => void;
   addSkill: (skillId: string) => void;
   addCustomSkill: (skill: Skill) => void;
   addCustomOpportunity: (opp: Opportunity) => void;
@@ -79,45 +57,61 @@ interface ProfileContextType {
 }
 
 const defaultProfile: UserProfile = {
-  name: '',
-  email: '',
-  role: '',
+  name: 'Garvit Singh',
+  email: 'garvit.singh@student.edu.in',
+  role: 'Student',
   systemRole: 'student',
   accountStatus: 'active',
   createdDate: '2026-02-01',
   lastLogin: '2026-03-13 09:00:00',
   permissions: [],
-  schoolOrOrg: '',
-  academicGrade: 'Class 10',
-  interests: ''
+  schoolOrOrg: 'Sunbeam Mau',
+  academicGrade: 'Class 10 (Secondary Vocational)',
+  interests: 'Coding & Web Development, Graphic Design & Branding, Robotics & IoT, Sustainable Energy'
 };
 
-const defaultFinancialGoal: FinancialGoal = {
-  monthlyTargetINR: 5000,
-  savingsTargetINR: 2000,
-  targetMonth: 'October 2026',
-  selectedSkillIds: ['graphic_design', 'coding', 'photography'],
-  milestones: [
-    {
-      id: 'm-1',
-      title: 'Bakery Menu Redesign Project',
-      amount: 1500,
-      date: '2026-09-22',
-      skillId: 'graphic_design',
-      category: 'Freelance Service',
-      notes: 'Delivered print & WhatsApp graphics for local bakery'
-    },
-    {
-      id: 'm-2',
-      title: 'School Club Website Landing Page',
-      amount: 1000,
-      date: '2026-09-25',
-      skillId: 'coding',
-      category: 'Web Project',
-      notes: 'Built 1-page responsive portal on Vercel'
-    }
-  ]
-};
+const defaultUserSkills: UserSkill[] = [
+  { 
+    skillId: 'graphic_design', 
+    proficiency: 'Advanced',
+    indicativeProficiency: 'Advanced',
+    evidenceLevel: 'High evidence',
+    lastAssessedDate: '2026-03-12',
+    attemptsCount: 3,
+    latestScorePercentage: 94,
+    latestRubricScore: 20
+  },
+  { 
+    skillId: 'coding', 
+    proficiency: 'Strong',
+    indicativeProficiency: 'Strong',
+    evidenceLevel: 'High evidence',
+    lastAssessedDate: '2026-03-10',
+    attemptsCount: 2,
+    latestScorePercentage: 86,
+    latestRubricScore: 18
+  },
+  { 
+    skillId: 'communication', 
+    proficiency: 'Strong',
+    indicativeProficiency: 'Strong',
+    evidenceLevel: 'Moderate evidence',
+    lastAssessedDate: '2026-03-06',
+    attemptsCount: 2,
+    latestScorePercentage: 82,
+    latestRubricScore: 17
+  },
+  { 
+    skillId: 'financial_literacy', 
+    proficiency: 'Intermediate',
+    indicativeProficiency: 'Intermediate',
+    evidenceLevel: 'Moderate evidence',
+    lastAssessedDate: '2026-03-02',
+    attemptsCount: 1,
+    latestScorePercentage: 74,
+    latestRubricScore: 15
+  }
+];
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
@@ -137,34 +131,19 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     return defaultProfile;
   });
 
-  const [financialGoal, setFinancialGoal] = useState<FinancialGoal>(() => {
-    try {
-      const saved = localStorage.getItem('ks_financial_goal');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed === 'object') {
-          return { ...defaultFinancialGoal, ...parsed };
-        }
-      }
-    } catch (e) {
-      console.error("Failed to parse financial goal:", e);
-    }
-    return defaultFinancialGoal;
-  });
-
   const [userSkills, setUserSkills] = useState<UserSkill[]>(() => {
     try {
       const saved = localStorage.getItem('ks_skills');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed.filter(item => item && item.skillId);
         }
       }
     } catch (e) {
       console.error("Failed to parse saved user skills:", e);
     }
-    return [];
+    return defaultUserSkills;
   });
   
   const [customSkills, setCustomSkills] = useState<Skill[]>(() => {
@@ -204,37 +183,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   }, [profile]);
 
   useEffect(() => {
-    localStorage.setItem('ks_financial_goal', JSON.stringify(financialGoal));
-  }, [financialGoal]);
-
-  useEffect(() => {
     localStorage.setItem('ks_skills', JSON.stringify(userSkills));
   }, [userSkills]);
-
-  const updateFinancialGoal = useCallback((updated: Partial<FinancialGoal>) => {
-    setFinancialGoal(prev => ({
-      ...prev,
-      ...updated
-    }));
-  }, []);
-
-  const addEarningMilestone = useCallback((milestone: Omit<EarningMilestone, 'id'>) => {
-    const newEntry: EarningMilestone = {
-      ...milestone,
-      id: `m-${Date.now()}`
-    };
-    setFinancialGoal(prev => ({
-      ...prev,
-      milestones: [newEntry, ...prev.milestones]
-    }));
-  }, []);
-
-  const removeEarningMilestone = useCallback((id: string) => {
-    setFinancialGoal(prev => ({
-      ...prev,
-      milestones: prev.milestones.filter(m => m.id !== id)
-    }));
-  }, []);
   
   useEffect(() => {
     localStorage.setItem('ks_custom_skills', JSON.stringify(customSkills));
@@ -348,24 +298,22 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     setUserSkills([]);
     setCustomSkills([]);
     setCustomOpportunities([]);
-    setFinancialGoal(defaultFinancialGoal);
     localStorage.removeItem('ks_profile');
     localStorage.removeItem('ks_skills');
     localStorage.removeItem('ks_custom_skills');
     localStorage.removeItem('ks_custom_opps');
-    localStorage.removeItem('ks_financial_goal');
   }, []);
 
   const triggerDemoMode = useCallback(() => {
     setProfile(prev => ({
       ...defaultProfile,
       ...prev,
-      name: 'Aarav Patel',
-      email: 'aarav.patel@student.edu.in',
+      name: 'Garvit Singh',
+      email: 'garvit.singh@student.edu.in',
       role: 'Student',
-      schoolOrOrg: 'Delhi Public School, R.K. Puram (Vocational Wing)',
+      schoolOrOrg: 'Sunbeam Mau',
       academicGrade: 'Class 10 (Secondary Vocational)',
-      interests: 'Robotics & IoT, Sustainable Energy, Digital Arts & Media, Financial Tech'
+      interests: 'Coding & Web Development, Graphic Design & Branding, Robotics & IoT, Sustainable Energy'
     }));
     setUserSkills([
       { 
@@ -465,10 +413,6 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       allSkills,
       customOpportunities,
       isAdministrator,
-      financialGoal,
-      updateFinancialGoal,
-      addEarningMilestone,
-      removeEarningMilestone,
       addSkill,
       addCustomSkill,
       addCustomOpportunity,

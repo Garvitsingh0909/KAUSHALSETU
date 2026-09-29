@@ -27,35 +27,20 @@ function generateSmartSkillFallback(skillName: string) {
   const lower = skillName.toLowerCase();
   
   let category: "Technical" | "Creative" | "Communication" | "Practical" | "Entrepreneurial" = "Practical";
-  let tools = ["Industry Frameworks", "Standard Operating Procedures", "Cloud Management", "Digital Tools"];
-  let hourlyRate = "$125 - $285/hr";
-  let monthlyRev = "$18,500 - $48,000/mo";
-  let projectRange = "$4,500 - $32,000 / contract";
+  let tools = ["Industry Standard Tools", "Standard Operating Procedures", "Digital Workspace"];
 
   if (lower.includes('code') || lower.includes('software') || lower.includes('web') || lower.includes('data') || lower.includes('iot') || lower.includes('robot') || lower.includes('hardware') || lower.includes('python') || lower.includes('ai') || lower.includes('app') || lower.includes('cyber')) {
     category = "Technical";
-    tools = ["TypeScript", "React & Node.js", "Python & PyTorch", "Gemini API & LLM Orchestration", "PostgreSQL & Vector DBs", "Docker & Kubernetes"];
-    hourlyRate = "$145 - $320/hr";
-    monthlyRev = "$24,000 - $65,000/mo";
-    projectRange = "$8,500 - $45,000 / contract";
+    tools = ["TypeScript & React", "Python & Automation", "REST APIs", "Git & GitHub", "Cloud Services"];
   } else if (lower.includes('design') || lower.includes('video') || lower.includes('audio') || lower.includes('photo') || lower.includes('art') || lower.includes('media') || lower.includes('graphic') || lower.includes('ui') || lower.includes('ux') || lower.includes('music') || lower.includes('motion')) {
     category = "Creative";
-    tools = ["Figma & Design Tokens", "Adobe Creative Cloud", "After Effects & Cinema 4D", "Midjourney & Stable Diffusion", "Webflow & Framer"];
-    hourlyRate = "$115 - $250/hr";
-    monthlyRev = "$16,500 - $42,000/mo";
-    projectRange = "$5,000 - $28,000 / contract";
+    tools = ["Figma & Design Systems", "Canva & Adobe CC", "CapCut & Video Editors", "Typography & Color Palettes"];
   } else if (lower.includes('speak') || lower.includes('writing') || lower.includes('pitch') || lower.includes('negotiat') || lower.includes('present') || lower.includes('story') || lower.includes('english') || lower.includes('copy') || lower.includes('brand')) {
     category = "Communication";
-    tools = ["Conversion Copywriting Standards", "Notion Executive Decks", "SEO Keyword Intelligence", "Stakeholder CRM", "Public Relations Toolkits"];
-    hourlyRate = "$120 - $260/hr";
-    monthlyRev = "$15,000 - $38,000/mo";
-    projectRange = "$4,000 - $22,000 / contract";
+    tools = ["Public Speaking Frameworks", "Digital Copywriting", "Presentation Decks", "Active Listening"];
   } else if (lower.includes('market') || lower.includes('sale') || lower.includes('finance') || lower.includes('budget') || lower.includes('cost') || lower.includes('business') || lower.includes('pricing') || lower.includes('startup') || lower.includes('growth')) {
     category = "Entrepreneurial";
-    tools = ["Stripe & Financial Analytics", "Google Analytics 4 & Mixpanel", "HubSpot CRM", "Financial Unit Economics Models", "Meta & Google Ads Manager"];
-    hourlyRate = "$150 - $350/hr";
-    monthlyRev = "$28,000 - $85,000/mo";
-    projectRange = "$12,000 - $65,000 / contract";
+    tools = ["Unit Economics Sheets", "Digital Payment Integration", "CRM & Outreach", "Cost Modeling"];
   }
 
   const trimmed = skillName.trim();
@@ -64,41 +49,31 @@ function generateSmartSkillFallback(skillName: string) {
     id: safeId,
     name: trimmed,
     category,
-    description: `Enterprise-grade mastery in ${trimmed}, focusing on high-ticket client deliverables, scalable architecture, automated workflows, and high-margin monetization.`,
-    realWorldDefinition: `${trimmed} is an essential modern discipline involving high-tier problem solving, strategic execution, toolchain mastery, and commercial value creation. Professionals in this domain combine technical or creative precision with commercial strategy to drive measurable economic return.`,
+    description: `Applied capability in ${trimmed}, focusing on hands-on execution, real-world deliverables, and community or client value creation.`,
+    realWorldDefinition: `${trimmed} involves practical execution, problem solving, and toolchain mastery. Learners applying ${trimmed} build tangible projects, solve local bottlenecks, and develop entrepreneurial confidence.`,
     toolStack: tools,
-    averageHourlyRate: hourlyRate,
-    monthlyRevenuePotential: monthlyRev,
-    projectRateRange: projectRange,
-    marketDemandRating: "Exceptional (98th Percentile)",
-    monetizationModels: [
-      `High-Ticket Enterprise Monthly Retainer (${monthlyRev})`,
-      `Performance-Based Growth & Conversion Royalty`,
-      `Turnkey Fixed-Scope Project Delivery (${projectRange})`,
-      `Specialized Micro-SaaS & Automated Workflow License`
-    ],
     applications: [
-      `Enterprise-grade custom implementations of ${trimmed}`,
-      `Automated AI-assisted workflow optimization using ${trimmed}`,
-      `High-converting client deliverables & strategic consulting packages`,
-      `Turnkey micro-SaaS and recurring retainer service offerings`
+      `Turnkey ${trimmed} client service packages`,
+      `Interactive school exhibition and community demonstration projects`,
+      `Standardized workflow templates and operational guides for ${trimmed}`,
+      `Peer mentoring and digital knowledge-sharing workshops`
     ],
     problemsSolved: [
-      `Inability of traditional vendors to deliver high-quality ${trimmed} at agile speeds`,
-      `High agency overheads costing clients upwards of $20,000/mo without guaranteed ROI`,
-      `Fragmented execution bottlenecks and unstandardized workflows in ${trimmed}`
+      `Lack of structured execution standards in ${trimmed}`,
+      `High costs and complexity of agency services for local small businesses`,
+      `Workflow bottlenecks and inefficient manual processes`
     ],
     opportunities: [
-      `Enterprise ${trimmed} Strategic Consultant ($18,500/mo retainer)`,
-      `Autonomous ${trimmed} AI Workflow Agency ($28,000/mo MRR)`,
-      `High-Ticket ${trimmed} Audit & Security Specialist ($12,000/project)`,
-      `Turnkey ${trimmed} Micro-SaaS Platform ($45,000 ARR)`
+      `Turnkey ${trimmed} Micro-Service Specialist`,
+      `Freelance Project Consultant & Lead`,
+      `Digital Workflow & Media Developer`,
+      `Vocational Workshop Facilitator & Mentor`
     ],
     nextSkills: [
-      category === "Entrepreneurial" ? "Financial Valuation & Exit Strategy" : "High-Ticket Sales & Negotiation",
-      "AI & Automated Workflow Engineering",
-      "Enterprise Contract Security & IP Law",
-      "Growth Marketing & Account Expansion"
+      category === "Entrepreneurial" ? "Financial Accounting" : "Pricing & Cost Modeling",
+      "Client Discovery & Communication",
+      "Digital Presentation & Pitching",
+      "Project Management & Quality Control"
     ]
   };
 }
@@ -137,29 +112,24 @@ async function startServer() {
         try {
           response = await ai.models.generateContent({
             model: 'gemini-3.8-flash',
-            contents: `Generate a rich, highly detailed real-world skill profile for the skill: "${skillName}". Define what this skill ACTUALLY is in real-world professional practice, including its actual tool stack, real industry definition, high market rates, high potential revenue streams, and unique monetizable opportunities. Follow high-value entrepreneurial guidelines ($120-$350/hr market value, $18,000-$75,000/mo potential revenue).`,
+            contents: `Generate a clear, realistic educational skill profile for the skill: "${skillName}". Follow CBSE Skill Expo - Entrepreneurship & Vocational guidelines. Provide an accurate real-world description, tool stack, problems solved, applications, and practical project opportunities.`,
             config: {
               responseMimeType: "application/json",
               responseSchema: {
                 type: Type.OBJECT,
                 properties: {
-                  id: { type: Type.STRING, description: "A unique snake_case ID for the skill, strictly derived from the skill name." },
-                  name: { type: Type.STRING, description: "The properly formatted display name of the skill." },
+                  id: { type: Type.STRING, description: "A unique snake_case ID for the skill." },
+                  name: { type: Type.STRING, description: "Display name of the skill." },
                   category: { type: Type.STRING, enum: ["Technical", "Creative", "Communication", "Practical", "Entrepreneurial"] },
-                  description: { type: Type.STRING, description: "A high-impact 1-2 sentence executive summary of the skill." },
-                  realWorldDefinition: { type: Type.STRING, description: "Comprehensive 2-3 sentence definition explaining what this skill really is in industry, its core methodologies, and real-world scope." },
-                  toolStack: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4-6 specific industry standard frameworks, software, or tools used in this skill." },
-                  averageHourlyRate: { type: Type.STRING, description: "Ambitious hourly rate range, e.g., '$125 - $285/hr'." },
-                  monthlyRevenuePotential: { type: Type.STRING, description: "High monthly revenue potential, e.g., '$18,500 - $55,000/mo'." },
-                  projectRateRange: { type: Type.STRING, description: "Contract price range, e.g., '$6,000 - $35,000 / contract'." },
-                  marketDemandRating: { type: Type.STRING, description: "Market demand rating, e.g., 'Exceptional (98th Percentile)'." },
-                  monetizationModels: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 high-margin revenue models for this skill." },
-                  applications: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 real-world commercial applications of this skill." },
-                  problemsSolved: { type: Type.ARRAY, items: { type: Type.STRING }, description: "3 real-world high-value problems this skill addresses." },
-                  opportunities: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 unique, high-value, distinct monetizable opportunity titles with revenue estimates." },
-                  nextSkills: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 related high-value skills to master next." }
+                  description: { type: Type.STRING, description: "Clear 1-2 sentence overview of the skill." },
+                  realWorldDefinition: { type: Type.STRING, description: "Practical definition explaining what this skill is in real-world projects." },
+                  toolStack: { type: Type.ARRAY, items: { type: Type.STRING }, description: "3-5 tools or frameworks used." },
+                  applications: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 practical applications." },
+                  problemsSolved: { type: Type.ARRAY, items: { type: Type.STRING }, description: "3 real-world problems solved." },
+                  opportunities: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 practical career or freelance opportunities." },
+                  nextSkills: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 related skills to learn next." }
                 },
-                required: ["id", "name", "category", "description", "realWorldDefinition", "toolStack", "averageHourlyRate", "monthlyRevenuePotential", "projectRateRange", "monetizationModels", "applications", "problemsSolved", "opportunities", "nextSkills"]
+                required: ["id", "name", "category", "description", "realWorldDefinition", "toolStack", "applications", "problemsSolved", "opportunities", "nextSkills"]
               }
             }
           });
@@ -190,7 +160,7 @@ async function startServer() {
       if (checkIsQuotaError(error)) {
         recordQuotaExhaustion();
       }
-      console.log(`[Skills Engine] Synthesized real-world skill profile for "${skillName}"`);
+      console.log(`[Skills Engine] Synthesized skill profile for "${skillName}"`);
       return res.json(generateSmartSkillFallback(skillName));
     }
   });

@@ -33,33 +33,17 @@ export interface Skill {
 }
 
 export const SKILLS_DB: Skill[] = COMPREHENSIVE_SKILLS_DB.map(s => {
-  // Compute default high-revenue market benchmarks based on skill category and ID
   const lower = s.id.toLowerCase();
-  let hourlyRate = "$125 - $285/hr";
-  let monthlyRev = "$18,500 - $48,000/mo";
-  let projectRange = "$5,000 - $32,000 / contract";
-  let defaultTools = ["Industry Frameworks", "Standard Operating Procedures", "Cloud Infrastructure", "Digital Automation"];
+  let defaultTools = ["Industry Standard Tools", "SOPs", "Digital Workspace"];
 
   if (s.category === 'Technical' || lower.includes('code') || lower.includes('iot') || lower.includes('data')) {
-    hourlyRate = "$145 - $320/hr";
-    monthlyRev = "$24,000 - $65,000/mo";
-    projectRange = "$8,500 - $45,000 / contract";
-    defaultTools = ["React & Node.js", "Python & PyTorch", "PostgreSQL & Vector DBs", "Gemini API", "Docker", "Tailwind CSS"];
+    defaultTools = ["React & Node.js", "Python & Scripts", "PostgreSQL", "Git & GitHub", "Tailwind CSS"];
   } else if (s.category === 'Creative' || lower.includes('design') || lower.includes('photo') || lower.includes('video')) {
-    hourlyRate = "$115 - $250/hr";
-    monthlyRev = "$16,500 - $42,000/mo";
-    projectRange = "$5,000 - $28,000 / contract";
-    defaultTools = ["Figma & Design Systems", "Adobe Creative Cloud", "After Effects", "Webflow & Framer", "Midjourney & AI Studio"];
+    defaultTools = ["Figma & UI Kits", "Adobe CC & Canva", "CapCut", "Color Systems"];
   } else if (s.category === 'Entrepreneurial' || lower.includes('finance') || lower.includes('market') || lower.includes('sale')) {
-    hourlyRate = "$150 - $350/hr";
-    monthlyRev = "$28,000 - $85,000/mo";
-    projectRange = "$12,000 - $65,000 / contract";
-    defaultTools = ["Stripe & Billing API", "Google Analytics 4", "HubSpot CRM", "Financial Unit Economics Models", "Meta Ads Manager"];
+    defaultTools = ["Spreadsheets & Financial Models", "Payment Gateways", "CRM & Email", "Ads Manager"];
   } else if (s.category === 'Communication') {
-    hourlyRate = "$120 - $260/hr";
-    monthlyRev = "$15,000 - $38,000/mo";
-    projectRange = "$4,000 - $22,000 / contract";
-    defaultTools = ["Conversion Copywriting Standards", "Notion Executive Decks", "SEO Intelligence", "CRM Pipelines", "Public Relations Suite"];
+    defaultTools = ["Copywriting Rules", "Presentation Decks", "SEO Keyword Tools", "Public Speaking"];
   }
 
   return {
@@ -67,18 +51,8 @@ export const SKILLS_DB: Skill[] = COMPREHENSIVE_SKILLS_DB.map(s => {
     name: s.name,
     category: s.category,
     description: s.description,
-    realWorldDefinition: `${s.name} is a high-value vocational discipline encompassing hands-on execution, industry standard toolchains, and strategic client value creation.`,
+    realWorldDefinition: `${s.name} is a practical vocational skill focused on real-world project execution, problem solving, and client value delivery.`,
     toolStack: defaultTools,
-    averageHourlyRate: hourlyRate,
-    monthlyRevenuePotential: monthlyRev,
-    projectRateRange: projectRange,
-    marketDemandRating: "Exceptional (98th Percentile)",
-    monetizationModels: [
-      `High-Ticket Enterprise Monthly Retainer (${monthlyRev})`,
-      `Performance-Based Growth & Conversion Royalty`,
-      `Turnkey Fixed-Scope Project Delivery (${projectRange})`,
-      `Specialized Micro-SaaS & Automated Workflow License`
-    ],
     applications: s.applications || [],
     problemsSolved: s.problemsSolved || [],
     opportunities: s.opportunities || [],
